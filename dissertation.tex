@@ -1,0 +1,104 @@
+\documentclass{dissertation}
+
+\begin{document}
+
+\raggedbottom
+
+% --- preamble ------------------------------------------------------------------------------------
+
+\begin{centering}
+\thispagestyle{empty}
+
+% TITLE PAGE
+
+\textbf{A good title} \\
+\vspace{80 pt}
+By \\
+Kyle Foster Sunden \\
+\vspace{40 pt}
+A dissertation submitted in partial fulfillment of \\
+the requirements for the degree of \\
+\vspace{10 pt}
+Doctor of Philosophy \\
+(Chemistry) \\
+\vspace{40 pt}
+at the \\
+UNIVERSITY OF WISCONSIN - MADISON \\
+2022 \\
+\end{centering}
+
+\vfill
+
+\noindent Date of final oral examination: TODO date \\
+This dissertation is approved by the following members of the Final Oral Committee: \\
+\-\hspace{1cm} John C. Wright, Professor, Analytical Chemistry \\
+% TODO: committee
+
+\pagenumbering{gobble}
+\cleardoublepage  % TODO: remove page number
+
+\pagenumbering{roman}  % must use roman page numbering in preamble
+
+% CONTENTS
+\renewcommand{\baselinestretch}{0.5}\normalsize
+\tableofcontents
+% TODO: consider adding chapter headings to list of figures / list of tables
+\listoffigures
+\listoftables
+\renewcommand{\baselinestretch}{1}\normalsize
+
+% ACKNOWLEDGEMENTS
+\cleardoublepage
+\include{acknowledgements}
+
+% ABSTRACT
+\cleardoublepage
+\include{abstract} % abs
+
+\afterpage{\blankpage}  % introduction must start on ODD page
+
+\doublespacing  % double spacing required for body of paper
+\pagenumbering{arabic}
+
+% chapters ----------------------------------------------------------------------------------------
+
+%\include{introduction/chapter}  % int
+
+\part{Background} \label{prt:background}
+%\include{spectroscopy/chapter}
+%\include{software/chapter}  % sof
+
+\part{Development} \label{prt:development}
+%\include{processing/chapter}  % pro
+%\include{acquisition/chapter}  % acq
+%\include{active_correction/chapter}  % act
+%\include{opa/chapter}  % opa
+%\include{mixed_domain/chapter}
+
+\part{Applications} \label{prt:applications}
+%\include{PbSe_susceptibility/chapter}  % pss
+%\include{PbSe_global_analysis/chapter}  % psg
+%\include{MX2/chapter}  % mx2
+%\include{PEDOT_PSS/chapter}  % pps
+
+% appendix -----------------------------------------------------------------------------------------
+
+\singlespacing
+
+\part{Appendix} \label{prt:appendix}
+\begin{appendix}
+%\include{procedures/chapter}  % prc
+%\include{irf/chapter}  % irf
+%\include{quantitative_ta/chapter}  % qta
+%\include{opa_phase/chapter}  % rpa
+%\include{colophon/chapter}
+\end{appendix}
+
+% post --------------------------------------------------------------------------------------------
+
+\pagenumbering{gobble}
+
+\renewcommand{\arraystretch}{2}  % there is probably a better way...
+\printbibliography
+
+\end{document}
