@@ -12,6 +12,7 @@
 \RequirePackage{afterpage}
 \RequirePackage{xcolor}
 \RequirePackage{array}
+\RequirePackage{url}
 
 % --- layout --------------------------------------------------------------------------------------
 

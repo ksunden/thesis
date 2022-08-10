@@ -1,5 +1,9 @@
 \chapter{Acquistion} \label{cha:acq}
 
+\newcommand\biab{\texttt{bluesky-in-a-box} }
+\newcommand\yaq{\texttt{yaq} }
+\newcommand\wrightfakes{\texttt{wright-fakes} }
+
 \clearpage
 
 \section{Introduction}  % =========================================================================
@@ -15,16 +19,251 @@
 \subsection{\texttt{wright-plans}}
 
 \subsection{\texttt{bluesky-in-a-box}: Background Services to Collect Scientific Data}
-\subsubsection{\texttt{bluesky-queueserver}}
+
+\begin{figure}
+\includegraphics[width=7in]{"acquisition/images/bluesky-in-a-box-architecture"}
+\caption[\texttt{bluesky-in-a-box} architecture]{
+A summary of the parts of the \texttt{bluesky-in-a-box} and the flow of data between them.
+The parts above the line are all run inside of docker, and can be brought online and offline simultaneously.
+The parts below the line are run on the host system and represent the more direct hardware access and the graphical programs to used to interact with the system.
+}
+\label{acq:fig:biab_arch}
+\end{figure}
+
+\subsubsection{Installation}
+\label{biab-install}
+
+\texttt{bluesky-in-a-box} runs all of the services using Docker\cite{}.
+Specifically, \texttt{bluesky-in-a-box} uses Docker Compose\cite{} to simultaneously start and stop all services, accounting for dependencies between them.
+
+\paragraph{Set up hardware virtualization}
+
+Docker is a technology that allows running services in a controlled environment that is isolated from the programs on the host machine.
+To do this, it takes advantage of hardware options on modern Central Processing Units (CPUs).
+The hardware options are available on most CPUs, but are often turned off by default and must be turned on in the BIOS settings.
+The name and location of this setting will depend on the make and model of the hardware, but often are identified by options with names like "KVM" or "Intel Virtualization Technology".
+Technically, this should only be required for Windows and MacOS installations.
+
+\paragraph{Set up WSL (Windows only)}
+
+The docker containers for \texttt{bluesky-in-a-box} define a Linux\cite{} environment for each service.
+Microsoft has invested in the Windows Subsystem for Linux (WSL)\cite{} to make running Linux environments on Windows machines efficient.
+To install on Windows 10 or above, you simply need to open a command prompt as an administrator (cmd.exe or powershell) and run \texttt{wsl --install}.
+The install process will prompt you to reboot the machine.
+It is recommended to install a version of Linux into WSL explicitly, by running \texttt{wsl --install -d debian} (or whatever distribution is your preference).
+
+\paragraph{Install Docker}
+
+On Windows and MacOS, the preferred method of installing Docker is to install Docker Desktop\cite{}.
+This is a standard installer wizard which will guide you through the steps to install.
+Once installed, you should toggle a handful of settings.
+Most notably, under the "Resources->WSL Integration", it should be enabled for all distributions installed.
+Additionally "Docker Compose V2" should be enabled.
+It is also recommended to consider your personal preference and purpose of using docker to determine if starting docker at login is desirable, if you want weekly tips for using Docker, or if you wish to send usage stats to Docker.
+Note that Docker Desktop's license terms require a paid subscription for commercial use, however academic use continues to be free.
+
+On Linux, mostly Docker is installed via the system package manager.
+For a Debian or Ubuntu based system this would be:
+
+\begin{verbatim}
+sudo apt install docker.io
+sudo apt install docker-compose
+\end{verbatim}
+
+It is recommended to add your user account to the \texttt{docker} group to avoid needing to use \texttt{sudo} to perform docker operations:
+
+\begin{verbatim}
+sudo usermod -aG docker $USER
+\end{verbatim}
+
+\paragraph{Configure available \yaq hardware}
+
+This section assumes that the system has \yaq hardware running and set up to be listed by \texttt{yaqd list}.
+If this is a development machine, it is recommended to install \ref{wright-fakes} prior to proceeding.
+
+\texttt{bluesky-in-a-box} uses \texttt{happi}\cite{}, a project created by the Stanford Linear Accelerator Center (SLAC), to communicate what hardware is available to the \texttt{re-manager} and \texttt{hwproxy}.
+It provides a standard way of declaring available hardware and how to create a Bluesky-compatible python object for each.
+Using \texttt{happi} allows the possibility of easily and transparently using hardware supported by additional control layers beyond \texttt{yaq}.
+
+\texttt{happi} is a python package that can be installed with either \texttt{conda install happi} or \texttt{pip install happi}.
+This will install a Command Line Interface (CLI) Application to manage a database (stored as a JSON file) of available hardware.
+
+To get started, set up a configuration file for \texttt{happi}.
+On Windows, start by creating a folder \nolinkurl{~\\AppData\\Local\\happi\\happi}
+Inside of this folder, create a file, \nolinkurl{happi.ini} with the following contents (replacing \texttt{<USERNAME>} with the username that is appropriate for your system):
+
+\begin{verbatim}
+[DEFAULT]
+path = C:\Users\<USERNAME>\AppData\Local\happi\happi\happidb.json
+\end{verbatim}
+
+Follow this by running the following in a command prompt (again, replacing \texttt{USERNAME} with the appropriate username):
+
+\begin{verbatim}
+setx /u <USERNAME> HAPPI_CFG C:\Users\<USERNAME>\AppData\Local\happi\happi\happi.ini
+\end{verbatim}
+
+This sets up an environment variable which is persistent between sessions that tells happi where to load and save changes.
+
+The Linux equivalent would be to create \nolinkurl{~/.config/happi.ini} with the contents of path pointing to \nolinkurl{~/.local/share/happi/happidb.json}.
+
+Once set up, you can add all \texttt{yaq} hardware by doing:
+
+\begin{verbatim}
+yaqd list --format happi | happi update -
+\end{verbatim}
+
+This exports all of the daemons that are recognized by \texttt{yaqd-control} into the happi database.
+If hardware is added to the system (or information like the host or port are updated) then the same line will update happi again.
+
+\paragraph{Configure data folder}
+
+You should create a data folder where \texttt{bluesky-in-a-box} will place the generated \texttt{wt5} files.
+The exact location does not particular matter, but \nolinkurl{~/bluesky-cmds-data} is what will be used in this document.
+
+\paragraph{Download \texttt{bluesky-in-a-box} Docker configuration}
+
+Clone the git repository for \biab:
+
+\begin{verbatim}
+git clone https://github.com/wright-group/bluesky-in-a-box
+\end{verbatim}
+
+There are a few options for the Docker Compose files, a template for the file is provided in the root of the \texttt{bluesky-in-a-box} repository.
+Copy the template file, \nolinkurl{.env-example} to \nolinkurl{.env}, then edit it.
+\texttt{HAPPI\_DB\_PATH} should be set to the full path of \nolinkurl{happidb.json} as specified in \nolinkurl{happi.ini} file above.
+\texttt{WT5\_DATA\_PATH} should be set to the full path of the data folder specified above.
+Finally, \texttt{TZ} should be set to the appropriate timezone where it is running, for example \texttt{America/Chicago}.
+
+
+\paragraph{Start and update containers}
+Start the docker engine, either by opening Docker Desktop (Windows) or by enabling the background docker service (Linux).
+Navigate to the \biab folder in a command prompt.
+If needed, pull new versions or switch to appropriate branches that contain the version of \biab that you need.
+To build for the first time or to perform a standard update, run the following:
+
+\begin{verbatim}
+docker compose up --build
+\end{verbatim}
+
+That will suffice for most cases, however if you want to force a full rebuild, you can use:
+
+\begin{verbatim}
+docker compose build --no-cache
+\end{verbatim}
+
+This is most useful as a development tool to ensure that you are not accidentally relying on the state of your local system in ways that would not work on other machines.
+
+Once the containers are built, you can start them using Docker Desktop by pressing the start button for \biab in the "Containers/Apps" tab.
+This will start the pre-built containers without rebuilding them.
+Rebuilding using the CLI is needed whenever the containers themselves are changed, most commonly for bumping the versions of installed software.
+
+\subsubsection{\texttt{re-manager}}
 \subsubsection{\texttt{zmq-proxy}}
 \subsubsection{\texttt{WT5}}
 \subsubsection{\texttt{mongo}}
 \subsubsection{\texttt{redis}}
 \subsubsection{\texttt{hwproxy}}
+\subsubsection{Troubleshooting}
+
+\subsection{\texttt{qserver}: Command Line Frontend to \texttt{bluesky-queueserver}}
+
+\subsubsection{Installation}
+
+\texttt{qserver} is included with the installation of the python package \texttt{bluesky-queueserver}.
+As such it is installed via:
+
+\begin{verbatim}
+conda install bluesky-queueserver
+\end{verbatim}
+
+or:
+
+\begin{verbatim}
+pip install bluesky-queueserver
+\end{verbatim}
 
 \subsection{\texttt{bluesky-cmds}: Graphical Frontend to \texttt{bluesky-queueserver}}
 
+\subsubsection{Installation}
+
+\texttt{bluesky-cmds} is included with the installation of the python package \texttt{bluesky-cmds}.
+However, the package is not yet available on conda, so conda systems should install the dependencies via conda first.
+As such it is installed via:
+
+\begin{verbatim}
+conda install bluesky-queueserver-api appdirs click pyqtgraph pyside2 qtpy toml toolz wrighttools
+pip install bluesky-cmds --no-deps
+\end{verbatim}
+
+or:
+
+\begin{verbatim}
+pip install bluesky-cmds
+\end{verbatim}
+
+or, for development purposes (conda users should still install dependencies as above):
+
+\begin{verbatim}
+git clone https://github.com/wright-group/bluesky-cmds
+cd bluesky-cmds
+flit install --pth-file
+\end{verbatim}
+
+\subsubsection{Configuration}
+
+If running locally, then the default configuration options should suffice.
+To populate or edit the configuration file you can execute:
+
+\begin{verbatim}
+bluesky-cmds edit-config
+\end{verbatim}
+
+This will prompt you to populate the file with the default template if it does not already exist, and open the configuration file in a text editor.
+
+The default template, appropriate for connecting to a \biab instance running on the local machine is shown below:
+
+\begin{verbatim}
+[bluesky]
+re-manager = "tcp://localhost:60615"
+re-info = "tcp://localhost:60625"
+hwproxy = "tcp://localhost:60620"
+zmq-proxy = "localhost:5568"
+\end{verbatim}
+
+To run remotely, the host and port for each connected service can change as needed.
+
 \subsection{\texttt{wright-fakes}: Simulated Hardware for Development}
+\label{wright-fakes}
+
+\wrightfakes is a collection of docker containers each running a single \yaq daemon.
+\wrightfakes provides an entire system, mimicking a laser table, but using only fake daemons to represent motors.
+It includes detectors, a monochromator, delays, neutral density wheels, and OPAs (including the component motors of the OPAs and delays).
+
+This serves as a quick and easy way to start a suite of \yaq daemons which is consistent and provides the variety of hardware needed to thoroughly test the data acquisition software.
+
+\subsubsection{Installation}
+These instructions assume that Docker is already installed, for more information see the \ref{biab-install}.
+
+
+Clone the git repository for \wrightfakes:
+
+\begin{verbatim}
+git clone https://github.com/wright-group/wright-fakes
+\end{verbatim}
+
+Inside of this repository there are folders for each available system (at time of writing, this is only \texttt{fs}).
+Navigate in a command prompt to the folder for the system you wish to start and run:
+
+\begin{verbatim}
+docker compose up --build
+\end{verbatim}
+
+This builds the system of simulated daemons and starts running the daemons through docker.
+If the port that is expected for a \yaq daemon is already in use, the container will fail to run, much the same as if you tried to run a second instance of a \yaq daemon
+
+
+If you are using Docker Desktop, then you can restart the fake daemons from the "Containers/Apps" tab of the Docker Desktop application, in the same manner as \biab.
 
 \subsection{Bluesky Community and Ecosystem}
 \subsubsection{\texttt{tiled}}
