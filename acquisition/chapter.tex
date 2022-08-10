@@ -265,6 +265,28 @@ If the port that is expected for a \yaq daemon is already in use, the container 
 
 If you are using Docker Desktop, then you can restart the fake daemons from the "Containers/Apps" tab of the Docker Desktop application, in the same manner as \biab.
 
+Once installed, you need to update the \texttt{yaqd-control} cache so that it knows about all of the daemons:
+
+\begin{verbatim}
+yaqd scan
+\end{verbatim}
+
+On Windows, this can be a long process, so you may wish to search only the ranges where actual daemons are running:
+
+\begin{verbatim}
+yaqd scan --start=38001 --stop=38003
+yaqd scan --start=38401 --stop=38403
+yaqd scan --start=38451 --stop=38453
+yaqd scan --start=38500 --stop=38501
+yaqd scan --start=38550 --stop=38551
+yaqd scan --start=38999 --stop=39000
+yaqd scan --start=39301 --stop=39303
+yaqd scan --start=39501 --stop=39508
+yaqd scan --start=39601 --stop=39608
+yaqd scan --start=39701 --stop=39703
+yaqd scan --start=39876 --stop=39877
+\end{verbatim}
+
 \subsection{Bluesky Community and Ecosystem}
 \subsubsection{\texttt{tiled}}
 \subsubsection{\texttt{databroker}}
