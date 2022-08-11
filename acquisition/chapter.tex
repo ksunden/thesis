@@ -87,6 +87,7 @@ Using \texttt{happi} allows the possibility of easily and transparently using ha
 
 \texttt{happi} is a python package that can be installed with either \texttt{conda install happi} or \texttt{pip install happi}.
 This will install a Command Line Interface (CLI) Application to manage a database (stored as a JSON file) of available hardware.
+In addition, for \texttt{happi} to be able to work with \yaq hardware you must \texttt{conda install yaqc-bluesky} or \texttt{pip install yaqc-bluesky}.
 
 To get started, set up a configuration file for \texttt{happi}.
 On Windows, start by creating a folder \nolinkurl{~\\AppData\\Local\\happi\\happi}
@@ -97,10 +98,10 @@ Inside of this folder, create a file, \nolinkurl{happi.ini} with the following c
 path = C:\Users\<USERNAME>\AppData\Local\happi\happi\happidb.json
 \end{verbatim}
 
-Follow this by running the following in a command prompt (again, replacing \texttt{USERNAME} with the appropriate username):
+Follow this by running the following in a command prompt:
 
 \begin{verbatim}
-setx /u <USERNAME> HAPPI_CFG C:\Users\<USERNAME>\AppData\Local\happi\happi\happi.ini
+setx /s %COMPUTERNAME% /u %USERNAME% HAPPI_CFG %LOCALAPPDATA%/happi/happi/happi.ini
 \end{verbatim}
 
 This sets up an environment variable which is persistent between sessions that tells happi where to load and save changes.
