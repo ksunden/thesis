@@ -20,6 +20,9 @@
 
 \subsection{\texttt{bluesky-in-a-box}: Background Services to Collect Scientific Data}
 
+\texttt{bluesky-in-a-box} runs all of the services using Docker\cite{}.
+Specifically, \texttt{bluesky-in-a-box} uses Docker Compose\cite{} to simultaneously start and stop all services, accounting for dependencies between them.
+
 \begin{figure}
 \includegraphics[width=7in]{"acquisition/images/bluesky-in-a-box-architecture"}
 \caption[\texttt{bluesky-in-a-box} architecture]{
@@ -32,9 +35,6 @@ The parts below the line are run on the host system and represent the more direc
 
 \subsubsection{Installation}
 \label{biab-install}
-
-\texttt{bluesky-in-a-box} runs all of the services using Docker\cite{}.
-Specifically, \texttt{bluesky-in-a-box} uses Docker Compose\cite{} to simultaneously start and stop all services, accounting for dependencies between them.
 
 \paragraph{Set up hardware virtualization}
 
