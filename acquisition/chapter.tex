@@ -3,6 +3,7 @@
 \newcommand\biab{\texttt{bluesky-in-a-box} }
 \newcommand\yaq{\texttt{yaq} }
 \newcommand\wrightfakes{\texttt{wright-fakes} }
+\newcommand\wrightplans{\texttt{wright-plans} }
 
 \clearpage
 
@@ -16,7 +17,49 @@
 
 \section{\texttt{bluesky}: Fully modular data acquisition}  % ===================================================================
 
-\subsection{\texttt{wright-plans}}
+\subsection{\wrightplans}
+
+Broadly, \wrightplans provides wrappers of the standard Bluesky built-in plans which add unit awareness and the idea of "constants", allowing setting of motors to algebraic expressions of other motors.
+These plans each bear the name of the underlying Bluesky plan with the suffix ``\texttt{\_wp}'' which simply stands for \wrightplans and is included to differentiate from the built-in plans.
+Additionally, \wrightplans provides specialized plans for performing tuning operations of OPAs.
+
+\subsubsection{Units support}
+
+Many of the standard built-in Bluesky plans create linearly spaced arrays in the native units for each device.
+This proves limiting especially in the case of spectroscopy because different subfields often primarily work with different unit systems; A materials scientist often thinks in eV, while a molecular spectroscopist focusing on vibrational modes mostly thinks in wavenumbers ($cm^{-1}$).
+Making it easy for scientists to think in the more natural unit system for their experiment was a priority.
+This is even more critical because the units for energy and the units for wavelength are inversely proportional, so a linear spaced array of points in one unit is not the same as a linearly spaced array in an alternative unit.
+
+A common pattern in the built-in Bluesky plans is to use a "variadic cycle", a repeating pattern of three to six arguments passed positionally where each set defines one axis of the scan.
+Where this pattern was used in the underlying plan, \wrightplans adds the units as a string to the end of that cycle of arguments.
+The exception to this is \texttt{scan\_nd\_wp}, which is specified as a single \texttt{cycler}\cite{} object to define the positions.
+In this case, the units are specified as a dictionary mapping the device object to the unit string.
+If the unit is not provided in the dictionary or the unit is given as \texttt{None}, then the native units of the device in question are used.
+
+\subsubsection{Constants}
+
+\subsubsection{\texttt{scan\_wp}}
+
+\subsubsection{\texttt{list\_scan\_wp}}
+
+\subsubsection{\texttt{grid\_scan\_wp}}
+
+\subsubsection{\texttt{list\_grid\_scan\_wp}}
+
+\subsubsection{\texttt{scan\_nd\_wp}}
+
+
+\subsubsection{\texttt{motortune}}
+
+\subsubsection{\texttt{run\_intensity}}
+
+\subsubsection{\texttt{run\_setpoint}}
+
+\subsubsection{\texttt{run\_tune\_test}}
+
+\subsubsection{\texttt{run\_holistic}}
+
+
 
 \subsection{\texttt{bluesky-in-a-box}: Background Services to Collect Scientific Data}
 
