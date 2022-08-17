@@ -38,7 +38,20 @@ If the unit is not provided in the dictionary or the unit is given as \texttt{No
 
 \subsubsection{Constants}
 
+Constants allow setting of additional hardware during the course of a scan according to algebraic relationships.
+Specifically, constants allow for positions to be set to linear combinations of other hardware positions.
+The simplest case of a constant is one which is actually consstant throughout the scan.
+For example, setting a monochromator to zero nanometers or a delay to one picosecond delay.
+Another common example would be scanning two motors simultaneously, as in setting Delay 2 equal to the value of Delay 1.
+The most complicated common usage of constants is to track the phase matching condition of the experiment.
+For example, setting a monochromator to the sum of three light sources for a nonlinear spectroscopy experiment.
+
+Constants are also unit aware, with the constraint that each term of the expression have compatible units, meaning that the units can be converted to one another.
+The algebra is performed on values in the constant's specified units, so different resulting positions will occur for a constant calculated in nanometers versus a constant with an identical expression but units of wavenumbers.
+
 \subsubsection{\texttt{scan\_wp}}
+
+Scan performs a one dimensional acquisition of linearly spaced points
 
 \subsubsection{\texttt{list\_scan\_wp}}
 
