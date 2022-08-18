@@ -108,16 +108,16 @@ Note that Docker Desktop's license terms require a paid subscription for commerc
 On Linux, mostly Docker is installed via the system package manager.
 For a Debian or Ubuntu based system this would be:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 sudo apt install docker.io
 sudo apt install docker-compose
-\end{verbatim}
+\end{codefragment}
 
 It is recommended to add your user account to the \texttt{docker} group to avoid needing to use \texttt{sudo} to perform docker operations:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 sudo usermod -aG docker $USER
-\end{verbatim}
+\end{codefragment}
 
 \paragraph{Configure available \yaq hardware}
 
@@ -136,16 +136,16 @@ To get started, set up a configuration file for \texttt{happi}.
 On Windows, start by creating a folder \nolinkurl{~\\AppData\\Local\\happi\\happi}
 Inside of this folder, create a file, \nolinkurl{happi.ini} with the following contents (replacing \texttt{<USERNAME>} with the username that is appropriate for your system):
 
-\begin{verbatim}
-[DEFAULT]
+\begin{codefragment}{ini}
+	\[[DEFAULT]
 path = C:\Users\<USERNAME>\AppData\Local\happi\happi\happidb.json
-\end{verbatim}
+\end{codefragment}
 
 Follow this by running the following in a command prompt:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 setx /s %COMPUTERNAME% /u %USERNAME% HAPPI_CFG %LOCALAPPDATA%/happi/happi/happi.ini
-\end{verbatim}
+\end{codefragment}
 
 This sets up an environment variable which is persistent between sessions that tells happi where to load and save changes.
 
@@ -153,9 +153,9 @@ The Linux equivalent would be to create \nolinkurl{~/.config/happi.ini} with the
 
 Once set up, you can add all \texttt{yaq} hardware by doing:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 yaqd list --format happi | happi update -
-\end{verbatim}
+\end{codefragment}
 
 This exports all of the daemons that are recognized by \texttt{yaqd-control} into the happi database.
 If hardware is added to the system (or information like the host or port are updated) then the same line will update happi again.
@@ -169,9 +169,9 @@ The exact location does not particular matter, but \nolinkurl{~/bluesky-cmds-dat
 
 Clone the git repository for \biab:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 git clone https://github.com/wright-group/bluesky-in-a-box
-\end{verbatim}
+\end{codefragment}
 
 There are a few options for the Docker Compose files, a template for the file is provided in the root of the \texttt{bluesky-in-a-box} repository.
 Copy the template file, \nolinkurl{.env-example} to \nolinkurl{.env}, then edit it.
@@ -186,15 +186,15 @@ Navigate to the \biab folder in a command prompt.
 If needed, pull new versions or switch to appropriate branches that contain the version of \biab that you need.
 To build for the first time or to perform a standard update, run the following:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 docker compose up --build
-\end{verbatim}
+\end{codefragment}
 
 That will suffice for most cases, however if you want to force a full rebuild, you can use:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 docker compose build --no-cache
-\end{verbatim}
+\end{codefragment}
 
 This is most useful as a development tool to ensure that you are not accidentally relying on the state of your local system in ways that would not work on other machines.
 
@@ -217,15 +217,15 @@ Rebuilding using the CLI is needed whenever the containers themselves are change
 \texttt{qserver} is included with the installation of the python package \texttt{bluesky-queueserver}.
 As such it is installed via:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 conda install bluesky-queueserver
-\end{verbatim}
+\end{codefragment}
 
 or:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 pip install bluesky-queueserver
-\end{verbatim}
+\end{codefragment}
 
 \subsection{\texttt{bluesky-cmds}: Graphical Frontend to \texttt{bluesky-queueserver}}
 
@@ -235,45 +235,46 @@ pip install bluesky-queueserver
 However, the package is not yet available on conda, so conda systems should install the dependencies via conda first.
 As such it is installed via:
 
-\begin{verbatim}
-conda install bluesky-queueserver-api appdirs click pyqtgraph pyside2 qtpy toml toolz wrighttools
+\begin{codefragment}{bash}
+conda install bluesky-queueserver-api appdirs click pyqtgraph pyside2 qtpy toml toolz wrighttools sympy bluesky-hwproxy bluesky-widgets
 pip install bluesky-cmds --no-deps
-\end{verbatim}
+\end{codefragment}
 
 or:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 pip install bluesky-cmds
-\end{verbatim}
+\end{codefragment}
 
 or, for development purposes (conda users should still install dependencies as above):
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 git clone https://github.com/wright-group/bluesky-cmds
 cd bluesky-cmds
 flit install --pth-file
-\end{verbatim}
+\end{codefragment}
 
 \subsubsection{Configuration}
 
 If running locally, then the default configuration options should suffice.
 To populate or edit the configuration file you can execute:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 bluesky-cmds edit-config
-\end{verbatim}
+\end{codefragment}
 
 This will prompt you to populate the file with the default template if it does not already exist, and open the configuration file in a text editor.
 
 The default template, appropriate for connecting to a \biab instance running on the local machine is shown below:
 
-\begin{verbatim}
+\begin{codefragment}{toml}
+test=true # needed for minted TODO figure this out
 [bluesky]
 re-manager = "tcp://localhost:60615"
 re-info = "tcp://localhost:60625"
 hwproxy = "tcp://localhost:60620"
 zmq-proxy = "localhost:5568"
-\end{verbatim}
+\end{codefragment}
 
 To run remotely, the host and port for each connected service can change as needed.
 
@@ -292,16 +293,16 @@ These instructions assume that Docker is already installed, for more information
 
 Clone the git repository for \wrightfakes:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 git clone https://github.com/wright-group/wright-fakes
-\end{verbatim}
+\end{codefragment}
 
 Inside of this repository there are folders for each available system (at time of writing, this is only \texttt{fs}).
 Navigate in a command prompt to the folder for the system you wish to start and run:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 docker compose up --build
-\end{verbatim}
+\end{codefragment}
 
 This builds the system of simulated daemons and starts running the daemons through docker.
 If the port that is expected for a \yaq daemon is already in use, the container will fail to run, much the same as if you tried to run a second instance of a \yaq daemon
@@ -311,13 +312,13 @@ If you are using Docker Desktop, then you can restart the fake daemons from the 
 
 Once installed, you need to update the \texttt{yaqd-control} cache so that it knows about all of the daemons:
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 yaqd scan
-\end{verbatim}
+\end{codefragment}
 
-On Windows, this can be a long process, so you may wish to search only the ranges where actual daemons are running:
+On Windows, this can be a long process, so you may wish to search only the ranges where actual daemons are running
 
-\begin{verbatim}
+\begin{codefragment}{bash}
 yaqd scan --start=38001 --stop=38003
 yaqd scan --start=38401 --stop=38403
 yaqd scan --start=38451 --stop=38453
@@ -329,7 +330,7 @@ yaqd scan --start=39501 --stop=39508
 yaqd scan --start=39601 --stop=39608
 yaqd scan --start=39701 --stop=39703
 yaqd scan --start=39876 --stop=39877
-\end{verbatim}
+\end{codefragment}
 
 \subsection{Bluesky Community and Ecosystem}
 \subsubsection{\texttt{tiled}}
