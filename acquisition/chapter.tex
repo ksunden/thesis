@@ -39,39 +39,116 @@ If the unit is not provided in the dictionary or the unit is given as \texttt{No
 \subsubsection{Constants}
 
 Constants allow setting of additional hardware during the course of a scan according to algebraic relationships.
-Specifically, constants allow for positions to be set to linear combinations of other hardware positions.
-The simplest case of a constant is one which is actually consstant throughout the scan.
+Specifically, Constants allow for positions to be set to linear combinations of other hardware positions.
+The simplest case of a Constant is one which is actually Constant throughout the scan.
 For example, setting a monochromator to zero nanometers or a delay to one picosecond delay.
 Another common example would be scanning two motors simultaneously, as in setting Delay 2 equal to the value of Delay 1.
-The most complicated common usage of constants is to track the phase matching condition of the experiment.
+The most complicated common usage of Constants is to track the phase matching condition of the experiment.
 For example, setting a monochromator to the sum of three light sources for a nonlinear spectroscopy experiment.
 
 Constants are also unit aware, with the constraint that each term of the expression have compatible units, meaning that the units can be converted to one another.
-The algebra is performed on values in the constant's specified units, so different resulting positions will occur for a constant calculated in nanometers versus a constant with an identical expression but units of wavenumbers.
+The algebra is performed on values in the Constant's specified units, so different resulting positions will occur for a Constant calculated in nanometers versus a Constant with an identical expression but units of wavenumbers.
 
 \subsubsection{\texttt{scan\_wp}}
 
-Scan performs a one dimensional acquisition of linearly spaced points
+Scan performs a one dimensional acquisition of linearly spaced points.
+If multiple motors are specified, each provides a start and stop position as well as their units, but there is only one keyword argument, \texttt{num}, which sets the number of points in the scan.
+This is refered to as the "inner product" of the two lists.
+Constants are allowed for scan, though the built-in functionality makes them largely superfluous.
+It can, however, be easier to think in terms of either end points or expressions for different experiments.
+Constants also have requirements regarding units that are not required for motors specified as endpoints.
+
+\begin{codefragment}{python}
+# a simple scan
+scan0 = scan_wp([det], m0, 0, 1, "mm", num=11)
+# a scan with multiple motors specified
+scan1 = scan_wp([det], m0, 0, 1, "mm", m1, 2, 3, "mm", num=11)
+# equivalent scan using constant of "1*m0 + 1.0" instead of additional axis
+scan2 = scan_wp([det], m0, 0, 1, "mm", num=11, constants=[[m1, "mm", [(1, m0), (1.0, None)]]])
+\end{codefragment}
 
 \subsubsection{\texttt{list\_scan\_wp}}
 
+List Scan is nearly equivalent to Scan, except that instead of specifying end points, an iterable list of positions is provided instead of endpoints and number of points.
+Since List Scan provides each of the points that are scanned, there is no requirement that points are linearly spaced.
+However, there is a requirement that each of the provided lists are the same length, as it is still doing an inner product.
+This makes it a useful plan for logarithmically spaced points spanning multiple orders of magnitude\footnote{The built-in plans actually do provide a \texttt{log\_scan} plan which acts as \texttt{scan}, where the endpoints and number of points are specified, however that is de-facto deprecated in favor of \texttt{list\_scan\_wp}, so it was not wrapped. The latter plan additionally allows similar ease to do symmetric log scans about zero.}.
+Similarly, Constants are provided as an option, though they are technically subsumed by the built-in functionality of a List Scan.
+
+\begin{codefragment}{python}
+# a simple list scan, equivalent to a "normal" scan
+scan0 = list_scan_wp([det], m0, np.linspace(0, 1, 11), "mm")
+# a list scan with non-linearly spaced points
+scan1 = list_scan_wp([det], m0, [0, 1,  2, 5, 10], "mm")
+# a list scan with multiple motors specified, one pseudolog spaced and one linearly spaced
+scan2 = list_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm", m1, [0, 1, 2, 3, 4], "mm", num=11)
+\end{codefragment}
+
 \subsubsection{\texttt{grid\_scan\_wp}}
+
+Grid Scan is the "outer product" counterpart to Scan.
+This plan provides a way of doing N-Dimensional scans, where each specified axis rather than scanning together scan against one another.
+Grid Scan is the workhorse plan for many data acquisition tasks.
+Similar to Scan, the axes are spacified as endpoints plus number of points, however each axis now has its own number of points instead of having a single number for all motors.
+Constants are needed for Grid Scan because the built-in version does not have any mechanism to specify that two motors should move together rather than against each other.
+Additionally, Constants provide a way to specify that some condition, such as that the monochromator tracks the sum of two or three light sources.
+
+A Grid Scan with only one axis is equivalent to Scan, and the addition of constants means that most desired acquisitions can be accomplished with Grid Scan.
+
+\begin{codefragment}{python}
+\end{codefragment}
 
 \subsubsection{\texttt{list\_grid\_scan\_wp}}
 
+List Grid Scan is to Grid Scan what List Scan is to Scan: rather than specifying endpoints and number of points, lists are provided for each axis.
+Similarly, this allows for scanning motor positions which are not linearly spaced, such as logarithmically spaced points.
+Constants provbide the same benefits to List Grid Scan as they do to Grid Scan.
+
+\begin{codefragment}{python}
+\end{codefragment}
+
 \subsubsection{\texttt{scan\_nd\_wp}}
+
+Scan ND is the mechanism by which all of the previous plans actually work.
+It is more complicated to use, and thus is rarely directly called, but it is also able to perform more unique scans than are provided by the parameterizations for more standard scans.
+It is highly recommended to consider if an equivalent acquisition could be done using one of the above plans prior to reaching for Scan ND; The reparameterized plans provide gaurdrails which make it harder to be incorrect or to get unexpected results.
+In fact, the behavior of Constants is also technically not required for Scan ND, though complicated examples involving multiple terms and unit conversion would be difficult to compute for a native Scan ND.
+
+Instead of specifying motor motion independently to the plan, this is done prior and a single \texttt{cycler}\cite{} object is handed to the Scan ND plan.
+This cycler can perform arbitrary inner and outer product computations to define a trajectory through N-dimensional motor space.
+As such, it can be used to perform scans similar to at least simple versions of Constants, mixing axes that scan together with those that scan against each other.
+The motors are the keys of the Cycler object.
+Since there is no "variadic cycle" for Scan ND, \wrightplans unit support is provided via a separate keyword argument, \texttt{axis\_units}, a dictionary mapping the motors as keys to strings, the unit to use for that motor.
+
+\begin{codefragment}{python}
+\end{codefragment}
 
 
 \subsubsection{\texttt{motortune}}
 
+\begin{codefragment}{python}
+\end{codefragment}
+
 \subsubsection{\texttt{run\_intensity}}
+
+\begin{codefragment}{python}
+\end{codefragment}
 
 \subsubsection{\texttt{run\_setpoint}}
 
+\begin{codefragment}{python}
+\end{codefragment}
+
 \subsubsection{\texttt{run\_tune\_test}}
+
+\begin{codefragment}{python}
+\end{codefragment}
 
 \subsubsection{\texttt{run\_holistic}}
 
+
+\begin{codefragment}{python}
+\end{codefragment}
 
 
 \subsection{\texttt{bluesky-in-a-box}: Background Services to Collect Scientific Data}
