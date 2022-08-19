@@ -19,6 +19,8 @@
 
 \subsection{\wrightplans}
 
+% TODO figures demonstrating motorspace for scans
+
 Broadly, \wrightplans provides wrappers of the standard Bluesky built-in plans which add unit awareness and the idea of "constants", allowing setting of motors to algebraic expressions of other motors.
 These plans each bear the name of the underlying Bluesky plan with the suffix ``\texttt{\_wp}'' which simply stands for \wrightplans and is included to differentiate from the built-in plans.
 Additionally, \wrightplans provides specialized plans for performing tuning operations of OPAs.
@@ -48,6 +50,11 @@ For example, setting a monochromator to the sum of three light sources for a non
 
 Constants are also unit aware, with the constraint that each term of the expression have compatible units, meaning that the units can be converted to one another.
 The algebra is performed on values in the Constant's specified units, so different resulting positions will occur for a Constant calculated in nanometers versus a Constant with an identical expression but units of wavenumbers.
+
+Constants can be constructed using Python objects provided by \wrightplans, as a list of \texttt{(motor, units, terms)} tuples, or as a dictionary mapping motors to \texttt{(units, terms)} tuples.
+The terms themselves can be created as a list of \texttt{ConstantTerm} objects or as a list of \texttt{(coefficient, variable)} tuples, with the variable being \mintedinline{python}{None} for the constant term and a motor for a variable term.
+The motors specified by constant terms are not required to be motors otherwise specified by the plan, though if they are not, the motor positions specified by the plan are sensitive to motor positions at the start of the scan.
+It is required that there are no cycles for the dependency relationships in constants (i.e. m0 cannot be set to be 1*m1 while m1 is set to 2*m0, as that is an undefined position).
 
 \subsubsection{\texttt{scan\_wp}}
 
@@ -81,7 +88,7 @@ scan0 = list_scan_wp([det], m0, np.linspace(0, 1, 11), "mm")
 # a list scan with non-linearly spaced points
 scan1 = list_scan_wp([det], m0, [0, 1,  2, 5, 10], "mm")
 # a list scan with multiple motors specified, one pseudolog spaced and one linearly spaced
-scan2 = list_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm", m1, [0, 1, 2, 3, 4], "mm", num=11)
+scan2 = list_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm", m1, [0, 1, 2, 3, 4], "mm")
 \end{codefragment}
 
 \subsubsection{\texttt{grid\_scan\_wp}}
@@ -96,15 +103,24 @@ Additionally, Constants provide a way to specify that some condition, such as th
 A Grid Scan with only one axis is equivalent to Scan, and the addition of constants means that most desired acquisitions can be accomplished with Grid Scan.
 
 \begin{codefragment}{python}
+# a simple grid scan, equivalent to the simple scan above
+scan0 = grid_scan_wp([det], m0, 0, 1, 11, "mm")
+# a 2D scan
+scan1 = grid_scan_wp([det], m0, 0, 1, 11, "mm", m1, 2, 3, 21, "mm")
+# scan representing a triple sum frequency experiment, the constant is m3=m0+m1+m2
+scan2 = grid_scan_wp([det], m0, 15000, 20000, "wn", 51, m1, 1500, 2000, 21, "wn", m2, 1500, 2000, 21, "wn", constants=[[m3, "wn", [(1, m0), (1, m1), (1, m2)]]])
 \end{codefragment}
 
 \subsubsection{\texttt{list\_grid\_scan\_wp}}
 
 List Grid Scan is to Grid Scan what List Scan is to Scan: rather than specifying endpoints and number of points, lists are provided for each axis.
 Similarly, this allows for scanning motor positions which are not linearly spaced, such as logarithmically spaced points.
-Constants provbide the same benefits to List Grid Scan as they do to Grid Scan.
+Since this is an outer product, ther is no requirement that the axes have the same number of points, and since the lists have lengths, there is no explicit requirement to specify the length at all.
+Constants provide the same benefits to List Grid Scan as they do to Grid Scan.
 
 \begin{codefragment}{python}
+# a list grid scan with multiple motors specified, one pseudolog spaced and one linearly spaced
+scan0 = list_grid_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm", m1, [0, 1, 2], "mm")
 \end{codefragment}
 
 \subsubsection{\texttt{scan\_nd\_wp}}
