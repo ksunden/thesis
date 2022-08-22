@@ -25,7 +25,19 @@ Broadly, \wrightplans provides wrappers of the standard Bluesky built-in plans w
 These plans each bear the name of the underlying Bluesky plan with the suffix ``\texttt{\_wp}'' which simply stands for \wrightplans and is included to differentiate from the built-in plans.
 Additionally, \wrightplans provides specialized plans for performing tuning operations of OPAs.
 
-\subsubsection{Units support}
+\subsubsection{Common parameters to multiple plans}
+\label{common_params}
+
+Many of the plans specified in \wrightplans share common behavior and meanings assigned to parameters.
+Rather than repeating the details as it pertains to each plan, this section provides how each of these are specified and used.
+
+\paragraph{Detectors}
+
+In all of the plans provided by \wrightplans, the first argument is a list of detectors, i.e. a list of Bluesky protocol complient objects that implement the Readable protocol.
+These devices are read at every data point and recorded into the resultant data event stream.
+This may include cameras or array detectors which produce channels that have additional axes in the resultant data.
+
+\paragraph{Units support}
 
 Many of the standard built-in Bluesky plans create linearly spaced arrays in the native units for each device.
 This proves limiting especially in the case of spectroscopy because different subfields often primarily work with different unit systems; A materials scientist often thinks in eV, while a molecular spectroscopist focusing on vibrational modes mostly thinks in wavenumbers ($cm^{-1}$).
@@ -38,7 +50,7 @@ The exception to this is \texttt{scan\_nd\_wp}, which is specified as a single \
 In this case, the units are specified as a dictionary mapping the device object to the unit string.
 If the unit is not provided in the dictionary or the unit is given as \texttt{None}, then the native units of the device in question are used.
 
-\subsubsection{Constants}
+\paragraph{Constants}
 
 Constants allow setting of additional hardware during the course of a scan according to algebraic relationships.
 Specifically, Constants allow for positions to be set to linear combinations of other hardware positions.
@@ -56,6 +68,19 @@ The terms themselves can be created as a list of \texttt{ConstantTerm} objects o
 The motors specified by constant terms are not required to be motors otherwise specified by the plan, though if they are not, the motor positions specified by the plan are sensitive to motor positions at the start of the scan.
 It is required that there are no cycles for the dependency relationships in constants (i.e. m0 cannot be set to be 1*m1 while m1 is set to 2*m0, as that is an undefined position).
 
+\paragraph{Per Step}
+
+Per Step is a tool that can be used by advanced users to modify the behavior of a plan.
+Most standard users can safely ignore Per Step.
+It is provided in part because modifying Per Step is the mechanism by which \wrightplans inserts the unit awareness and constant behavior, thus providing the same tool to downstream plan authors who may wish to build plans with additional behavior.
+Per Step is actually itself a Bluesky plan which takes the list of detectors, the motor positions specified for that step, and a cache of prior motor positions.
+Per Step then actually requests the motor motion and the measurement from the detectors.
+
+\paragraph{\texttt{md}}
+\texttt{md} is a dictionary of additional metadata provided for the plan.
+The plans themselves add metadata relating to the plan, but this can be overridden using the \texttt{md} keyword argument.
+The expectation of \texttt{md} is that the contents will be encoded to JSON.
+
 \subsubsection{\texttt{scan\_wp}}
 
 Scan performs a one dimensional acquisition of linearly spaced points.
@@ -65,13 +90,25 @@ Constants are allowed for scan, though the built-in functionality makes them lar
 It can, however, be easier to think in terms of either end points or expressions for different experiments.
 Constants also have requirements regarding units that are not required for motors specified as endpoints.
 
+The signature for \texttt{scan\_wp} is:
+
+\begin{codefragment}{python}
+def scan_wp(detectors, *args, num=None, constants=None, per_step=None, md=None):
+\end{codefragment}
+
+Here, \texttt{args} is a variadic cycle of four values: A motor (Bluesky Setable), a start position, a stop position (both typed as appropriate for the the motor, commonly floating point numbers), and a string specifying the units.
+\texttt{num} specifies the number of points.
+It is technically allowed, though discouraged, to pass the number of points positionally (i.e. as the last element of \texttt{args}), though explicitly passing using the keyword is preferred.
+\texttt{detectors}, \texttt{constants}, \texttt{per\_step} and \texttt{md} are all as described above in \ref{common_params}.
+
 \begin{codefragment}{python}
 # a simple scan
 scan0 = scan_wp([det], m0, 0, 1, "mm", num=11)
 # a scan with multiple motors specified
 scan1 = scan_wp([det], m0, 0, 1, "mm", m1, 2, 3, "mm", num=11)
 # equivalent scan using constant of "1*m0 + 1.0" instead of additional axis
-scan2 = scan_wp([det], m0, 0, 1, "mm", num=11, constants=[[m1, "mm", [(1, m0), (1.0, None)]]])
+scan2 = scan_wp([det], m0, 0, 1, "mm", num=11,
+                constants=[[m1, "mm", [(1, m0), (1.0, None)]]])
 \end{codefragment}
 
 \subsubsection{\texttt{list\_scan\_wp}}
@@ -82,13 +119,24 @@ However, there is a requirement that each of the provided lists are the same len
 This makes it a useful plan for logarithmically spaced points spanning multiple orders of magnitude\footnote{The built-in plans actually do provide a \texttt{log\_scan} plan which acts as \texttt{scan}, where the endpoints and number of points are specified, however that is de-facto deprecated in favor of \texttt{list\_scan\_wp}, so it was not wrapped. The latter plan additionally allows similar ease to do symmetric log scans about zero.}.
 Similarly, Constants are provided as an option, though they are technically subsumed by the built-in functionality of a List Scan.
 
+The signature for \texttt{list\_scan\_wp} is:
+
+\begin{codefragment}{python}
+def list_scan_wp(detectors, *args, constants=None, per_step=None, md=None):
+\end{codefragment}
+
+Here, \texttt{args} is a three member variadic cycle consisting of a motor, a list of points (as opposed to the start and stop above), and a string specifying units for each motor.
+\texttt{detectors}, \texttt{constants}, \texttt{per\_step} and \texttt{md} are all as described above in \ref{common_params}.
+
 \begin{codefragment}{python}
 # a simple list scan, equivalent to a "normal" scan
 scan0 = list_scan_wp([det], m0, np.linspace(0, 1, 11), "mm")
 # a list scan with non-linearly spaced points
 scan1 = list_scan_wp([det], m0, [0, 1,  2, 5, 10], "mm")
-# a list scan with multiple motors specified, one pseudolog spaced and one linearly spaced
-scan2 = list_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm", m1, [0, 1, 2, 3, 4], "mm")
+# a list scan with multiple motors specified, one pseudolog spaced
+# and one linearly spaced
+scan2 = list_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm",
+	                    m1, [0, 1, 2, 3, 4], "mm")
 \end{codefragment}
 
 \subsubsection{\texttt{grid\_scan\_wp}}
@@ -96,19 +144,38 @@ scan2 = list_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm", m1, [0, 1, 2, 3, 4], "mm
 Grid Scan is the "outer product" counterpart to Scan.
 This plan provides a way of doing N-Dimensional scans, where each specified axis rather than scanning together scan against one another.
 Grid Scan is the workhorse plan for many data acquisition tasks.
-Similar to Scan, the axes are spacified as endpoints plus number of points, however each axis now has its own number of points instead of having a single number for all motors.
+Similar to Scan, the axes are specified as endpoints plus number of points, however each axis now has its own number of points instead of having a single number for all motors.
 Constants are needed for Grid Scan because the built-in version does not have any mechanism to specify that two motors should move together rather than against each other.
 Additionally, Constants provide a way to specify that some condition, such as that the monochromator tracks the sum of two or three light sources.
 
+The signature for \texttt{grid\_scan\_wp} is:
+
+\begin{codefragment}{python}
+def grid_scan_wp(
+    detectors, *args, constants=None, snake_axes=False, per_step=None, md=None
+):
+\end{codefragment}
+
+\texttt{detectors}, \texttt{constants}, \texttt{per\_step} and \texttt{md} are all as described above in \ref{common_params}.
+
+Here, \texttt{args} is a five member variadic cycle consisting of: a motor, start position, stop position, number of points, and units.
+\texttt{snake\_axes} allows the user to specify if the trajectory of the scan proceeds to the start position after reaching the end of the slice (the default, False) or winds back and forth, reversing the order that points are collected for each slice (True).
+Even finer control of snaking behavior is available by passing a list of motors (which must be motors specified in the scan), which will cause only those axes to snake rather than all axes.
+The outermost (first) motor must not be included in that list, as it only ever is set to each position once, and thus has no opportunity to "snake".
 A Grid Scan with only one axis is equivalent to Scan, and the addition of constants means that most desired acquisitions can be accomplished with Grid Scan.
 
 \begin{codefragment}{python}
 # a simple grid scan, equivalent to the simple scan above
 scan0 = grid_scan_wp([det], m0, 0, 1, 11, "mm")
 # a 2D scan
-scan1 = grid_scan_wp([det], m0, 0, 1, 11, "mm", m1, 2, 3, 21, "mm")
-# scan representing a triple sum frequency experiment, the constant is m3=m0+m1+m2
-scan2 = grid_scan_wp([det], m0, 15000, 20000, "wn", 51, m1, 1500, 2000, 21, "wn", m2, 1500, 2000, 21, "wn", constants=[[m3, "wn", [(1, m0), (1, m1), (1, m2)]]])
+scan1 = grid_scan_wp([det], m0, 0, 1, 11, "mm",
+                            m1, 2, 3, 21, "mm")
+# scan representing a triple sum frequency experiment
+# the constant is m3=m0+m1+m2, evaluated in wavenumbers
+scan2 = grid_scan_wp([det], m0, 15000, 20000, "wn", 51,
+                            m1, 1500, 2000, 21, "wn",
+                            m2, 1500, 2000, 21, "wn",
+                            constants=[[m3, "wn", [(1, m0), (1, m1), (1, m2)]]])
 \end{codefragment}
 
 \subsubsection{\texttt{list\_grid\_scan\_wp}}
@@ -118,9 +185,21 @@ Similarly, this allows for scanning motor positions which are not linearly space
 Since this is an outer product, ther is no requirement that the axes have the same number of points, and since the lists have lengths, there is no explicit requirement to specify the length at all.
 Constants provide the same benefits to List Grid Scan as they do to Grid Scan.
 
+The signature for \texttt{list\_grid\_scan\_wp} is:
+
+\begin{codefragment}{python}
+def list_grid_scan_wp(
+    detectors, *args, constants=None, snake_axes=False, per_step=None, md=None
+):
+\end{codefragment}
+
+Here, \texttt{args} is a three member variadic cycle: a motor, a list of positions, and the units.
+\texttt{detectors}, \texttt{constants}, \texttt{per\_step} and \texttt{md} are all as described above in \ref{common_params}.
+
 \begin{codefragment}{python}
 # a list grid scan with multiple motors specified, one pseudolog spaced and one linearly spaced
-scan0 = list_grid_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm", m1, [0, 1, 2], "mm")
+scan0 = list_grid_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm",
+                                 m1, [0, 1, 2], "mm")
 \end{codefragment}
 
 \subsubsection{\texttt{scan\_nd\_wp}}
@@ -130,40 +209,145 @@ It is more complicated to use, and thus is rarely directly called, but it is als
 It is highly recommended to consider if an equivalent acquisition could be done using one of the above plans prior to reaching for Scan ND; The reparameterized plans provide gaurdrails which make it harder to be incorrect or to get unexpected results.
 In fact, the behavior of Constants is also technically not required for Scan ND, though complicated examples involving multiple terms and unit conversion would be difficult to compute for a native Scan ND.
 
+The signature for \texttt{scan\_nd\_wp} is:
+
+\begin{codefragment}{python}
+def scan_nd_wp(
+    detectors, cycler, *, axis_units=None, constants=None, per_step=None, md=None
+):
+\end{codefragment}
+
 Instead of specifying motor motion independently to the plan, this is done prior and a single \texttt{cycler}\cite{} object is handed to the Scan ND plan.
 This cycler can perform arbitrary inner and outer product computations to define a trajectory through N-dimensional motor space.
 As such, it can be used to perform scans similar to at least simple versions of Constants, mixing axes that scan together with those that scan against each other.
 The motors are the keys of the Cycler object.
 Since there is no "variadic cycle" for Scan ND, \wrightplans unit support is provided via a separate keyword argument, \texttt{axis\_units}, a dictionary mapping the motors as keys to strings, the unit to use for that motor.
+\texttt{detectors}, \texttt{constants}, \texttt{per\_step} and \texttt{md} are all as described above in \ref{common_params}.
 
 \begin{codefragment}{python}
+True
 \end{codefragment}
 
 
 \subsubsection{\texttt{motortune}}
 
+The remaining plans that are provided by \wrightplans enable specialized tuning routines designed for Optical Parametric Amplifiers (OPAs).
+The first, \texttt{motortune} is a flexible generic plan which can do a wide variety of tasks related to tuning OPAs.
+The remaining four plans are reparameterizations of \texttt{motortune} which make common acquisitions easier and more directly specified.
+
+The signature for \texttt{motortune} is:
+
 \begin{codefragment}{python}
+def motortune(detectors, opa, use_tune_points, motors, spectrometer=None, *, md=None):
+\end{codefragment}
+
+\texttt{detectors} and \texttt{md} are as described above in \ref{common_params}.
+\texttt{opa} is the Bluesky device specifying an OPA.
+It is expected to have subdevices for the motors specified in \texttt{motors}.
+\texttt{use\_tune\_points} is a boolean which if true inserts an axis for the OPA as the outermost (slowest) axis of the scan at the points specified by the tuning curve.
+If motors are specified, then only the points specified by the relevant tunes are used, otherwise all points are used.
+\texttt{motors} is a dictionary mapping the \textit{names} of the motors (as strings representing the attribute of the \texttt{opa} object) to a dictionary of parameters for each motor.
+The motor parameters consist of the following:
+\begin{itemize}
+	\item \texttt{method}: Must be the string "static" or "scan", the former meaning that the motor should be held constant for the duration of the scan, the latter meaning that the motor is an axis in the scan.
+	\item \texttt{center}: Specifies the position for method "static" or the center of the axis for method "scan", ignored for method "scan" if \texttt{use\_tune\_points} is true, at which point center is relative to the tune point motor position.
+	\item \texttt{width}: The width, in native motor units, to scan for method "scan".
+	\item \texttt{npts}: The number of points for the motor axis in method "scan".
+\end{itemize}
+\texttt{spectrometer} is a dictionary of parameters which control a monochromator.
+\texttt{spectrometer} is optional as many tuning operations do not require spectral resolution or detectors are not mounted on a monochromator.
+Its keys consist of the following:
+\begin{itemize}
+	\item \texttt{device}: The Bluesky device representing the spectrometer.
+	\item \texttt{method}: Must be the string "static", "zero", "track", "set", "scan", or "none".
+		\begin{itemize}
+			\item "static" means that the monochromator should be set to a specific position at the beginning of the scan, as specified by "center".
+			\item "zero" is equivalent to static, except that the position is always zero nanometers, provided as a convenience.
+			\item "track" introduces a Constant which sets the spectrometer setpoint to be equal to the OPA's setpoint.
+			\item "set" is equivalent to "static" for acquisitions where \texttt{use\_tune\_points} is false and "track" where \texttt{use\_tune\_points} is true.
+			\item "scan" introduces an axis for the monochromator to be scanned.
+			\item "none" is an alternate way of specifying no spectrometer at all.
+		\end{itemize}
+	\item \texttt{center}: Specifies the position for method "static" or the center of the axis for method "scan", ignored for method "scan" if \texttt{use\_tune\_points} is true, at which point center is relative to the tune point.
+	\item \texttt{width}: The width, in native motor units, to scan for method "scan".
+	\item \texttt{npts}: The number of points for the motor axis in method "scan".
+	\item \texttt{units}: specifies the units for method "static" or method "scan", if not provided, "nm" is assumed.
+\end{itemize}
+
+\begin{codefragment}{python}
+True
 \end{codefragment}
 
 \subsubsection{\texttt{run\_intensity}}
 
+\texttt{run\_intensity} is a plan designed to acquire data which will be processed with \mintedinline{python}{attune.intensity}.
+Since it is known that such acquisitions will have exactly one motor which is scanned, the complexity of the \texttt{motors} argument to \texttt{motortune} is reduced to three required arguments: \texttt{motor}, \texttt{width}, and \texttt{npts}.
+The resultant \texttt{motortune} will always have \texttt{use\_tune\_points} set to True, and thus will always be a two dimensional scan (before accounting for detector axes).
+
+The signature for \texttt{run\_intensity} is:
+
 \begin{codefragment}{python}
+def run_intensity(detectors, opa, motor, width, npts, spectrometer, *, md=None):
+\end{codefragment}
+
+\texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
+
+\begin{codefragment}{python}
+True
 \end{codefragment}
 
 \subsubsection{\texttt{run\_setpoint}}
 
+The actual implementation of \texttt{run\_setpoint} is nearly identical to \texttt{run\_intensity}, as the scans required are exactly the same as far as motors are concerned.
+The difference is that \texttt{run\_setpoint} is expected to have a spectral axis, as that is required for processing with \inlinepython{attune.setpoint}.
+This spectral axis may originate from either an array detector or by scanning the spectrometer.
+
+The signature for \texttt{run\_setpoint} is:
+
 \begin{codefragment}{python}
+def run_setpoint(detectors, opa, motor, width, npts, spectrometer, *, md=None):
+\end{codefragment}
+
+\texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
+
+\begin{codefragment}{python}
+True
 \end{codefragment}
 
 \subsubsection{\texttt{run\_tune\_test}}
 
+\texttt{run\_tune\_test} is the simplest of the tuning plans, with no motors specified.
+It is designed to be processed by \inlinepython{attune.tune_test}, and thus a spectral axis is expected and as with \texttt{run\_setpoint} may originate from either an array detector or scanning a spectrometer.
+
+The signature for \texttt{run\_tune\_test} is:
+
 \begin{codefragment}{python}
+def run_tune_test(detectors, opa, spectrometer, *, md=None):
+\end{codefragment}
+
+\texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
+
+\begin{codefragment}{python}
+True
 \end{codefragment}
 
 \subsubsection{\texttt{run\_holistic}}
 
+Finally, \texttt{run\_holistic} defines an acquisition designed to be processed with \inlinepython{attune.holistic}.
+Here, one of the motors, \texttt{motor0} is not actually scanned, but rather inferred from the tune points themselves.
+It is specified so that the metadata can reflect the logical axes of the scan.
+The second motor, \texttt{motor1}, is specified in the same manner as the other derived tuning plans: as a name, width, and number of points.
+
+The signature for \texttt{run\_holistic} is:
 
 \begin{codefragment}{python}
+def run_holistic(detectors, opa, motor0, motor1, width, npts, spectrometer, *, md=None):
+\end{codefragment}
+
+\texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
+
+\begin{codefragment}{python}
+True
 \end{codefragment}
 
 
@@ -179,6 +363,7 @@ A summary of the parts of the \texttt{bluesky-in-a-box} and the flow of data bet
 The parts above the line are all run inside of docker, and can be brought online and offline simultaneously.
 The parts below the line are run on the host system and represent the more direct hardware access and the graphical programs to used to interact with the system.
 }
+True
 \label{acq:fig:biab_arch}
 \end{figure}
 
@@ -243,7 +428,7 @@ On Windows, start by creating a folder \nolinkurl{~\\AppData\\Local\\happi\\happ
 Inside of this folder, create a file, \nolinkurl{happi.ini} with the following contents (replacing \texttt{<USERNAME>} with the username that is appropriate for your system):
 
 \begin{codefragment}{ini}
-	\[[DEFAULT]
+\[[DEFAULT]
 path = C:\Users\<USERNAME>\AppData\Local\happi\happi\happidb.json
 \end{codefragment}
 
@@ -342,8 +527,8 @@ However, the package is not yet available on conda, so conda systems should inst
 As such it is installed via:
 
 \begin{codefragment}{bash}
-conda install bluesky-queueserver-api appdirs click pyqtgraph pyside2 qtpy toml toolz wrighttools sympy bluesky-hwproxy bluesky-widgets
-pip install bluesky-cmds --no-deps
+conda install bluesky-queueserver-api appdirs click pyqtgraph pyside2 qtpy toml toolz wrighttools sympy bluesky-widgets
+pip install blueksy-hwproxy bluesky-cmds --no-deps
 \end{codefragment}
 
 or:
