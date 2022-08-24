@@ -29,7 +29,7 @@
 
 % TODO figures demonstrating motorspace for scans
 
-Broadly, \wrightplans provides wrappers of the standard Bluesky built-in plans which add unit awareness and the idea of "constants", allowing setting of motors to algebraic expressions of other motors.
+Broadly, \wrightplans provides wrappers of the standard Bluesky built-in plans which add unit awareness and the idea of ``constants'' allowing setting of motors to algebraic expressions of other motors.
 These plans each bear the name of the underlying Bluesky plan with the suffix ``\texttt{\_wp}'' which simply stands for \wrightplans and is included to differentiate from the built-in plans.
 Additionally, \wrightplans provides specialized plans for performing tuning operations of OPAs.
 
@@ -52,7 +52,7 @@ This proves limiting especially in the case of spectroscopy because different su
 Making it easy for scientists to think in the more natural unit system for their experiment was a priority.
 This is even more critical because the units for energy and the units for wavelength are inversely proportional, so a linear spaced array of points in one unit is not the same as a linearly spaced array in an alternative unit.
 
-A common pattern in the built-in Bluesky plans is to use a "variadic cycle", a repeating pattern of three to six arguments passed positionally where each set defines one axis of the scan.
+A common pattern in the built-in Bluesky plans is to use a ``variadic cycle'' a repeating pattern of three to six arguments passed positionally where each set defines one axis of the scan.
 Where this pattern was used in the underlying plan, \wrightplans adds the units as a string to the end of that cycle of arguments.
 The exception to this is \texttt{scan\_nd\_wp}, which is specified as a single \texttt{cycler}\cite{} object to define the positions.
 In this case, the units are specified as a dictionary mapping the device object to the unit string.
@@ -93,7 +93,7 @@ The expectation of \texttt{md} is that the contents will be encoded to JSON.
 
 Scan performs a one dimensional acquisition of linearly spaced points.
 If multiple motors are specified, each provides a start and stop position as well as their units, but there is only one keyword argument, \texttt{num}, which sets the number of points in the scan.
-This is refered to as the "inner product" of the two lists.
+This is refered to as the ``inner product'' of the two lists.
 Constants are allowed for scan, though the built-in functionality makes them largely superfluous.
 It can, however, be easier to think in terms of either end points or expressions for different experiments.
 Constants also have requirements regarding units that are not required for motors specified as endpoints.
@@ -149,7 +149,7 @@ scan2 = list_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm",
 
 \subsubsection{\texttt{grid\_scan\_wp}}
 
-Grid Scan is the "outer product" counterpart to Scan.
+Grid Scan is the ``outer product'' counterpart to Scan.
 This plan provides a way of doing N-Dimensional scans, where each specified axis rather than scanning together scan against one another.
 Grid Scan is the workhorse plan for many data acquisition tasks.
 Similar to Scan, the axes are specified as endpoints plus number of points, however each axis now has its own number of points instead of having a single number for all motors.
@@ -169,7 +169,7 @@ def grid_scan_wp(
 Here, \texttt{args} is a five member variadic cycle consisting of: a motor, start position, stop position, number of points, and units.
 \texttt{snake\_axes} allows the user to specify if the trajectory of the scan proceeds to the start position after reaching the end of the slice (the default, False) or winds back and forth, reversing the order that points are collected for each slice (True).
 Even finer control of snaking behavior is available by passing a list of motors (which must be motors specified in the scan), which will cause only those axes to snake rather than all axes.
-The outermost (first) motor must not be included in that list, as it only ever is set to each position once, and thus has no opportunity to "snake".
+The outermost (first) motor must not be included in that list, as it only ever is set to each position once, and thus has no opportunity to ``snake''
 A Grid Scan with only one axis is equivalent to Scan, and the addition of constants means that most desired acquisitions can be accomplished with Grid Scan.
 
 \begin{codefragment}{python}
@@ -229,7 +229,7 @@ Instead of specifying motor motion independently to the plan, this is done prior
 This cycler can perform arbitrary inner and outer product computations to define a trajectory through N-dimensional motor space.
 As such, it can be used to perform scans similar to at least simple versions of Constants, mixing axes that scan together with those that scan against each other.
 The motors are the keys of the Cycler object.
-Since there is no "variadic cycle" for Scan ND, \wrightplans unit support is provided via a separate keyword argument, \texttt{axis\_units}, a dictionary mapping the motors as keys to strings, the unit to use for that motor.
+Since there is no ``variadic cycle'' for Scan ND, \wrightplans unit support is provided via a separate keyword argument, \texttt{axis\_units}, a dictionary mapping the motors as keys to strings, the unit to use for that motor.
 \texttt{detectors}, \texttt{constants}, \texttt{per\_step} and \texttt{md} are all as described above in \ref{common_params}.
 
 \begin{codefragment}{python}
@@ -257,29 +257,29 @@ If motors are specified, then only the points specified by the relevant tunes ar
 \texttt{motors} is a dictionary mapping the \textit{names} of the motors (as strings representing the attribute of the \texttt{opa} object) to a dictionary of parameters for each motor.
 The motor parameters consist of the following:
 \begin{itemize}
-	\item \texttt{method}: Must be the string "static" or "scan", the former meaning that the motor should be held constant for the duration of the scan, the latter meaning that the motor is an axis in the scan.
-	\item \texttt{center}: Specifies the position for method "static" or the center of the axis for method "scan", ignored for method "scan" if \texttt{use\_tune\_points} is true, at which point center is relative to the tune point motor position.
-	\item \texttt{width}: The width, in native motor units, to scan for method "scan".
-	\item \texttt{npts}: The number of points for the motor axis in method "scan".
+	\item \texttt{method}: Must be the string ``static'' or ``scan'' the former meaning that the motor should be held constant for the duration of the scan, the latter meaning that the motor is an axis in the scan.
+	\item \texttt{center}: Specifies the position for method ``static'' or the center of the axis for method ``scan'' ignored for method ``scan'' if \texttt{use\_tune\_points} is true, at which point center is relative to the tune point motor position.
+	\item \texttt{width}: The width, in native motor units, to scan for method ``scan''.
+	\item \texttt{npts}: The number of points for the motor axis in method ``scan''.
 \end{itemize}
 \texttt{spectrometer} is a dictionary of parameters which control a monochromator.
 \texttt{spectrometer} is optional as many tuning operations do not require spectral resolution or detectors are not mounted on a monochromator.
 Its keys consist of the following:
 \begin{itemize}
 	\item \texttt{device}: The Bluesky device representing the spectrometer.
-	\item \texttt{method}: Must be the string "static", "zero", "track", "set", "scan", or "none".
+	\item \texttt{method}: Must be the string ``static'', ``zero'', ``track'', ``set'', ``scan'', or ``none''.
 		\begin{itemize}
-			\item "static" means that the monochromator should be set to a specific position at the beginning of the scan, as specified by "center".
-			\item "zero" is equivalent to static, except that the position is always zero nanometers, provided as a convenience.
-			\item "track" introduces a Constant which sets the spectrometer setpoint to be equal to the OPA's setpoint.
-			\item "set" is equivalent to "static" for acquisitions where \texttt{use\_tune\_points} is false and "track" where \texttt{use\_tune\_points} is true.
-			\item "scan" introduces an axis for the monochromator to be scanned.
-			\item "none" is an alternate way of specifying no spectrometer at all.
+			\item ``static'' means that the monochromator should be set to a specific position at the beginning of the scan, as specified by ``center''.
+			\item ``zero'' is equivalent to static, except that the position is always zero nanometers, provided as a convenience.
+			\item ``track'' introduces a Constant which sets the spectrometer setpoint to be equal to the OPA's setpoint.
+			\item ``set'' is equivalent to ``static'' for acquisitions where \texttt{use\_tune\_points} is false and ``track'' where \texttt{use\_tune\_points} is true.
+			\item ``scan'' introduces an axis for the monochromator to be scanned.
+			\item ``none'' is an alternate way of specifying no spectrometer at all.
 		\end{itemize}
-	\item \texttt{center}: Specifies the position for method "static" or the center of the axis for method "scan", ignored for method "scan" if \texttt{use\_tune\_points} is true, at which point center is relative to the tune point.
-	\item \texttt{width}: The width, in native motor units, to scan for method "scan".
-	\item \texttt{npts}: The number of points for the motor axis in method "scan".
-	\item \texttt{units}: specifies the units for method "static" or method "scan", if not provided, "nm" is assumed.
+	\item \texttt{center}: Specifies the position for method ``static'' or the center of the axis for method ``scan'', ignored for method ``scan'' if \texttt{use\_tune\_points} is true, at which point center is relative to the tune point.
+	\item \texttt{width}: The width, in native motor units, to scan for method ``scan''.
+	\item \texttt{npts}: The number of points for the motor axis in method ``scan''.
+	\item \texttt{units}: specifies the units for method ``static'' or method ``scan'', if not provided, ``nm'' is assumed.
 \end{itemize}
 
 \begin{codefragment}{python}
@@ -325,7 +325,7 @@ True
 \subsubsection{\texttt{run\_tune\_test}}
 
 \texttt{run\_tune\_test} is the simplest of the tuning plans, with no motors specified.
-It is designed to be processed by \inlinepython{attune.tune_test}, and thus a spectral axis is expected and as with \texttt{run\_setpoint} may originate from either an array detector or scanning a spectrometer.
+It is designed to be processed by \inlinepython{attune.tune\_test}, and thus a spectral axis is expected and as with \texttt{run\_setpoint} may originate from either an array detector or scanning a spectrometer.
 
 The signature for \texttt{run\_tune\_test} is:
 
@@ -383,7 +383,7 @@ True
 Docker is a technology that allows running services in a controlled environment that is isolated from the programs on the host machine.
 To do this, it takes advantage of hardware options on modern Central Processing Units (CPUs).
 The hardware options are available on most CPUs, but are often turned off by default and must be turned on in the BIOS settings.
-The name and location of this setting will depend on the make and model of the hardware, but often are identified by options with names like "KVM" or "Intel Virtualization Technology".
+The name and location of this setting will depend on the make and model of the hardware, but often are identified by options with names like ``KVM'' or ``Intel Virtualization Technology''.
 Technically, this should only be required for Windows and MacOS installations.
 
 \paragraph{Set up WSL (Windows only)}
@@ -399,8 +399,8 @@ It is recommended to install a version of Linux into WSL explicitly, by running 
 On Windows and MacOS, the preferred method of installing Docker is to install Docker Desktop\cite{}.
 This is a standard installer wizard which will guide you through the steps to install.
 Once installed, you should toggle a handful of settings.
-Most notably, under the "Resources->WSL Integration", it should be enabled for all distributions installed.
-Additionally "Docker Compose V2" should be enabled.
+Most notably, under the ``Resources $\rightarrow$ WSL Integration'', it should be enabled for all distributions installed.
+Additionally ``Docker Compose V2'' should be enabled.
 It is also recommended to consider your personal preference and purpose of using docker to determine if starting docker at login is desirable, if you want weekly tips for using Docker, or if you wish to send usage stats to Docker.
 Note that Docker Desktop's license terms require a paid subscription for commercial use, however academic use continues to be free.
 
@@ -497,7 +497,7 @@ docker compose build --no-cache
 
 This is most useful as a development tool to ensure that you are not accidentally relying on the state of your local system in ways that would not work on other machines.
 
-Once the containers are built, you can start them using Docker Desktop by pressing the start button for \biab in the "Containers/Apps" tab.
+Once the containers are built, you can start them using Docker Desktop by pressing the start button for \biab in the ``Containers/Apps'' tab.
 This will start the pre-built containers without rebuilding them.
 Rebuilding using the CLI is needed whenever the containers themselves are changed, most commonly for bumping the versions of installed software.
 
@@ -540,10 +540,10 @@ However, this does provide an easy way for testing or special purpose scripts to
 The WT5 container consumes the Event Model Document stream from the \texttt{zmq-proxy} container and creates WrightTools Data files.
 These files are stored in a folder shared with the host platform, such that they can be browsed and opened using platform native tools.
 In addition, the WT5 container writes a number of text files into the data folder and generates images for many scans.
-These include the "start", "descriptor", and "stop" documents from the event model for each Bluesky Run, written as JSON text files.
-Additionally each generated WT5 file also writes the output of \inlinepython{data.print_tree(verbose=True)} to a file so that users can quickly see information such as the shape and axes of the data file without actually opening the file.
+These include the ``start'' ``descriptor'' and ``stop'' documents from the event model for each Bluesky Run, written as JSON text files.
+Additionally each generated WT5 file also writes the output of \texttt{data.print\_tree(verbose=True)} to a file so that users can quickly see information such as the shape and axes of the data file without actually opening the file.
 
-One and Two dimensional scans produce the "quick" plots provided by WrightTools.
+One and Two dimensional scans produce the ``quick'' plots provided by WrightTools.
 Larger scans have caused significant memory problems when attempting to plot many slices, and so have been disabled.
 
 \subsubsection{\texttt{mongo}}
@@ -699,7 +699,7 @@ This builds the system of simulated daemons and starts running the daemons throu
 If the port that is expected for a \yaq daemon is already in use, the container will fail to run, much the same as if you tried to run a second instance of a \yaq daemon
 
 
-If you are using Docker Desktop, then you can restart the fake daemons from the "Containers/Apps" tab of the Docker Desktop application, in the same manner as \biab.
+If you are using Docker Desktop, then you can restart the fake daemons from the ``Containers/Apps'' tab of the Docker Desktop application, in the same manner as \biab.
 
 Once installed, you need to update the \texttt{yaqd-control} cache so that it knows about all of the daemons:
 
