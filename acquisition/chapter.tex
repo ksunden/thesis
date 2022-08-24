@@ -17,6 +17,14 @@
 
 \section{\texttt{bluesky}: Fully modular data acquisition}  % ===================================================================
 
+\subsection{Bluesky}
+
+\subsubsection{The Event Model}
+
+\subsubsection{The Run Engine}
+
+\subsubsection{Plans}
+
 \subsection{\wrightplans}
 
 % TODO figures demonstrating motorspace for scans
@@ -494,12 +502,104 @@ This will start the pre-built containers without rebuilding them.
 Rebuilding using the CLI is needed whenever the containers themselves are changed, most commonly for bumping the versions of installed software.
 
 \subsubsection{\texttt{re-manager}}
+
+The RE Manager is the beating heart of the \biab system.
+It is the service which accepts parameterized plan descriptions, organizes them into a queue, allows manipulation of the queue itself, and, most importantly, actually conducts the experiment.
+The RE Manager starts a Bluesky Run Engine (hence the name) and consumes the plans from the queue.
+These plans encode the steps for taking data: moving motors, triggering sensors, and emitting Event Model documents.
+
+The RE Manager is responsible for connecting to the devices which are listed by the HAPPI database, providing its own list of available devices (which filters out those that are offline or are subdevices of other hardware such as OPA motors).
+At present, \biab expects that all hardware specified is \yaq hardware, though support for additional interface layers requires only that they are specified in HAPPI and that the necessary dependencies get added to the \texttt{re-manager} container.
+It is also responsible for providing a list of available plans.
+For \biab, all of the \wrightplans are available, as well as the built-in Bluesky \texttt{count}, \texttt{sleep}, and \texttt{mv} plans.
+\texttt{count} generates a time series of readings, separated by a wait period.
+\texttt{sleep} simply waits for a specified period of time, given in seconds.
+\texttt{mv} allows for setting of hardware (to positions specified in their native units) in a manner which can be enqueued.
+All of the plans which generate data are wrapped with the Bluesky \texttt{baseline} decorator, which reads \textit{all} movable hardware once before and once after the plan itself is consumed.
+This allows for a full record of the state of the system without recording all hardware for every data point, even when it not told to move for a given plan.
+
+The RE Manager container provides a few ways of interacting, which are largely based on intefaces over a ZeroMQ\cite{} message system.
+ZeroMQ (abbreviated ZMQ or 0MQ) provides a standard way of either doing request/reply Remote Procedure Calls (RPCs) or publish/subscribe (pub/sub) data flows where one end provides a stream of data and the other is expecting that stream of data.
+The former, RPC style requests, is used to enqueue plans, interact with the queue itself, and to query the state of the RE Manager.
+The latter, pub/sub style requests, is used to publish the Event Model documents as well as (separately) publishing the console output of the RE Manager so that it can be displayed in client applications.
+These ZMQ interfaces are considered trusted interfaces, and as such do no authentication of users.
+If such authentication is needed, it can be provided by additional tools by the authors of \texttt{bluesky-queueserver} which wrap the ZMQ interface in a FastAPI\cite{} interface served over TCP, with authentication done by that service.
+This is recommended in the future if remote access is desired to instruments runing \biab, however initial development is focused on running a self contained system which provides access primarily to the direct machine running the instrument.
+
 \subsubsection{\texttt{zmq-proxy}}
+
+\texttt{zmq-proxy} is a small program provide by Bluesky which simply routes Event Model documents that it reads from on port and writes them to any number of subscribers on a second port.
+The same purpose in larger systems where caching, latency, and network reliability are important may be achived by an industry standard service like Apache Kafka\cite{}.
+Because \biab is running on a single machine, network reliability and latency are not anticipated problem and we do not currently require caching, so the simpler program is used.
+\texttt{zmq-proxy} provides a server for each end of the communication, which allows multiple clients to act as sources or sinks of the documents which are being shuttled.
+In practice, usually only one service, the RE Manager, should ordinarily be the source of the documents.
+However, this does provide an easy way for testing or special purpose scripts to serve as a source.
+
 \subsubsection{\texttt{WT5}}
+
+The WT5 container consumes the Event Model Document stream from the \texttt{zmq-proxy} container and creates WrightTools Data files.
+These files are stored in a folder shared with the host platform, such that they can be browsed and opened using platform native tools.
+In addition, the WT5 container writes a number of text files into the data folder and generates images for many scans.
+These include the "start", "descriptor", and "stop" documents from the event model for each Bluesky Run, written as JSON text files.
+Additionally each generated WT5 file also writes the output of \inlinepython{data.print_tree(verbose=True)} to a file so that users can quickly see information such as the shape and axes of the data file without actually opening the file.
+
+One and Two dimensional scans produce the "quick" plots provided by WrightTools.
+Larger scans have caused significant memory problems when attempting to plot many slices, and so have been disabled.
+
 \subsubsection{\texttt{mongo}}
+
+MongoDB\cite{} is an industry standard database for storing JSON-like documents.
+Mongo is widely used by the upstream authors of Bluesky at various National Labs as the immediate store of data being recorded from instruments.
+As such, there are pre-existing tools in the ecosystem that pair well with a Mongo database.
+The Mongo Docker container is provided to allow exploration of this ecosystem of tools with the data collected by \biab.
+It also provides a back-up of the data should the WT5 data writer fail.
+At present, the Mongo database does not serve as a long term archival data back-up, but rather as a a short term failsafe.
+This decision is not one of fundemental design, but rather a decision of allocation of development time.
+It is quick and easy to add a Mongo container to the Docker system and route the data from the RE Manager to it, ensuring it is accessible short term.
+It is a more complex task to ensure that the data gets written in a manner appropriate for archival storage, and there has been no need for it at this time.
+
 \subsubsection{\texttt{redis}}
+
+Redis\cite{} is an industry standard service for in-memory key-value data store.
+It is used by the RE Manager container to track the state of the queue of plans.
+Redis is required for the operation of the RE Manager, and thus must be running.
+However, there is little to no direct interaction with redis, so unless you are actively developing \texttt{bluesky-queueserver}, it can largely be ignored.
+
 \subsubsection{\texttt{hwproxy}}
+
+\texttt{bluesky-hwproxy}\cite{} is a small project started for inclusion in \biab.
+Its primary purpose is to provide read-only access to the hardware which is available to the RE Manager.
+This allows for rich graphical programs like \texttt{bluesky-cmds} to query information about hardware such as limits and units.
+\texttt{hwproxy} wraps the device loading portions of \texttt{bluesky-queueserver} and exposes the standard Bluesky Protocol methods over a ZMQ interface very similar to that used by the RE Manager itself.
+This allows any tool that can communicate with the RE Manager to communicate with \texttt{hwproxy} just as easily.
+
 \subsubsection{Troubleshooting}
+
+Slow and methodical.
+
+Do not be afraid to try things; take precautions such as physically blocking laser light if needed
+
+Examine and think carefully about expected results; do parameters make sense
+
+Seek a reproducible test case
+
+Find cases which work as expected as well as those which fail unexpectedly
+
+Narrow down which part of the system is responsible for the failure
+
+Upside of docker is that it makes deploying easy; downside is it makes debugging more challenging in some cases
+
+If the problem is in one of the scripts in \biab, update the script and rebuild the container
+
+If in a dependency, two options:
+
+Use the modularity to your advantage and run a pared down part of the system outside of docker: a script to run an RE and send data through zmq-proxy and WT5, for example
+
+Push code to the remote code repository (github) and install the git version in requirements.txt
+
+... provide an example ...
+
+
 
 \subsection{\texttt{qserver}: Command Line Frontend to \texttt{bluesky-queueserver}}
 
@@ -528,7 +628,7 @@ As such it is installed via:
 
 \begin{codefragment}{bash}
 conda install bluesky-queueserver-api appdirs click pyqtgraph pyside2 qtpy toml toolz wrighttools sympy bluesky-widgets
-pip install blueksy-hwproxy bluesky-cmds --no-deps
+pip install bluesky-hwproxy bluesky-cmds --no-deps
 \end{codefragment}
 
 or:
