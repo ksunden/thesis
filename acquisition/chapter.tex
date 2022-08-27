@@ -424,10 +424,10 @@ This section assumes that the system has \yaq hardware running and set up to be 
 If this is a development machine, it is recommended to install \ref{wright-fakes} prior to proceeding.
 
 \texttt{bluesky-in-a-box} uses \texttt{happi}\cite{}, a project created by the Stanford Linear Accelerator Center (SLAC), to communicate what hardware is available to the \texttt{re-manager} and \texttt{hwproxy}.
-It provides a standard way of declaring available hardware and how to create a Bluesky-compatible python object for each.
+It provides a standard way of declaring available hardware and how to create a Bluesky-compatible Python object for each.
 Using \texttt{happi} allows the possibility of easily and transparently using hardware supported by additional control layers beyond \texttt{yaq}.
 
-\texttt{happi} is a python package that can be installed with either \texttt{conda install happi} or \texttt{pip install happi}.
+\texttt{happi} is a Python package that can be installed with either \texttt{conda install happi} or \texttt{pip install happi}.
 This will install a Command Line Interface (CLI) Application to manage a database (stored as a JSON file) of available hardware.
 In addition, for \texttt{happi} to be able to work with \yaq hardware you must \texttt{conda install yaqc-bluesky} or \texttt{pip install yaqc-bluesky}.
 
@@ -575,6 +575,69 @@ This allows any tool that can communicate with the RE Manager to communicate wit
 
 \subsubsection{Troubleshooting}
 
+Docker as a technology for running \biab was chosen primarily to make standard usage as easy as possible.
+It allows for all of the connected services to be brought online and offline quickly and easily, encoding all of their dependent relationships on each other.
+However, the same factors that make Docker a good choice for standard operation mean that a few extra steps are needed when troubleshooting or debugging.
+In particular, Docker is designed to provide a consistent environment for all of the services to run, with static code and dependencies.
+Troubleshooting is a task which necessitates rapid updating and a tight feedback loop.
+
+While the standard troubleshooting tips as laid out in \ref{TODO} apply, there are some particular approaches that are useful when debugging \biab in particular (and Docker containers more generally).
+The first step is to determine \textit{where} the origin of the problem exists.
+This is not as trivial as it may seem at first.
+Generally, it is a good strategy to start by carefully reading the logs provided by the Docker containers.
+The two most relevant containers will be the the RE Manager and the WT5 containers.
+The other containers are all fairly standard tools that are not nearly as customized and thus are not likely to be the problem.
+Most of the time, the container which has an error message is a good candidate for where the problem exists, but this is not always the case.
+Some problems may exist in the network itself which connects the containers to each other and to the host system.
+These tend to be relatively rare, but can also be some of the trickiest to track down and resolve.
+Others may present as errors down stream but the root cause is the input to that container.
+For example, faulty parameters may cause a plan to fail during execution.
+Such a failure may be expected, given the inputs, so this example means that either user training or user interfaces could be improved.
+Alternatively, if the metadata is malformed that may allow the actual data acquisition to proceed as expected, but cause the WT5 data writer to fail.
+In this instance, the root cause would be the Bluesky plan, which is a dependency of the RE Manager, though the error would present in the WT5 container.
+
+
+For smaller tests, particularly those involving testing of the network connections, Docker allows opening a command shell which runs inside of the container.
+If using Docker Desktop, starting a command shell inside of one of the Docker containers is as easy as pressing a button in the graphical application.
+On any platform, you can use the Docker command line to open a shell in the Docker container:
+
+\begin{codefragment}{bash}
+docker exec -it <container name> bash
+\end{codefragment}
+
+Note that the container name here is as listed by \inlinebash{docker ps}, not the name in the Docker Compose file.
+For \biab, this is most useful for information gathering tasks such as answering the question "Can the RE Manager container communicate with the yaq daemon running on the host machine?" or "Can my WT5 container communicate with the ZMQ Proxy container?".
+
+If the problem exists with the code that is in the \biab repository (mostly the startup scripts, configuration, and the WT5 data writing code) then a more traditional editing the code and running the containers is reasonably achievable.
+There is the required step to do \inlinebash{docker compose up --build} to run the Docker containers.
+Without doing this, the old version will run instead.
+This makes for a reasonable, if a little slower than ideal, development feedback loop.
+
+If, instead, the problem exists in your dependencies, that makes developing even more indirect.
+There is not a particularly good way to build the Docker containers pointing to local directories with code changes.
+Thus the procedure is instead to push the code changes to a remotely accessible Git repository and install Python dependencies from that Git repository.
+Note, however, that while you \textit{can} point the Git installation in \texttt{requirements.txt} to the branch that you create, this is not fully recommended because subsequent updates to the branch will not cause the Docker container to rebuild.
+Docker will only redo a step in the installation if it can tell that the step requires it.
+Thus it will only redo the step that installs the Python dependencies if it sees a change to what it is asked to install.
+Since the requested branch is the same, the Docker build system determines that it is the same version being requested and thus will use the previously built version.
+Instead, it is recommended to use the SHA hash pointing to a particular commit instead, and updating it every time the code is pushed to the remote repository.
+
+An example of a \texttt{requirements.txt} that points to a Git repository:
+
+\begin{codefragment}{txt}
+bluesky==1.8.3
+WrightTools==3.4.4
+pyzmq==22.3.0
+numpy==1.22.3
+toolz==0.11.2
+git+https://github.com/wright-group/WrightTools@abcdef12
+\end{codefragment}
+
+The last line adds a particular Git version of \wrighttools.
+
+
+modularity
+
 Slow and methodical.
 
 Do not be afraid to try things; take precautions such as physically blocking laser light if needed
@@ -584,8 +647,6 @@ Examine and think carefully about expected results; do parameters make sense
 Seek a reproducible test case
 
 Find cases which work as expected as well as those which fail unexpectedly
-
-Narrow down which part of the system is responsible for the failure
 
 Upside of docker is that it makes deploying easy; downside is it makes debugging more challenging in some cases
 
@@ -605,7 +666,7 @@ Push code to the remote code repository (github) and install the git version in 
 
 \subsubsection{Installation}
 
-\texttt{qserver} is included with the installation of the python package \texttt{bluesky-queueserver}.
+\texttt{qserver} is included with the installation of the Python package \texttt{bluesky-queueserver}.
 As such it is installed via:
 
 \begin{codefragment}{bash}
@@ -622,7 +683,7 @@ pip install bluesky-queueserver
 
 \subsubsection{Installation}
 
-\texttt{bluesky-cmds} is included with the installation of the python package \texttt{bluesky-cmds}.
+\texttt{bluesky-cmds} is included with the installation of the Python package \texttt{bluesky-cmds}.
 However, the package is not yet available on conda, so conda systems should install the dependencies via conda first.
 As such it is installed via:
 
