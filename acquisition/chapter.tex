@@ -501,6 +501,8 @@ Once the containers are built, you can start them using Docker Desktop by pressi
 This will start the pre-built containers without rebuilding them.
 Rebuilding using the CLI is needed whenever the containers themselves are changed, most commonly for bumping the versions of installed software.
 
+% TODO longer term maintenance of docker containers and volumes
+
 \subsubsection{\texttt{re-manager}}
 
 The RE Manager is the beating heart of the \biab system.
@@ -624,7 +626,7 @@ Instead, it is recommended to use the SHA hash pointing to a particular commit i
 
 An example of a \texttt{requirements.txt} that points to a Git repository:
 
-\begin{codefragment}{txt}
+\begin{codefragment}{python}
 bluesky==1.8.3
 WrightTools==3.4.4
 pyzmq==22.3.0
@@ -633,33 +635,27 @@ toolz==0.11.2
 git+https://github.com/wright-group/WrightTools@abcdef12
 \end{codefragment}
 
-The last line adds a particular Git version of \wrighttools.
+The last line adds a particular Git version of \wrighttools which overrides the version specified earlier in the requirements file.
 
+Finally, and perhaps most powerfully, the modularity of the Docker system can be used to run parts of the system outside of docker itself, thus enabling more traditional development and feedback cycles.
+Any of the Docker containers can be independently halted and superceded by a version of the service running outside of Docker, though clients of that service may need to be reconfigured to point to the correct external service.
+While it can be used if there are problems discovered with the MongoDB, Redis, or ZMQ Proxy contianers, for \biab this is most useful to perform tests using a smaller Run Engine running outside of the RE Manager container all together.
+\ref{apx:script:re} provides an example of a script that can be run directly on the host machine, performing data acquisitions which are still processed by the WT5 data writing pipeline (via the ZMQ Proxy container).
+This particular script does not require \textit{any} change to the configuration of \biab.
+In fact, even the RE Manager container can be running, though it should not be actively acquiring data, as downstream tools such as the WT5 writer and live plotting are likely to behave poorly if there are two simultaneous acquisitions happening.
+This script allows for a much smaller and easier to troubleshoot system to do the actual orchestration of the acquisition.
+It removes some of the complexities of of the RE Manager container, allowing for more direct access to the Run Engine.
+This comes, of course, at the cost of not having a queue or the user interfaces built to interact with the RE Manager.
 
-modularity
+% Slow and methodical.
 
-Slow and methodical.
+% Do not be afraid to try things; take precautions such as physically blocking laser light if needed
 
-Do not be afraid to try things; take precautions such as physically blocking laser light if needed
+% Examine and think carefully about expected results; do parameters make sense
 
-Examine and think carefully about expected results; do parameters make sense
+% Seek a reproducible test case
 
-Seek a reproducible test case
-
-Find cases which work as expected as well as those which fail unexpectedly
-
-Upside of docker is that it makes deploying easy; downside is it makes debugging more challenging in some cases
-
-If the problem is in one of the scripts in \biab, update the script and rebuild the container
-
-If in a dependency, two options:
-
-Use the modularity to your advantage and run a pared down part of the system outside of docker: a script to run an RE and send data through zmq-proxy and WT5, for example
-
-Push code to the remote code repository (github) and install the git version in requirements.txt
-
-... provide an example ...
-
+% Find cases which work as expected as well as those which fail unexpectedly
 
 
 \subsection{\texttt{qserver}: Command Line Frontend to \texttt{bluesky-queueserver}}
