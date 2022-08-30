@@ -1,5 +1,8 @@
 \documentclass{dissertation}
 
+\usepackage[nonumberlist]{glossaries}
+\makeglossaries
+
 \begin{document}
 
 \raggedbottom
@@ -88,10 +91,12 @@ This dissertation is approved by the following members of the Final Oral Committ
 
 \part{Appendix} \label{prt:appendix}
 \begin{appendix}
+\include{glossary/chapter}
 %\include{procedures/chapter}  % prc
 %\include{irf/chapter}  % irf
 %\include{quantitative_ta/chapter}  % qta
 %\include{opa_phase/chapter}  % rpa
+\include{scripts/chapter}
 \include{exercises/chapter}
 \end{appendix}
 

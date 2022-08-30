@@ -1,0 +1,55 @@
+\chapter{Useful Scripts} \label{cha:scripts}
+
+\clearpage
+
+\section{Introduction}  
+\clearpage
+
+\section{WrightTools}  
+\section{Attune}  
+
+\subsection{Intensity workup}
+\includepython{test.py}
+
+\subsection{Setpoint workup}
+\includepython{test.py}
+
+\subsection{Tune Test workup}
+\includepython{test.py}
+
+\subsection{Holistic workup}
+\includepython{test.py}
+
+\section{Bluesky Run Engine}  
+
+
+\subsection{Run a Run Engine, connecting to \biab}
+\label{apx:script:re}
+
+This script allows you to run an instance of a Bluesky Run Engine, with the devices read from HAPPI and the readings being sent to the WT5 writer of \biab.
+
+The recommended usage of this script is to run as an interactive python shell:
+
+\begin{codefragment}{bash}
+$ python -i bluesky_play.py 
+[Errno 111] Connection refused
+Adding d0
+Adding d1
+Adding d2
+Adding daq
+YAQDevice() takes no arguments
+Adding nd1
+Adding nd2
+[Errno 111] Connection refused
+Adding w1
+Adding w1_shutter
+Adding w2
+Adding w2_shutter
+Adding wa
+Adding wm
+>>> RE(count([daq], 10, 1))
+\end{codefragment}
+
+\includepython{scripts/bluesky_play.py}
+
+\clearpage

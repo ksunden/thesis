@@ -11,13 +11,23 @@
 
 \subsection{PyCMDS: Monolithic Data Acquisition Program}
 
+\newglossaryentry{PyCMDS}{name=PyCMDS, description={A monolithic python program for collecting CMDS data}}
+\newglossaryentry{CMDS}{name=CMDS, description={Coherent Multi-Dimensional Spectroscopy}}
+
+\Gls{PyCMDS} is a program to do \gls{CMDS}
+
 \clearpage
 
 \section{\texttt{yaqc-cmds}: Steps towards modularity}  % =============================================================
 
+\newglossaryentry{yaqc-cmds}{name=yaqc-cmds, description={Pronounced ``Yak C Commands''. A custom program for collecting CMDS data using \yaq to communicate with hardware}}
+
 \section{\texttt{bluesky}: Fully modular data acquisition}  % ===================================================================
 
 \subsection{Bluesky}
+\newglossaryentry{Blueskyproj}{name={Bluesky (Project)}, description={A collaboration primarily consisting of members of National Labs which provides libraries in python do perform experimental science}}
+
+\newglossaryentry{Blueskylib}{name={Bluesky (Library)}, description={The central Library of the Bluesky Project which provides an engine for specification and orchestration of scientific experiments}}
 
 \subsubsection{The Event Model}
 
@@ -25,11 +35,14 @@
 
 \subsubsection{Plans}
 
+\newglossaryentry{plan}{name=plan, description={A python function which defines a series of steps of an experiemental procedure}}
+
 \subsection{\wrightplans}
 
+\newglossaryentry{wrightplans}{name={\wrightplans}, description={Bluesky Plans built for the Wright Group}, sort={wright plans}}
 % TODO figures demonstrating motorspace for scans
 
-Broadly, \wrightplans provides wrappers of the standard Bluesky built-in plans which add unit awareness and the idea of ``constants'' allowing setting of motors to algebraic expressions of other motors.
+Broadly, \gls{wrightplans} provides wrappers of the standard Bluesky built-in plans which add unit awareness and the idea of ``constants'' allowing setting of motors to algebraic expressions of other motors.
 These plans each bear the name of the underlying Bluesky plan with the suffix ``\texttt{\_wp}'' which simply stands for \wrightplans and is included to differentiate from the built-in plans.
 Additionally, \wrightplans provides specialized plans for performing tuning operations of OPAs.
 
@@ -52,7 +65,9 @@ This proves limiting especially in the case of spectroscopy because different su
 Making it easy for scientists to think in the more natural unit system for their experiment was a priority.
 This is even more critical because the units for energy and the units for wavelength are inversely proportional, so a linear spaced array of points in one unit is not the same as a linearly spaced array in an alternative unit.
 
-A common pattern in the built-in Bluesky plans is to use a ``variadic cycle'' a repeating pattern of three to six arguments passed positionally where each set defines one axis of the scan.
+
+\newglossaryentry{varcyc}{name={variadic cycle}, description={A repeating cycle of parameters which are logically grouped in sets}} 
+A common pattern in the built-in Bluesky plans is to use a ``\gls{varcyc}'' a repeating pattern of three to six arguments passed positionally where each set defines one axis of the scan.
 Where this pattern was used in the underlying plan, \wrightplans adds the units as a string to the end of that cycle of arguments.
 The exception to this is \texttt{scan\_nd\_wp}, which is specified as a single \texttt{cycler}\cite{} object to define the positions.
 In this case, the units are specified as a dictionary mapping the device object to the unit string.

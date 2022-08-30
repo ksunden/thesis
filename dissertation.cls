@@ -151,6 +151,8 @@
 \newcommand{\includepython}[1]{\inputminted[bgcolor=bg]{python}{#1}}
 \newcommand{\includebash}[1]{\inputminted[bgcolor=bg]{bash}{#1}}
 
+\newcommand{\inlinepython}[1]{\mintedinline[bgcolor=bg]{python}{#1}}
+\newcommand{\inlinebash}[1]{\mintedinline[bgcolor=bg]{bash}{#1}}
 % --- graphics ------------------------------------------------------------------------------------
 
 \RequirePackage{graphics}
