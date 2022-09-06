@@ -4,6 +4,7 @@
 \newcommand\yaq{\texttt{yaq} }
 \newcommand\wrightfakes{\texttt{wright-fakes} }
 \newcommand\wrightplans{\texttt{wright-plans} }
+\newcommand\blueskycmds{\texttt{bluesky-cmds} }
 
 \clearpage
 
@@ -386,7 +387,6 @@ A summary of the parts of the \texttt{bluesky-in-a-box} and the flow of data bet
 The parts above the line are all run inside of docker, and can be brought online and offline simultaneously.
 The parts below the line are run on the host system and represent the more direct hardware access and the graphical programs to used to interact with the system.
 }
-True
 \label{acq:fig:biab_arch}
 \end{figure}
 
@@ -586,7 +586,7 @@ However, there is little to no direct interaction with redis, so unless you are 
 
 \texttt{bluesky-hwproxy}\cite{} is a small project started for inclusion in \biab.
 Its primary purpose is to provide read-only access to the hardware which is available to the RE Manager.
-This allows for rich graphical programs like \texttt{bluesky-cmds} to query information about hardware such as limits and units.
+This allows for rich graphical programs like \blueskycmds to query information about hardware such as limits and units.
 \texttt{hwproxy} wraps the device loading portions of \texttt{bluesky-queueserver} and exposes the standard Bluesky Protocol methods over a ZMQ interface very similar to that used by the RE Manager itself.
 This allows any tool that can communicate with the RE Manager to communicate with \texttt{hwproxy} just as easily.
 
@@ -643,14 +643,14 @@ An example of a \texttt{requirements.txt} that points to a Git repository:
 
 \begin{codefragment}{python}
 bluesky==1.8.3
-WrightTools==3.4.4
+#WrightTools==3.4.4
 pyzmq==22.3.0
 numpy==1.22.3
 toolz==0.11.2
 git+https://github.com/wright-group/WrightTools@abcdef12
 \end{codefragment}
 
-The last line adds a particular Git version of \wrighttools which overrides the version specified earlier in the requirements file.
+The last line adds a particular Git version of \wrighttools which takes the place the commented out version specified earlier in the requirements file.
 
 Finally, and perhaps most powerfully, the modularity of the Docker system can be used to run parts of the system outside of docker itself, thus enabling more traditional development and feedback cycles.
 Any of the Docker containers can be independently halted and superceded by a version of the service running outside of Docker, though clients of that service may need to be reconfigured to point to the correct external service.
@@ -675,6 +675,7 @@ This comes, of course, at the cost of not having a queue or the user interfaces 
 
 \subsection{\texttt{qserver}: Command Line Frontend to \texttt{bluesky-queueserver}}
 
+
 \subsubsection{Installation}
 
 \texttt{qserver} is included with the installation of the Python package \texttt{bluesky-queueserver}.
@@ -690,11 +691,22 @@ or:
 pip install bluesky-queueserver
 \end{codefragment}
 
-\subsection{\texttt{bluesky-cmds}: Graphical Frontend to \texttt{bluesky-queueserver}}
+\subsection{\blueskycmds: Graphical Frontend to \texttt{bluesky-queueserver}}
+
+\blueskycmds is a graphical application to interact with a running Bluesky Queueserver, such as that provided by \biab.
+While everything \textit{can} be accomplished using the command line tool above, that is not the most ergonomic tool for users.
+The CLI requires that users type out exactly the correct command, including properly formatting JSON where it is required.
+As a graphical app, \blueskycmds encodes much of the tedious structure of requests to the Queueserver in the user interface itself, thus minimizing potential for simple typographical errors.
+
+\blueskycmds inherits much of its style, layout, and capabilities from the prior graphical data acquisition apps, \yaqccmds and PyCMDS.
+It does, however, remove all of the direct interaction with hardware that the older programs had in order to focus solely on being the best application to manipulate the RE Manager queue.
+This functionality is provided by alternative applications such as \yaqcqtpy.
+Additionally, the actual code to perform acquisitions and store data is no longer part of the same application, replaced by requests of the Queueserver.
+This means that the graphical app can be closed (intentionally or unintentionally) and the acquisistion continues.
 
 \subsubsection{Installation}
 
-\texttt{bluesky-cmds} is included with the installation of the Python package \texttt{bluesky-cmds}.
+\blueskycmds is included with the installation of the Python package \blueskycmds.
 However, the package is not yet available on conda, so conda systems should install the dependencies via conda first.
 As such it is installed via:
 
@@ -730,9 +742,7 @@ This will prompt you to populate the file with the default template if it does n
 
 The default template, appropriate for connecting to a \biab instance running on the local machine is shown below:
 
-\begin{codefragment}{toml}
-test=true # needed for minted TODO figure this out
-[bluesky]
+\begin{codefragment}{toml}\noop[bluesky]
 re-manager = "tcp://localhost:60615"
 re-info = "tcp://localhost:60625"
 hwproxy = "tcp://localhost:60620"
@@ -740,6 +750,224 @@ zmq-proxy = "localhost:5568"
 \end{codefragment}
 
 To run remotely, the host and port for each connected service can change as needed.
+
+\subsubsection{Usage}
+
+
+Starting \blueskycmds is done by running the following command:
+
+\begin{codefragment}{bash}
+bluesky-cmds
+\end{codefragment}
+
+In the future, integrations with the operating systems (Windows, Linux, MacOS) will allow \blueskycmds to appear as an ordinary application that can be started from application menus.
+
+When the application opens, it communicates with the RE Manager, retrieving lists of available devices and plans.
+Additionally the application opens the Run Engine worker environment.
+The startup behavior is repeated whenever the application reconnects to the RE Manager (e.g. when the RE Manager is restarted)
+
+The application window has a progress bar accross the top, and a tab view which provides the main user interaction.
+The tab view has three tabs: Queue, Plot, and Logs.
+The progress bar gives an indication of the progress of a running acquisition.
+For the progress bar to work, the expected number of points must be known at the begining of the scan and the application must be open when the acquisition begins.
+The progress bar provides an elapsed time counter on the left hand side and an estimation of remaining time on the right hand side.
+The bar is green when the acquisition starts or completes successfully, and turns red if the aquisition fails.
+
+\subsubsection{The Queue Tab}
+
+The Queue tab is the default tab when the application starts up.
+Figure \ref{acq:fig:queue_tab} shows the Queue tab.
+Along the left hand side, there is a pane to control the queue, allowing enqueing of plans and starting the queue.
+On the right, there is a table which displays the queue and the history.
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=9in]{"acquisition/images/queue_tab"}
+\caption[The Queue Tab]{
+	\blueskycmds with the queue tab open.
+}
+\label{acq:fig:queue_tab}
+\end{figure}
+\end{landscape}
+
+To begin an enqueued scan, click the teal ``Start Queue'' button.
+While the queue is running, this button turns into a red ``Interrupt'' button.
+When pressed, the RE Manager will pause execution of the plan and a dialog window presents options of how to proceed: ``Resume'', ``Stop after plan'', ``Skip'', and ``Stop now''.
+Figure \ref{acq:fig:queue_interrupt} shows the interruption workflow.
+``Resume'' will cause the paused plan to proceed from where it left off.
+``Stop after plan'' will instruct the queue to resume the current plan, but not proceed to the next enqueued plan.
+``Skip'' instructs the RE Manager to halt execution of the current plan, marking the plan as successful and not re-enqueuing it.
+``Stop Now'' instructs the RE Manager to halt execution of the current plan, but mark the plan as unsuccessful and re-enqueue it to run again.
+
+\begin{figure}
+\includegraphics[width=3in]{"acquisition/images/queue_interrupted"}
+\caption[The Interrupt Workflow]{
+	When an acquisition is in progress, the Queue Start button becomes an Interrupt button which pauses the acquisition and presents options for how to proceed.
+}
+\label{acq:fig:queue_interrupt}
+\end{figure}
+
+The queue and history can be cleared by clicking the appropriate button in the left hand pane of \blueskycmds.
+Each of these will open a confirmation dialog as shown in Figure \ref{acq:fig:queue_clear} to prevent accidentally removing enqueued or recently run plans.
+Doing so is rarely absolutely necessary, though it is easier than removing enqueued items individually and the user interface can be slower than desired if there are many entries in the queue and history.
+
+\begin{figure}
+\includegraphics[width=3in]{"acquisition/images/queue_clear"}
+\caption[The Queue and History Clear Workflow]{
+	The buttons for clearing the queue and the history and the pop-up windows that open for each.
+}
+\label{acq:fig:queue_clear}
+\end{figure}
+
+Below the queue and history clearing controls, there is a drop down box with three options: ``plan'', ``instruction'', and ``preset''.
+This controls the remainder of the left hand bar to allow adding various items to the queue.
+
+\paragraph{Enqueueing a plan}
+
+The primary way to enqueue a plan in \blueskycmds is to use the ``plan'' option of the ``Type'' selector.
+The next selector provided is the ``Plan'' selector, which provides a list of allowed plans.
+Each plan then has its own interface for setting the arguments to that specific plan.
+These interfaces are currently collated by hand and provided by \blueskycmds, though in the future may be able to be built automatically by information provide by the RE Manager.
+There is a fall-back option if no custom interface is provided where JSON arguments and keyword arguments can be provided directly.
+Figure \ref{acq:fig:grid_scan} shows the interface for the \texttt{grid\_scan\_wp} plan.
+
+There are common patterns used in building these interfaces.
+For instance, all of the plans with variadic cycles have buttons to add and remove sets of inputs that must be provided together.
+There are also reusable interface elements for providing metadata, detectors, or constants.
+
+Plans are appended by clicking the teal button at the bottom of the plan interface.
+
+\begin{figure}
+\includegraphics[width=3in]{"acquisition/images/grid_scan"}
+\caption[Example Plan Enqueuing UI]{
+	The user interface for enqueueing a grid scan plan.
+}
+\label{acq:fig:grid_scan}
+\end{figure}
+
+\paragraph{Enqueueing an instruction}
+Instructions are items that can be enqueued that modify the behavior of the queue itself.
+At present, there is only a single option for instructions to append to the queue: Queue Stop.
+There are no parameters for Queue Stop, so it appears as a simple button which when pressed enqueues a Queue Stop at the end of the active queue.
+This instructs the queue to return to an idle state rather than proceeding to the next enqueued plan, requiring the user to explicitly restart the queue to continue.
+This can be useful if there is some manual user interaction required, but the next experimenal steps are known so the plans can be enqueued before that interaction can occur.
+Figure \ref{acq:fig:instruction} shows the instruction pane in the user interface.
+
+
+\begin{figure}
+\includegraphics[width=3in]{"acquisition/images/instruction"}
+\caption[Instruction Pane]{
+	The ``instruction'' pane for appending to the queue.
+}
+\label{acq:fig:instruction}
+\end{figure}
+
+\paragraph{Enqueueing a preset}
+
+A ``preset'' is simply an ordered list of plans (or instructions) which can saved and enqueued sequentially.
+This is useful if there are repetative tasks such as tuning operations or running the same battery of scans on different samples.
+Under the hood, presets are files stored in a configuration folder where the file name identifies the preset name and the contents are JSON objects, separated by lines, which represent a series of plans or instructions.
+The preset system is functionality added by \blueskycmds, it is not built-in to the RE Manager directly.
+When a preset is selected to be appended to the queue, \blueskycmds opens the preset file and reads each line and appends each entry to the queue.
+
+Figure \ref{acq:fig:preset} shows the preset enqueueing pane.
+The second drop-down box allows selecting one of the existing preset options.
+The teal ``Append Preset Plans'' button enqueues all of the plans from the preset.
+The yellow ``Edit Preset Plans'' button opens a text editor to edit the JSON file directly.
+This is an advanced feature, but provides the power and flexibility to those who need it.
+While it can be used to completely add new entries to the preset, it is most useful for smaller tweaks.
+Changing the value of parameters, order of enqueuing, or removing plans from presets are all relatively simple tasks in the text editor view.
+
+An example of a preset file:
+
+\begin{codefragment}{json}
+\noop
+{"item_type": "plan", "name": "count", "args": [["daq"], 3]}
+{"item_type": "plan", "name": "count", "args": [["daq"]], "kwargs": {"num": 5, "delay": 0}, "meta": {"Name": "", "Info": "", "Experimentor": "Kyle"}}
+{"item_type": "plan", "name": "count", "args": [["daq"], 5]}
+{"item_type": "plan", "name": "mv", "args": ["d0", 0, "d1", 0]}
+{"item_type": "instruction", "name": "queue_stop"}
+
+\end{codefragment}
+
+There is presently no built in user interface to remove a preset entirely.
+To do so, you must delete the file from the folder of presets, which is located in \nolinkurl{~/.local/share/bluesky-cmds/presets} on Linux and \nolinkurl{\~\\AppData\\Local\\bluesky-cmds\\bluesky-cmds\\presets} on Windows.
+
+
+\begin{figure}
+\includegraphics[width=3in]{"acquisition/images/preset"}
+\caption[Preset Pane]{
+	The ``preset'' pane for appending to the queue.
+}
+\label{acq:fig:preset}
+\end{figure}
+
+To add to a preset, right click on the description field of an entry in the queue or history, and select ``Append to preset...''.
+This will open a dialog box with a selector for existing presets, which if selected the plan will be appended to the end of the preset.
+If you select ``New Preset...'', then an additional diagog will open, where a name for a new preset can be provided.
+This workflow is shown in Figure \ref{acq:fig:preset_add}.
+
+\begin{figure}
+\includegraphics[width=3in]{"acquisition/images/append_to_preset"}
+\caption[Preset add]{
+	The workflow for appending to presets.
+}
+\label{acq:fig:preset_add}
+\end{figure}
+
+
+
+The queue itself
+ - queue vs running vs history
+ - entries in the table
+ - remove
+ - reorder
+ - load
+ - right click menu
+
+\subsubsection{The Plot Tab}
+
+The Plot tab presents a live representation of recent data collected for the current plan.
+The primary window is a PyQtGraph\cite{} plot showing the most recent five slices of collected data.
+The current slice is the brightest cyan slice, with the previous slices shown as duller colors progressively until the last one which is gray.
+At the top, the currently plotted channel name and most recent collected value are shown in large font size.
+The plotting does handle array detectors, for which the top number shown is the maximum value of the most recent array collected.
+At present, cameras and other higher dimensional sensors are not able to be plotted using the live plot tab.
+
+On the right hand side, there are controls to adjust the plot.
+At the top, a selector allows for choosing which channel to plot.
+The second selector determines which values appear along the X-axis of the graph.
+In particular, to switch between a scalar channel and an array detected channel, both selectors will need to be adjusted, as the appropriate axes differ.
+Additionally, there is a selector which allows for changing the units of the X-axis.
+Finally, there is a Scan Index indicator, which indicates which indexed pixel was the most recent collected.
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=9in]{"acquisition/images/plot_tab"}
+\caption[The Plot Tab]{
+	\blueskycmds with the Plot tab open.
+}
+\label{acq:fig:log_tab}
+\end{figure}
+\end{landscape}
+
+\subsubsection{The Logs Tab}
+
+Figure \ref{acq:fig:log_tab} shows the Logs tab of \blueskycmds.
+This is a text field which shows log entries from both the local application and the logs emitted from \biab's RE Manager.
+Log levels are color coded as are the logging instances which indicate what system is providing the log entry.
+At the bottom of the Logs tab, there is a button which clears the contents of the logging text box.
+The Logs tab is a good first step towards troubleshooting when something unexpected happens.
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=9in]{"acquisition/images/log_tab"}
+\caption[The Log Tab]{
+	\blueskycmds with the Logs tab open.
+}
+\label{acq:fig:log_tab}
+\end{figure}
+\end{landscape}
 
 \subsection{\texttt{wright-fakes}: Simulated Hardware for Development}
 \label{wright-fakes}

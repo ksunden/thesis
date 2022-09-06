@@ -1,0 +1,5 @@
+{"item_type": "plan", "name": "count", "args": [["daq"], 3]}
+{"item_type": "plan", "name": "count", "args": [["daq"]], "kwargs": {"num": 5, "delay": 0}, "meta": {"Name": "", "Info": "", "Experimentor": "Kyle"}}
+{"item_type": "plan", "name": "count", "args": [["daq"], 5]}
+{"item_type": "plan", "name": "mv", "args": ["d0", 0, "d1", 0]}
+{"item_type": "instruction", "name": "queue_stop"}
