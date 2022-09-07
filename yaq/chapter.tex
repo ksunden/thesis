@@ -20,7 +20,597 @@
 
 \subsection{\texttt{yaq-traits}}
 
+\hypertarget{installation}{%
+\subsubsection{installation}\label{installation}}
+
+yaq-traits can be installed via
+\href{https://pypi.org/project/yaq-traits/}{PyPI} or
+\href{https://anaconda.org/conda-forge/yaq-traits}{conda-forge}.
+
+\begin{codefragment}{bash}
+$ pip install yaq-traits
+\end{codefragment}
+
+\begin{codefragment}{bash}
+$ conda config --add channels conda-forge
+$ conda install yaq-traits
+\end{codefragment}
+
+\hypertarget{definitions}{%
+\subsubsection{definitions}\label{definitions}}
+
+\begin{description}
+\tightlist
+\item[\href{https://avro.apache.org/docs/current/spec.html\#Protocol+Declaration}{Avro
+Protocol (AVPR)}]
+The Avro protocol is the fully specified description of the daemon. It
+describes the exposed method signatures (names, arguments, defaults to
+arguments, text description). In addition, yaq avpr files include
+information about the configuration, state, and traits of a daemon. Avpr
+is a JSON file.
+\item[\href{https://github.com/toml-lang/toml}{TOML}]
+TOML is a configuration file. Here, we use TOML files to specify the
+minimum info about a daemon. (i.e. behavior and descriptions inherited
+via traits is \emph{not} included in the TOML) A full reference is
+available below.
+\item[\href{https://yaq.fyi/traits/}{Trait}]
+A trait is simply a collection of exposed methods, configuration, and
+state used to encourage shared behavior among similar yaq daemons with
+different implementations
+\end{description}
+
+\hypertarget{usage}{%
+\subsubsection{usage}\label{usage}}
+
+yaq-traits is a command line application.
+
+\hypertarget{help}{%
+\paragraph{help}\label{help}}
+
+Help: learn more, right from your terminal.
+
+\begin{codefragment}{bash}
+$ yaq-traits --help
+Usage: yaq-traits [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
+
+Commands:
+  check
+  compose
+\end{codefragment}
+
+Try \texttt{yaq-traits\ \ -\/-help} to learn more about a particular
+command.
+
+\hypertarget{list}{%
+\paragraph{list}\label{list}}
+
+List: list available traits
+
+\begin{codefragment}{bash}
+$ yaq-traits list
+has-limits
+has-measure-trigger
+has-position
+has-turret
+is-daemon
+is-discrete
+is-homeable
+is-sensor
+uses-i2c
+uses-serial
+uses-uart
+\end{codefragment}
+
+\hypertarget{compose}{%
+\paragraph{compose}\label{compose}}
+
+Compose: Convert a simplified TOML file to a fully specified AVPR. This
+takes a path to a TOML file as an argument, and prints the AVPR to
+standard out.
+
+\begin{codefragment}{bash}
+$ yaq-traits compose my-daemon.toml > my-daemon.avpr
+\end{codefragment}
+
+\hypertarget{get}{%
+\paragraph{get}\label{get}}
+
+Get: Retrieve a fully specified AVPR for a trait (similar to compose,
+but not a full daemon). This takes a name of a trait as an argument, and
+prints the AVPR to standard out.
+
+\begin{codefragment}{bash}
+$ yaq-traits get has-limits > has-limits.avpr
+\end{codefragment}
+
+\hypertarget{check}{%
+\paragraph{check}\label{check}}
+
+Check: Verify that an AVPR file matches current trait behavior. This
+takes a path to an AVPR file as an argument, and prints a table of
+traits and whether the trait was found to be accurate. If it fails, the
+traits which are not specified are explicitly printed and a nonzero exit
+status is returned. The primary intent of \texttt{check} is to be used
+by Continuous Integration tests, which consistently get the latest
+version and will alert you if there is a change to the traits.
+
+\begin{codefragment}{bash}
+$ yaq-traits check fake-continuous-hardware.avpr
++---------------------+----------+----------+
+| trait               | expected | measured |
++---------------------+----------+----------+
+| has-limits          | true     | true     |
+| has-position        | true     | true     |
+| has-turret          | false    | false    |
+| is-daemon           | true     | false    |
+| is-discrete         | false    | false    |
+| is-homeable         | false    | false    |
+| uses-i2c            | false    | false    |
+| uses-serial         | false    | false    |
+| uses-uart           | false    | false    |
+| has-measure-trigger | false    | false    |
+| is-sensor           | false    | false    |
++---------------------+----------+----------+
+Error: failed to verify expected trait(s):
+  is-daemon
+\end{codefragment}
+
+What to do when a check fails:
+
+\begin{itemize}
+\tightlist
+\item
+  check that you have the most up to date \texttt{yaq-traits}
+\item
+  check the
+  \href{https://github.com/yaq-project/yaq-traits/blob/main/CHANGELOG.md}{changelog}
+  for \texttt{yaq-traits} to see what has been changed recently
+\item
+  In many cases, the accompanying behavior change will be implemented in
+  the \texttt{core} package for your language (e.g.
+  \href{https://github.com/yaq-project/yaq-python/blob/main/yaqd-core/CHANGELOG.md}{Python}).
+  If so, all you need to do is pin the version of core and rerun
+  \texttt{yaq-traits\ compose}
+\item
+  if the change requires your attention, make the necessary code changes
+  and then rerun \texttt{yaq-traits\ compose}
+\item
+  feel free to reach out to the \href{https://yaq.fyi/contact/}{yaq
+  developers} or
+  \href{https://github.com/yaq-project/yaq-traits/issues}{raise an
+  issue} if you are unsure of what is needed
+\end{itemize}
+
+\hypertarget{yaq-toml-file-specification}{%
+\subsubsection{yaq TOML file
+specification}\label{yaq-toml-file-specification}}
+
+In general, the TOML file is used to specify the minimal description of
+a daemon. Inherited behavior from traits are not included. You may
+assign or reassign the default value of the default, but should not
+change the documentation, type, or arguments to a message. The same
+format is used to specify traits within `yaq-traits`.
+
+\hypertarget{frontmatter}{%
+\paragraph{frontmatter}\label{frontmatter}}
+
+These identifying information about the daemon are provided as top level
+keys.
+
+\begin{description}
+\tightlist
+\item[\textbf{protocol} (string)]
+The name of the daemon. The equivalent for a trait definition is
+\textbf{trait}.
+\item[\textbf{doc} (string)]
+A description of the daemon, rendered at the top of its documentation
+page.
+\item[\textbf{traits} (\{'items': 'string', 'type': 'array'\})]
+List of traits implemented by the daemon. In trait definitions, the
+analogous entry is \textbf{requires}, which lists traits that are
+implied by using that trait. If a traits is implied by other traits
+(e.g. \texttt{has-limits} requires \texttt{has-position}) the required
+trait need not be specified. \texttt{is-daemon} must be specified by all
+daemons.
+\item[\textbf{hardware} (\{'items': 'string', 'type': 'array'\})]
+A list of supported hardware, formatted as 'make:model'. Supported
+hardware should also appear in
+\href{https://github.com/yaq-project/yaq-fyi/blob/main/known-hardware.toml}{known-hardware}.
+Used only for building documentation.
+\end{description}
+
+\hypertarget{links}{%
+\paragraph{links}\label{links}}
+
+The links are a map of arbitrary keys to URLs. In general links to
+documentation, source, and a bugtracker are good to have. Additionally
+links to the manufacturer/library used are common.
+
+\begin{codefragment}{toml}\noop
+[links]  # all optional, arbitrary keys supported
+documentation = "https://yaq.fyi/daemons/example-daemon"
+source = "https://git.example.com/example-daemon"
+bugtracker = "https://git.example.com/example-daemon/-/issues"
+\end{codefragment}
+
+\hypertarget{installation-1}{%
+\paragraph{installation}\label{installation-1}}
+
+Installation is just like links, except with the specific goal of
+pointing to installable package references. For python, this likely
+includes a link to PyPI and/or conda-forge.
+
+\begin{codefragment}{toml}\noop
+[installation]  # all optional, arbitrary keys supported
+PyPI = "https://pypi.org/project/yaqd-example"
+conda-forge = "https://anaconda.org/conda-forge/yaqd-example"
+\end{codefragment}
+
+\hypertarget{types}{%
+\paragraph{types}\label{types}}
+
+All valid
+\href{https://avro.apache.org/docs/current/spec.html\#schemas}{Avro
+types} are valid for yaq.\\
+In addition, \texttt{yaq-tratis} provides a definition for an
+N-dimensional homogeneous array, which can be used by putting the string
+\texttt{"ndarray"} as the type.\\
+Unions of types are specified using TOML arrays.\\
+Since TOML does not include a null value (and null is a valid default
+value, distinct from not having a default) the string
+\texttt{"\_\_null\_\_"} is used in place of the null literal. Note that
+when referring to the \emph{type}, \texttt{"null"} is used, just as
+\texttt{"int"} is used to specify the integer type.\\
+Named types (e.g. records and enums) may be defined inline where they
+are used, but may also be provided as an array of tables:
+
+\begin{codefragment}{toml}\noop
+[[types]]
+name="Greeting"
+type="record"
+[[types.fields]]
+name="message"
+type="string"
+
+[[types]]
+name="Curse"
+type="record"
+# You may find inline tables/arrays more readable here
+# Note that toml forbids multi-line inline tables (arrays can be multi-line)
+fields = [{name="message", "type"="string"}]
+\end{codefragment}
+
+\hypertarget{config}{%
+\paragraph{config}\label{config}}
+
+Each config parameter is a table with the name of the parameter as the
+key within the \texttt{{[}config{]}} table with the following keys:
+
+\begin{description}
+\tightlist
+\item[\textbf{type} (required)]
+Avro type definition, commonly a string such as \texttt{"int"} or
+\texttt{"ndarray"}, but may be a table representing collection types or
+a record or an array representing a union of types.
+\item[\textbf{doc} (optional)]
+A string description of the config parameter
+\item[\textbf{default} (optional)]
+The default value if the config parameter is omitted in the daemon
+configuration. If no default is given, it is considered required.
+\end{description}
+
+A daemon may override the default value defined by a trait (or provide
+one where none was given). Additionally, rather then overwriting the
+doc, a key \textbf{addendum} may be added to provide additional context
+to the variable (e.g. communicating that a parameter is required despite
+a null default value being defined in the trait).
+
+\begin{codefragment}{toml}\noop
+[config]
+
+[config.a_binary_config]
+type = "boolean"
+default = false
+doc = "An example of a boolean config param"
+
+[config.an_optional_array]
+type = ["null", {type = "array", items = "int"}]
+default = "__null__"
+
+# Overriding a config from a trait
+[config.baud_rate]
+default = 57600
+addendum = "I want to provide more info about why 57600 is the default"
+\end{codefragment}
+
+\hypertarget{state}{%
+\paragraph{state}\label{state}}
+
+The state is configured exactly the same as config, except that
+\emph{all} state variable \emph{must} have a default value. The same
+rules about overriding defaults and addenda apply to state variables.
+
+\begin{codefragment}{toml}\noop
+[state]
+
+[state.a_binary_state]
+type = "boolean"
+default = true
+doc = "An example of a boolean state variable"
+\end{codefragment}
+
+\hypertarget{messages}{%
+\paragraph{messages}\label{messages}}
+
+Messages are the exposed remote procedure calls over the TCP interface.
+This follows closely the specification
+\href{https://avro.apache.org/docs/current/spec.html\#Messages}{provided
+by Avro}. Note that all errors in the Python implementation are treated
+as strings, though that may change in the future.\\
+If the request field is omitted, the default is \texttt{{[}{]}}, i.e. no
+parameters.\\
+If the response field is omitted, the default is \texttt{"null"}.\\
+Messages defined by traits should be omitted, only messages unique to
+the daemon should be included. Messages should not be overridden, as the
+behavior being the same to the client program is the intent of the
+traits system.
+
+\begin{codefragment}{toml}\noop
+[messages.set_int]
+request = [{"name"="int_value", "type"="int"}]
+doc = "Set an example int value."
+
+[messages.get_int]
+response = "int"
+doc = "Get the example int value."
+\end{codefragment}
+
+\hypertarget{yaq-avpr-file-specification}{%
+\subsubsection{yaq AVPR file
+specification}\label{yaq-avpr-file-specification}}
+
+The AVPR files generated are compliant with the
+\href{https://avro.apache.org/docs/current/spec.html\#Protocol+Declaration}{Avro
+specification}, however \texttt{yaq-traits} does add additional
+information such that the avpr alone can be used to render the
+documentation.\\
+The AVPR files include the complete list of \texttt{config} and
+\texttt{state} (including those inherited from traits). The links
+(including installation links) are also included. Additional keys
+specifying which trait provided a method or config/state variable are
+also added by \texttt{yaq-traits}
+
+
 \subsection{\texttt{yaqd-control}}
+
+\hypertarget{installation}{%
+\subsubsection{installation}\label{installation}}
+
+yaqd-control can be installed via
+\href{https://pypi.org/project/yaqd-control/}{PyPI} or
+\href{https://anaconda.org/conda-forge/yaqd-control}{conda-forge}.
+
+\begin{codefragment}{bash}
+$ pip install yaqd-control
+\end{codefragment}
+
+\begin{codefragment}{bash}
+$ conda config --add channels conda-forge
+$ conda install yaqd-control
+\end{codefragment}
+
+\hypertarget{usage}{%
+\subsubsection{usage}\label{usage}}
+
+yaqd-control is a command line application.
+
+Help: learn more, right from your terminal.
+
+\begin{codefragment}{bash}
+$ yaqd --help
+Usage: yaqd [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  clear-cache
+  disable
+  edit-config
+  enable
+  list
+  reload
+  restart
+  scan
+  start
+  status
+  stop
+\end{codefragment}
+
+Try \texttt{yaqd\ \ -\/-help} to learn more about a particular command.
+
+\hypertarget{the-cache}{%
+\paragraph{the cache}\label{the-cache}}
+
+yaqd-control keeps track of known daemons, referred to as the cache
+
+Status: yaqd-control can quickly show you the status of all daemons in
+yaqd-control's cache. This is usually the most used subcommand, as it
+gives a quick overview of the system, which daemons are offline, and
+which are currently busy.
+
+\begin{codefragment}{bash}
+$ yaqd status
++-----------+-------+--------------------------+------+---------+-------+
+| host      | port  | kind                     | name | status  | busy  |
++-----------+-------+--------------------------+------+---------+-------+
+| 127.0.0.1 | 38202 | system-monitor           | foo  | online  | False |
+| 127.0.0.1 | 39054 | fake-continuous-hardware | bar  | online  | True  |
+| 127.0.0.1 | 39055 | fake-continuous-hardware | baz  | online  | False |
+| 127.0.0.1 | 39056 | fake-continuous-hardware | spam | offline | ?     |
+| 127.0.0.1 | 37067 | fake-discrete-hardware   | ham  | online  | False |
+| 127.0.0.1 | 37066 | fake-discrete-hardware   | eggs | online  | False |
++-----------+-------+--------------------------+------+---------+-------+
+\end{codefragment}
+
+List: this is essentially the same as \texttt{status} except that it
+does not attempt to contact the daemons, so it does not give you
+additional context. List supports a flag -\/-format which accepts "json"
+or "toml".
+
+\begin{codefragment}{bash}
+$ yaqd list
++-----------+-------+--------------------------+------+
+| host      | port  | kind                     | name |
++-----------+-------+--------------------------+------+
+| 127.0.0.1 | 38202 | system-monitor           | foo  |
+| 127.0.0.1 | 39054 | fake-continuous-hardware | bar  |
+| 127.0.0.1 | 39055 | fake-continuous-hardware | baz  |
+| 127.0.0.1 | 39056 | fake-continuous-hardware | spam |
+| 127.0.0.1 | 37067 | fake-discrete-hardware   | ham  |
+| 127.0.0.1 | 37066 | fake-discrete-hardware   | eggs |
++-----------+-------+--------------------------+------+
+\end{codefragment}
+
+Scan: Scanning allows you to add currently running daemons to the cache.
+
+\begin{codefragment}{bash}
+$ yaqd scan
+scanning host 127.0.0.1 from 36000 to 39999...
+...saw unchanged daemon fake-discrete-hardware:eggs on port 37066
+...saw unchanged daemon fake-discrete-hardware:ham on port 37067
+...found new daemon system-monitor:foo on port 38202
+...found new daemon fake-continuous-hardware:bar on port 39054
+...saw unchanged daemon fake-continuous-hardware:baz on port 39055
+...known daemon fake-continuous-hardware:spam on port 39056 not responding
+...done!
+\end{codefragment}
+
+Scan has some additional options, passed as flags on the command line,
+which allow you to change the default scan range and host (for remotely
+accessed daemons):
+
+\begin{codefragment}{bash}
+$ yaqd scan --help
+Usage: yaqd scan [OPTIONS]
+
+Options:
+  --host TEXT      Host to scan.
+  --start INTEGER  Scan starting point.
+  --stop INTEGER   Scan stopping point.
+  --help           Show this message and exit.
+\end{codefragment}
+
+Edit Config: yaqd-control provides an easy way to edit the default
+config file location for a daemon kind. This uses your default editor
+(EDITOR environment variable), and defaults to \texttt{notepad.exe} on
+Windows, and \texttt{vi} on other platforms. Using yaqd-control to edit
+config files means that you do not need to know the default location.
+Additionally, it does some basic validity checks (that the toml parses
+and that each daemon section has the \texttt{port} keyword). If an error
+is found, you are prompted to re-edit the file. Daemons from the config
+file are added to the cache. You may pass multiple daemon kinds, which
+will be opened in succession.
+
+\begin{codefragment}{bash}
+$ yaqd edit-config fake-continuous-hardware system-monitor
+\end{codefragment}
+
+Clear Cache: Note that this is a destructive action.
+\texttt{clear-cache} deletes all daemons from the cache (thus
+\texttt{list} and \texttt{status} will give empty tables) There is no
+user feedback.
+
+\begin{codefragment}{bash}
+$ yaqd clear-cache
+$ yaqd status
++------+------+------+------+--------+------+
+| host | port | kind | name | status | busy |
++------+------+------+------+--------+------+
++------+------+------+------+--------+------+
+\end{codefragment}
+
+\hypertarget{running-in-the-background}{%
+\paragraph{Running in the
+background}\label{running-in-the-background}}
+
+Each of the commands in this section can take multiple daemon kinds.
+
+Enable: by enabling a daemon, you allow the operating system to manage
+that daemon in the background. An enabled daemon will always start again
+when you restart your computer. Enabling is required for the rest of the
+commands in this section to work as expected. After enabling, it's
+typical to start the daemon as well, this does not happen automatically.
+Enablement works in slightly different ways on different platforms, but
+the commands are the same (don't worry if the password prompts are
+different). Currently supported platforms are Linux (systemd), MacOS
+(launchd) and Windows (via NSSM, bundled with the distribution).
+
+\begin{codefragment}{bash}
+$ yaqd enable system-monitor
+[sudo] password for scipy2020:
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-unit-files ===
+Authentication is required to manage system service or unit files.
+Password:
+==== AUTHENTICATION COMPLETE ===
+\end{codefragment}
+
+Disable: this is the inverse operation to enable, which makes it so that
+the daemon does not start on reboot. This does not affect the running
+daemon.
+
+\begin{codefragment}{bash}
+$ yaqd disable system-monitor
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-unit-files ===
+Authentication is required to manage system service or unit files.
+Password:
+==== AUTHENTICATION COMPLETE ===
+Removed /etc/systemd/system/multi-user.target.wants/yaqd-system-monitor.service.
+\end{codefragment}
+
+Start: This starts the daemon running in the background immediately. It
+must have been enabled to run in the background using this command.
+
+\begin{codefragment}{bash}
+$ yaqd start system-monitor
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+Authentication is required to start 'yaqd-system-monitor.service'.
+Password:
+==== AUTHENTICATION COMPLETE ===
+\end{codefragment}
+
+Stop: This stops the daemon running in the background immediately. It
+must have been running in the background using yaqd-control (either on
+startup via enable or via the start command above).
+
+\begin{codefragment}{bash}
+$ yaqd stop system-monitor
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+Authentication is required to stop 'yaqd-system-monitor.service'.
+Password:
+==== AUTHENTICATION COMPLETE ===
+\end{codefragment}
+
+Restart/Reload: This stops (if running) and restarts the daemon running
+in the background immediately. Reload is slightly different in that it
+signals to the daemon to reload its configuration rather than completely
+restart, but effectively it is the same as restart (and is a pure alias
+where such a signal is not supported). It must have been enabled to run
+in the background using this command.
+
+\begin{codefragment}{bash}
+$ yaqd restart system-monitor
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+Authentication is required to restart 'yaqd-system-monitor.service'.
+Password:
+==== AUTHENTICATION COMPLETE ===
+\end{codefragment}
+
+
 
 \subsection{\texttt{yaqc-qtpy}}
 
