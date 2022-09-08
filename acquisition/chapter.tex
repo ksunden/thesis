@@ -5,6 +5,7 @@
 \newcommand\wrightfakes{\texttt{wright-fakes} }
 \newcommand\wrightplans{\texttt{wright-plans} }
 \newcommand\blueskycmds{\texttt{bluesky-cmds} }
+\newglossaryentry{UUID}{name=UUID, description={Universally Unique Identifier}}
 
 \clearpage
 
@@ -12,7 +13,7 @@
 
 \subsection{PyCMDS: Monolithic Data Acquisition Program}
 
-\newglossaryentry{PyCMDS}{name=PyCMDS, description={A monolithic python program for collecting CMDS data}}
+\newglossaryentry{PyCMDS}{name=PyCMDS, description={A monolithic Python program for collecting CMDS data}}
 \newglossaryentry{CMDS}{name=CMDS, description={Coherent Multi-Dimensional Spectroscopy}}
 
 \Gls{PyCMDS} is a program to do \gls{CMDS}
@@ -26,17 +27,75 @@
 \section{\texttt{bluesky}: Fully modular data acquisition}  % ===================================================================
 
 \subsection{Bluesky}
-\newglossaryentry{Blueskyproj}{name={Bluesky (Project)}, description={A collaboration primarily consisting of members of National Labs which provides libraries in python do perform experimental science}}
+\newglossaryentry{Blueskyproj}{name={Bluesky (Project)}, description={A collaboration primarily consisting of members of National Labs which provides libraries in Python do perform experimental science}}
 
 \newglossaryentry{Blueskylib}{name={Bluesky (Library)}, description={The central Library of the Bluesky Project which provides an engine for specification and orchestration of scientific experiments}}
 
+Bluesky is a project initially created for the National Synchrotron Light Source II at Brookhaven National Lab.
+The project has grown and is now a collaboration from multiple facilities and experimental domains.
+Bluesky as a project provides a collection of Python libraries with an aim towards standardizing experimental data collection to be useful at a variety of scales, from a single machine instrument all the way to the large synchrotron facilities.
+
+Bluesky provides a set of standards for how to interact with hardware, and how to format data collection.
+It provides libraries for interacting with hardware, and for handling the data that is collected.
+At the center is the Bluesky library itself, which provides the orchestration of experiments.
+
+
+The libraries provided by the Bluesky project are often developed together, providing integration where needed.
+However, the libraries are still separable, allowing for alternatives to be incorporated with ease to suit particular needs of an instrument.
+For instance, while the Bluesky Project provides Ophyd\cite{}, a useful hardware abstraction library with a particular focus on EPICS process values, the Wright Group has provided an alternative hardware interface based on \yaq, \texttt{yaqc-bluesky}\cite{}.
+
 \subsubsection{The Event Model}
+
+The Event Model\cite{} is Bluesky's mechanism for representing collected data.
+Each experiment is broken down into a sequence of JSON-compatible objects with particular structures.
+Figure \ref{acq:fig:event_model} demonstrats pictorally the four most useful Event Model document types.
+An experiment, or ``run'', begins with a ``start'' document.
+The start document contains metadata which pertains to the entire experiement.
+This includes things such as the parameters of the requested scan, the expected number of points, and user provided information.
+Each run is give a \Gls{UUID} which provides a unique key which serves as a name for that particular instance of data collection.
+A data stream then begins with a ``descriptor'' document.
+The descriptor document provides a set of variables collected together as a ``row'' of data.
+The descriptor provides metadata pertaining to each individual value collected such as the source of the variable, the shape of the data, the data type, and its units.
+The descriptor contains a reference to the run start identifier, and also provides its own \Gls{UUID} and human readable name.
+The actual recorded data points then are provided by ``event'' documents, which provide timestamps and values for each key listed by its associated descriptor document.
+Finally, a ``stop'' document closes a run, referencing the UUID of the start document, providing an exit status, error message for failed scans, and information about the actual number of collected events (which may differ from the expected number from the start document).
+
+These four basic events are sufficient to represent the data from most experiments.
+The Event Model does provide some additional kinds of documents for specialized tasks such as referencing data that is stored elsewhere (which is useful for large array data) and for bundling multiple events into one document.
+However, the details of those document classes are not important for understanding how Bluesky works and records data.
+
+
+\begin{figure}
+\includegraphics[width=5.5in]{"acquisition/images/event_model"}
+\caption[The Event Model]{
+This figure demonstrates some common usage patterns of the event model.
+A ``run'' is opened with a start document and closed with a ``stop'' document.
+Data streams are initiated with a ``descriptor'' document and populated with ``event'' documents.
+Multiple streams can be included in a single run.
+This figure was created by the Bluesky project and is reproduced with permission.
+}
+\label{acq:fig:event_model}
+\end{figure}
+
+
 
 \subsubsection{The Run Engine}
 
+The Run Engine is the beating drum of a Bluesky experiment.
+At its core, the Run Engine is a loop that consumes ``Messages''.
+Messages are instructions which the Run Engine knows how to process.
+Some messages cause interactions with hardware, such as setting motor positions or initiating data collection, while other messages output Event Model documents to a series of callback functions.
+The callback functions which subscribe to the events can be used to do a variety of tasks from storing data into a file on disk, to printing a table to the console, to plotting data as it is collected.
+
 \subsubsection{Plans}
 
-\newglossaryentry{plan}{name=plan, description={A python function which defines a series of steps of an experiemental procedure}}
+\newglossaryentry{plan}{name=plan, description={A Python function which defines a series of steps of an experiemental procedure}}
+
+\Glspl{plan} are the source of messages to the run engine.
+A plan is a Python generator which yields a series of Message objects.
+Plans are parameterized to make common acquisitions easy to specify.
+The Bluesky Python library comes with a set of pre-assembled plans which allow specification of a variety of trajectories through motor space and collecting data from sensors at each point.
+While the built in plans are sufficient for many experiments, there are often either additional functionalities or better parameterizations for domain-specific tasks which require specialized plans.
 
 \subsection{\wrightplans}
 
@@ -68,6 +127,7 @@ This is even more critical because the units for energy and the units for wavele
 
 
 \newglossaryentry{varcyc}{name={variadic cycle}, description={A repeating cycle of parameters which are logically grouped in sets}} 
+
 A common pattern in the built-in Bluesky plans is to use a ``\gls{varcyc}'' a repeating pattern of three to six arguments passed positionally where each set defines one axis of the scan.
 Where this pattern was used in the underlying plan, \wrightplans adds the units as a string to the end of that cycle of arguments.
 The exception to this is \texttt{scan\_nd\_wp}, which is specified as a single \texttt{cycler}\cite{} object to define the positions.
@@ -249,7 +309,9 @@ Since there is no ``variadic cycle'' for Scan ND, \wrightplans unit support is p
 \texttt{detectors}, \texttt{constants}, \texttt{per\_step} and \texttt{md} are all as described above in \ref{common_params}.
 
 \begin{codefragment}{python}
-True
+from cycler import cycler
+cy = cycler(motor1, [1, 2, 3]) * cycler(motor2, [4, 5, 6])
+scan_nd([sensor], cy, axis_units={motor1: "ps", motor2: "mm"})
 \end{codefragment}
 
 
@@ -915,15 +977,37 @@ This workflow is shown in Figure \ref{acq:fig:preset_add}.
 \label{acq:fig:preset_add}
 \end{figure}
 
+In the main body of the window, a table represents the current state of the queue and history.
+More recently enqueued items appear towards the top of the table, older items towards the bottom.
+The items waiting in queue, thus, appear at the top, and the items in the history appear at the bottom.
+The currently running item (if it exists) appears at the boundary between the queue and the history.
+The enqueued and running items have descriptions shown in bright white, while the completed items appear with gray descriptions.
+The right most column indicates the position in the queue, given as a zero-based index.
+Items can be reordered by editing the value in that column.
+On left, there are two columns with buttons: remove and load.
+Items in the queue (but not the history) can be removed individually with the red ``REMOVE'' buttons.
+All items can be loaded into the sidebar where the parameters can be modified and a similar (or identical) item enqueued.
+The other information provided include the plan name, the status (enqueued, RUNNING, completed, failed, aborted, stopped or unknown) and the description field, which lists the arguments passed to the plan.
+Hovering over the description shows the full JSON of the item (see Figure \ref{acq:fig:hover_text}, including an error message if applicable.
+The description has a contextual menu accessed via right clicking which provides additional options as shown in Figure \ref{acq:fig:right_click}.
+Most of the items in the context menu simply copy information to the clipboard: The full JSON as shown by the hover text, the item \Gls{UUID} which identifies the item in the queue, and the run \Gls{UUID} which identifies the data that is collected by the scan.
+
+\begin{figure}
+\includegraphics[width=5in]{"acquisition/images/hover_text"}
+\caption[Queue hover text]{
+	The hover text of a queue item.
+}
+\label{acq:fig:hover_text}
+\end{figure}
 
 
-The queue itself
- - queue vs running vs history
- - entries in the table
- - remove
- - reorder
- - load
- - right click menu
+\begin{figure}
+\includegraphics[width=3in]{"acquisition/images/right_click_menu"}
+\caption[Right click menu]{
+	The right click menu of a queue item.
+}
+\label{acq:fig:right_click}
+\end{figure}
 
 \subsubsection{The Plot Tab}
 
