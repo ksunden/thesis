@@ -662,7 +662,32 @@ Write a config file
 
 \subsection{Configuration versus State}
 
+\yaq{} provides two systems for dealing with values that persist across restarts of daemons: configuration and state.
+These systems are similar, each providing values as TOML files, and thus the allowed set of values is the same.
+Configuration values are set by the user and remain the same until the daemon is restarted.
+State values are updated by the daemon itself, and can change while the daemon is running.
+This may be in response to user input, such as calling a method over the \yaq{} interface, or simply by virtue of the daemon needing to keep track of its own state.
+
+On the protocol level, configuration and state are defined in the same way: a name mapping to its type, documentation, and default value.
+A configuration value may have no default, meaning that it is required that the user explicitly provides the value in the configuration file.
+A state value must have a default, as the daemon may not be able to start without it.
+
 \subsection{\yaq{} Enhancement Proposals}
+
+\yaq{} Enhancement Proposals, or YEPs, are the formal process for standardizing the \yaq{} ecosystem.
+YEPs are modeled after similar systems used by various open source communities including Python itself\cite{} and Numpy\cite{}.
+YEPs include the formal definitions of various parts of the \yaq{} ecosystem, including the RPC itself and traits.
+
+The purpose of the formalism of the YEP process is to encourage carefully considered additions to \yaq{}.
+This means that there are a few extra steps compared to what is required for simply implementing an idea.
+This friction is intentional.
+The proposol must be submitted, and reviewed by the community, open for comment, criticism, and alternative solutions to the same problem.
+YEPs start as draft proposals, submitted for initial review.
+Core team members can ask for clarification of scope and metadata about the YEP itself prior to accepting the draft YEP.
+Even if the YEP is included as a draft, it has not been accepted as a standard in the \yaq{} ecosytem.
+Accepting a YEP requires at least two core maintainers to agree that the YEP should be considered a standard.
+
+It is good practice to explain not only the suggested standard, but also briefly explain some alternatives that were considered and why the chosen standard is preferred.
 
 \subsection{Implementing traits: has-dependents}
 
@@ -688,6 +713,41 @@ Even in the latter case, it can be useful to include the \texttt{has-limits} tra
 \subsection{Implementing traits: has-mapping}
 
 \subsection{Implementing traits: has-measure-trigger}
+
+\subsection{Implementing traits: has-position}
+
+\texttt{has-position} is one of the most commonly used traits, and it is required by several other traits.
+The central idea is that there is one value, the position, represented as a floating point number, which describes the core functionality of the daemon.
+This is a value that might be scanned for an acquisition such as the color of a light source or position of a translation stage.
+In \yaq{}, even hardware which is fundementally discrete, such as shutters or valves, are mapped to a floating point position variable for consistency, though interacting using the \texttt{is-discrete} trait may be more natural in those cases.
+
+When implementing a \texttt{has-position} daemon, there are actually only a small number of things to consider, as much of the functionality is provided by the mix-in class.
+You must consider the units of the position, if units are provided (they can be \texttt{None}, the default, if no units make logical sense).
+You must implement the procedure for actually communicating with the hardware and setting the position: \texttt{\_set\_position}.
+This is implemented as a private function (beginning with \texttt{\_}) because the mix-in class (and, in fact, some of the mix-in classes for related traits) manage setting of some state variables such as \texttt{destination}.
+Next you must implement some mechanism of updating the state variable for \texttt{position}.
+Depending on the hardware interface, this could mean polling the hardware for its direct knowledge of its position, updating the position in response to communication initated by the hardware, or even simply setting the state value in the position setting function if there is no mechanism to query the hardware.
+Finally, you must carefully manage the \texttt{busy} state of the daemon.
+It is expected that the daemon will return busy at every instance between the request being sent and the motion being complete.
+\texttt{busy} is set to True by the mix-in class when the request is first processed, but it must be set back to False by the daemon implementation.
+It is common to update both busy and position in the \texttt{update\_state} asynchronous method, though other options are valid.
+
+\begin{codefragment}{python}
+class MyDaemon(HasPosition, IsDaemon):
+    def __init__(self, name, config, config_filepath):
+        super().__init__(self, name, config, config_filepath)
+        self.units = "mm"
+        self.dev = Device() # Some generic manufacturer interface
+    
+    def _set_position(self, position):
+        self.dev.write(position)
+
+    async def update_state(self):
+        while True:
+            self._state["position"] = self.dev.read()
+            self.busy = not self.dev.is_still()
+            await asyncio.sleep(0.1)
+\end{codefragment}
 
 \subsection{Implementing traits: has-transformed-position}
 
@@ -745,6 +805,26 @@ class MyDaemon(HasTurret, IsDaemon):
     	self.device.set_turret(self.gratings[turret]["index"])
 	self.device.set_position(self._state["destination"])
 	self._calculate_limits()
+\end{codefragment}
+
+\subsection{Implementing traits: is-discrete}
+
+\texttt{is-discrete} is an addition to \texttt{has-position} which allows you to provide a set of named positions which can be set by providing the name instead of the value.
+The trait provides a standard configuration option, \texttt{identifiers}, which allows users to specify the named positions in config.
+However, some hardware natively support the functionality, so those are allowed to ignore the configuration value and read the list of identifiers from the device.
+If you are using the configuration values, then the only additional implementation consideration is to update the state value \texttt{position\_identifier} with the appropriate value (a string indicating the descrete position or None, indicating that the device is not at one of the named positions.
+What it means to be "at" the named position will vary for the particular details of the hardware.
+Some hardware will want a level of tolerance, some will always report an exact number, and some will not natively have any in-between values that are even possible.
+
+\begin{codefragment}{python}
+class MyDaemon(IsDiscrete, HasPosition, IsDaemon):
+    ...
+    async def update_state(self):
+        while True:
+            self._state["position"] = self.dev.read()
+            self.busy = not self.dev.is_still()
+            self._state["position_identifier"] = self.dev.get_position_name()
+            await asyncio.sleep(0.1)
 \end{codefragment}
 
 \subsection{Implementing traits: is-homeable}
@@ -859,7 +939,43 @@ class MyDaemon(UsesUart, UsesSerial, IsDaemon):
 
 \subsection{Daemon patterns: loading and saving state}
 
+Daemon state management is usually fairly automated such that individual daemon authors rarely need to think deeply on the subject.
+State files are stored in a standard location as a TOML file as specified by YEP 103\cite{}
+At initialization time, the file is read if it exists, and missing values are filled with the default value from the protocol definition.
+
+These values are held in memory in a dictionary called \texttt{self.\_state}, which is updated by the daemon when the daemons state changes, either due to user interaction or due to changes read from the hardware itself.
+
+On a regular schedule (approximately 10 Hz when a daemon is busy, and approximately 1 Hz when a daemon is not busy) the daemon will write out the contents of its in-memory state, if it has been updated.
+Note that the daemon will acknowledge that the state is updated automatically only if the top level keys or values have been updated.
+If you have a complicated state such as a nested dictionary, then you may wish to explicitly mark the state as updated by including \texttt{self.\_state.updated = True} when the dictionary is updated without updating the top level of the state.
+
 \subsection{Daemon patterns: logging}
+
+Logging can be a powerful tool for decyphering what a daemon is doing.
+In the Python implementation, the logging system of \yaq{} is integrated with the standard library logging module\cite{}.
+\yaq{} defines a few extra logging levels to conform to a non-python specific standard initially provided by sd-daemon\cite{} and syslogv\cite{}.
+In practice, however, the extra levels are rarely used.
+
+Each daemon instance has its own logger, \texttt{self.logger}, which is set up to properly format the log messages and print to STDERR and, if configured, output to a file as well.
+Daemon implementors are encouraged to sprinkle helpful log messages where it makes sense.
+Messages which are only useful in debugging specific contexts, particularly those that are verbose to the point of obscuring other log messages, should be included using \texttt{self.logger.debug(message)}.
+By default, these messages will not be displayed, but by passing \texttt{--verbose} to the daemon command or editing the configuration file the debug logs will be included.
+Messages about ordinary operations, particularly information provided at start up or shut down should be logged with \texttt{self.logger.info(message)}.
+Logs related to errors, such as errors being reported by the hardware, or errors in communication with the hardware itself should be logged using \texttt{self.logger.error(message)}
+Additionally, while less comonly used, \texttt{self.logger.warning(message)} exists for warning users of potential unexpected behavior, such as that caused by falling back to default values.
+
+\begin{codefragment}{python}
+class MyDaemon(IsDaemon):
+
+    ...
+
+    def test_logging(self):
+        self.logger.debug("This is a debug message")
+        self.logger.info("This is an informational message")
+        self.logger.warning("This is a warning message")
+        self.logger.error("This is an error message")
+\end{codefragment}
+
 
 \subsection{Daemon patterns: serial devices}
 
