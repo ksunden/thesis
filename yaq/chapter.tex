@@ -666,7 +666,24 @@ Write a config file
 
 \subsection{Implementing traits: has-dependents}
 
+\texttt{has-dependents} provides a mechanism to discover relationships between daemons.
+It provides a single method, \texttt{get\_dependent\_hardware}, which returns a map of names to host:port strings.
+
+\begin{codefragment}{python}
+class MyDaemon(HasDependents, IsDaemon):
+
+    ...
+
+    def get_dependent_hardware(self):
+	return {"child": f"{self._wrapped_daemon._host}:{self._wrapped_daemon._port}"}
+\end{codefragment}
+
 \subsection{Implementing traits: has-limits}
+
+\texttt{has-limits} augments \texttt{has-position} by adding boundaries which are queryable and checked when setting positions.
+Most of the implementation is handled by the mix-in class, so the only consideration on the implementation side is to set the state value \texttt{hw\_limits}, which defines the limits imposed by the hardware itself.
+Sometimes this can be read from the device, other times it is known through documentation, and still others there is no actual way to tell and the \texttt{hw\_limits} should be set to -infinity to +infinity.
+Even in the latter case, it can be useful to include the \texttt{has-limits} trait because software limits can be imposed by users via configuration.
 
 \subsection{Implementing traits: has-mapping}
 
