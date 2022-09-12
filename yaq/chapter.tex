@@ -675,7 +675,7 @@ class MyDaemon(HasDependents, IsDaemon):
     ...
 
     def get_dependent_hardware(self):
-	return {"child": f"{self._wrapped_daemon._host}:{self._wrapped_daemon._port}"}
+        return {"child": f"{self._wrapped_daemon._host}:{self._wrapped_daemon._port}"}
 \end{codefragment}
 
 \subsection{Implementing traits: has-limits}
@@ -690,6 +690,36 @@ Even in the latter case, it can be useful to include the \texttt{has-limits} tra
 \subsection{Implementing traits: has-measure-trigger}
 
 \subsection{Implementing traits: has-transformed-position}
+
+At first, implementing \texttt{has-transformed-position} seems like a daunting task.
+There are many methods that are implemented which naturally are all interconnected.
+However, most of the heavy lifting is implemented by the mix-in class, leaving only a couple variables for the simplest case and optionally a couple methods for more complex cases.
+If all you want is a simple shift of where the zero position is, then the default implementation will work and all you have to think about is setting the variable \texttt{self.\_native\_units} in the same manner as \texttt{self.\_units} for a generic \texttt{has-position} device.
+Consideration for the default or setting the state value introduced by \texttt{has-transformed-position}, \texttt{native\_reference\_position}, at initialization time may be useful as well.
+
+More complicated cases, such as those with non-unity transformation functions, must also implement two methods: \texttt{\_relative\_to\_transformed} and \texttt{\_transformed\_to\_relative}.
+These two functions work together to provide the scaling factors between the native position and the transformed position.
+They are referred to as ``relative'' rather than ``native'' because the mix-in class still manages adding and subtracting the \texttt{native\_reference\_position}.
+The two functions must provide the expected inversion such that calling one on the result of the other returns the original input (within rounding errors).
+Additional configuration and/or state values may be required to properly compute the transformation, but that will depend on the specific circumstances.
+
+Additionaly some implementations may need to override the some of the methods, such as \texttt{set\_native\_reference} to properly update their state, such as the \texttt{yaqd-attune-delay} daemon offseting the spectral delay correction curve.
+
+Because the mix-in class relies on calling methods of \texttt{HasPosition}, care should be taken to ensure that the \texttt{HasTransformedPosition} class appears \textit{before} \texttt{HasPosition} in the class declaration.
+
+\begin{codefragment}{python}
+class MyDaemon(HasTransformedPosition, HasPosition, IsDaemon):
+    def __init__(self, name, config, config_filepath):
+        super().__init__(name, config, config_filepath)
+        self._native_units = "cm"
+        self._units = "cc"
+
+    def _relative_to_transformed(self, relative_position):
+        return relative_position ** 3
+
+    def _transformed_to_relative(self, transformed_position):
+        return transformed_position ** (1/3)
+\end{codefragment}
 
 \subsection{Implementing traits: has-turret}
 
