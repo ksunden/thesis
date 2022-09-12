@@ -364,8 +364,7 @@ traits system.
 request = [{"name"="int_value", "type"="int"}]
 doc = "Set an example int value."
 
-[messages.get_int]
-response = "int"
+[messages.get_int] response = "int"
 doc = "Get the example int value."
 \end{codefragment}
 
@@ -620,7 +619,196 @@ Password:
 
 \subsection{Writing a Daemon}
 
-\subsection{Enhancement Proposals}
+Intro, reference video of yaqd-new-era
+
+First steps are to communicate with your hardware from python, ignore yaq entirely.
+Look at manuals and documentations, look for manufacturer libraries
+Reasonable to start interactively, consider making a script
+
+Adding to an existing package or using a cookiecutter
+
+Using cookiecutter
+- answer questions
+- name your package after manufacturer
+- name your daemon
+
+Output of the cookiecutter
+- boilerplate
+- pyproject.toml
+	- defining entry points
+- readme
+- toml file for daemon
+- py file for daemon
+
+Existing package
+
+Writing the toml file
+- Consider what traits your daemon will implement
+- Add additional messages, properties, types, config, state
+
+Use yaq-traits to convert the toml file into avpr
+
+Implementing the python
+Import all of the classes from yaqd_core
+Multiple inheritence, order matters
+
+Define methods for each of the messages your protocol supports
+Many are inherited via traits, and those traits may have more limited subsets that need to be implemented
+
+
+Install via flit
+Write a config file
+
+
+\subsection{Configuration versus State}
+
+\subsection{\yaq{} Enhancement Proposals}
+
+\subsection{Implementing traits: has-dependents}
+
+\subsection{Implementing traits: has-limits}
+
+\subsection{Implementing traits: has-mapping}
+
+\subsection{Implementing traits: has-measure-trigger}
+
+\subsection{Implementing traits: has-transformed-position}
+
+\subsection{Implementing traits: has-turret}
+
+\texttt{has-turret} is designed for devices such as monochromators that have a secondary position called a "turret", such as the ones used for selecting gratings.
+The trait has three methods, comprising one single \yaq{} property: \texttt{get\_turret}, \texttt{set\_turret}, and \texttt{get\_turret\_options}.
+There is also a state value, \texttt{turret}, which stores the current value of the property.
+
+To implement \texttt{has-turret}, the setter and the options getter must be implemented.
+The options getter should return a list of string names which are valid options for \texttt{set\_turret}.
+The getter is implemented by the \texttt{HasTurret} mix-in class, simply returning the value as stored in the state dictionary.
+
+The state value can either be updated when it is set or asynchronously by reading from the device.
+
+\begin{codefragment}{python}
+class MyDaemon(HasTurret, IsDaemon):
+
+    ...
+
+    def get_turret_options(self):
+	return ["ir", "vis", "uv"]
+
+    def set_turret(self, turret):
+    	self.device.set_turret(self.gratings[turret]["index"])
+	self.device.set_position(self._state["destination"])
+	self._calculate_limits()
+\end{codefragment}
+
+\subsection{Implementing traits: is-homeable}
+
+\texttt{is-homeable} is a trait which provides a single method, \texttt{home}, which must be implemented.
+
+Notably, what ``home'' means in \yaq{} is ``Go to your limit to determine your absolute position, then return to your current destination''.
+This is often \textit{not} the same as what an individual device will do when homing, which is often only the first half.
+Additionally, homing is a task which takes time to complete, which is contrary to the \yaq{} philosophy which expects methods to return quickly.
+As such, there are some common patterns to homing hardware where the \texttt{home} message itself initiates an asynchronous task that actually accomplishes homing.
+The details of how each device knows when to move on will vary, but in general it looks something like:
+
+\begin{codefragment}{python}
+class MyDaemon(IsHomeable, HasPosition, IsDaemon):
+
+    ...
+
+    def home(self):
+        self._busy = True
+        self._loop.create_task(self._home())
+
+    async def _home(self):
+        self._homing = True
+	self._done_homing = False
+        self._busy = True
+	self.device.home()
+	while not self.device.homed():
+            await asyncio.sleep(0.01)
+        self.set_position(self._state["destination"])
+        self._homing = False
+\end{codefragment}
+
+Care must be taken to avoid reporting that \texttt{busy} is False at any point during the homing procedure.
+
+\subsection{Implementing traits: is-sensor}
+
+\subsection{Implementing traits: uses-i2c}
+
+\texttt{uses-i2c} is a trait which exists solely to standardize the name of the config value for the I2C address, \texttt{i2c\_addr}.
+
+I2C (inter-integrated circuit) is a low-level communication protocol for serial communication designed for communication between two devices such as microcontollers\cite{}
+SMBus\cite{} is a similar protocol that is slightly more strict, but largely is interoperable with I2C, and is thus included for the purposes of the \yaq{} trait.
+I2C typically exists on a network with one primary device and a series of secondary devices.
+The primary device controls the timing and generates requests for data from the secondary devices.
+The address is an integer which is used to designate which secondary device should accept the data and write responses.
+
+Most of the devices that currently exist in the \yaq{} ecosystem which implement this trait are intended to work with a Raspberry Pi, which provides direct access to an I2C bus via the General Purpose Input Output (GPIO) pins.
+
+As I2C is a serial protocol, use of this trait requires the use and implementation of the \texttt{uses-serial} trait.
+
+You can add a default value to your particular configuration if one makes sense for your hardware, though often it is reasonable to say that the address is required in all cases.
+
+\subsection{Implementing traits: uses-serial}
+
+\texttt{uses-serial} is a trait which defines only one message: \texttt{direct\_serial\_write(bytes message)}.
+This trait is required by the \texttt{uses-i2c} and \texttt{uses-uart} traits.
+The method provided by this trait is intended for use as a debugging tool, and not for normal operations.
+
+To implement a \texttt{uses-serial} daemon, the programmer needs to simply implent the method directly.
+You may wish to include logging data read from the device as a response to the command, though what makes sense will depend heavily on the hardware.
+
+\begin{codefragment}{python}
+class MyDaemon(UsesSerial, IsDaemon):
+
+    ...
+
+    def direct_serial_write(self, message: bytes) -> None:
+        self.ser.write(message)
+        out = self.ser.readline()
+        self.logger.debug(f"direct serial write: {out.decode()}")
+\end{codefragment}
+
+
+\subsection{Implementing traits: uses-uart}
+
+\texttt{uses-uart} is a trait which exists solely to standardize the names provided to common configuration values among Universal Asynchronous Receiver-Transmitter (UART) style communication.
+Common examples of UART style communication are RS-232\cite{} and RS-485\cite{}.
+
+As UART is a serial protocol, use of this trait requires the use and implementation of the \texttt{uses-serial} trait.
+
+These devices will typically appear as a \texttt{COM<n>} port in Windows or something similar to \texttt{/dev/ttyACM0} in Linux.
+The operating system specific identifier is the first config field specified by the \texttt{uses-uart} trait, \texttt{serial\_port}.
+The second configuration value, \texttt{baud\_rate}, idicates the speed of data transmission, which must be the same for both devices on either end of the transmission.
+Some devices have variable baud rates, while others have fixed baud rates.
+In the latter case (or even if it is variable, but the device itself has a default) it often makes sense to add a default value for \texttt{baud\_rate} in the TOML file for the protocol.
+
+\begin{codefragment}{toml}\noop
+traits = ["uses-uart", "uses-serial", "is-daemon"]
+[config]
+baud_rate.default = 19200
+\end{codefragment}
+
+As a python implementation, the \texttt{UsesUart} class does nothing other than ensure that the required \texttt{UsesSerial} class is included in the class inheritance.
+The config values defined by \texttt{uses-uart} are accessed in the normal fashion.
+
+While devices using this trait may wish to consider using some of the more advanced patterns below, it is entirely valid to start with a simple PySerial\cite{} implementation as shown here:
+
+\begin{codefragment}{python}
+import serial
+from yaqd_core import UsesUart, UsesSerial, IsDaemon
+
+class MyDaemon(UsesUart, UsesSerial, IsDaemon):
+    def __init__(self, name, config, config_filepath):
+	super().__init__(name, config, config_filepath)
+	self._ser = serial.Serial(config["serial_port"], config["baud_rate"])
+
+    def close(self):
+	self._ser.close()
+\end{codefragment}
+
+\subsection{Daemon patterns: Busy}
 
 \subsection{Daemon patterns: loading and saving state}
 
