@@ -1,5 +1,6 @@
 \chapter{\texttt{yaq}} \label{cha:yaq}
 
+\newcommand\yaqcqtpy{\texttt{yaqc-qtpy}}
 \clearpage
 
 \section{Introduction}  % =========================================================================
@@ -21,7 +22,7 @@
 \subsection{\texttt{yaq-traits}}
 
 \hypertarget{installation}{%
-\subsubsection{installation}\label{installation}}
+\subsubsection{Installation}\label{installation}}
 
 yaq-traits can be installed via
 \href{https://pypi.org/project/yaq-traits/}{PyPI} or
@@ -60,12 +61,12 @@ different implementations
 \end{description}
 
 \hypertarget{usage}{%
-\subsubsection{usage}\label{usage}}
+\subsubsection{Usage}\label{usage}}
 
 yaq-traits is a command line application.
 
 \hypertarget{help}{%
-\paragraph{help}\label{help}}
+\paragraph{Help}\label{help}}
 
 Help: learn more, right from your terminal.
 
@@ -238,7 +239,7 @@ bugtracker = "https://git.example.com/example-daemon/-/issues"
 \end{codefragment}
 
 \hypertarget{installation-1}{%
-\paragraph{installation}\label{installation-1}}
+\paragraph{Installation}\label{installation-1}}
 
 Installation is just like links, except with the specific goal of
 pointing to installable package references. For python, this likely
@@ -403,7 +404,7 @@ $ conda install yaqd-control
 \end{codefragment}
 
 \hypertarget{usage}{%
-\subsubsection{usage}\label{usage}}
+\subsubsection{Usage}\label{usage}}
 
 yaqd-control is a command line application.
 
@@ -613,8 +614,222 @@ Password:
 
 \subsection{\texttt{yaqc-qtpy}}
 
+\yaqcqtpy{} is a graphical application which provides easy access to most features provided by \yaq{}, especially those defined by traits and properties.
+It is designed to be generically useful to all \yaq{} users, and does not attempt to specialize for particular use cases or perform data acquisition tasks.
+Rather, it is designed to be useful for ``engineering'' tasks such as alignment or initially acquiring signal.
+Its name comes because it is implemented using \texttt{yaqc}\cite{}, the generic Python \yaq{} client and QtPy\cite{}, an abstraction layer providing a unified interface to several Python binding for Qt\cite{}, a graphical application toolkit.
+
 \subsubsection{Installation}
 
+ 
+\yaqcqtpy{} is included with the installation of the Python package of the same name.
+As such it is installed via:
+ 
+\begin{codefragment}{bash}
+conda install yaqc-qtpy
+\end{codefragment}
+ 
+or:                                                                                                                  
+ 
+\begin{codefragment}{bash}
+pip install yaqc-qtpy
+\end{codefragment}
+
+In the future, the application may be packaged so as to be installable as standard executable programs with included Python and dependencies.
+
+\subsubsection{Usage}
+
+Starting \yaqcqtpy{} is done by running the following command:
+
+\begin{codefragment}{bash}
+yaqc-qtpy
+\end{codefragment}
+
+In the future, there is likely to be the option to start the application from standard application menus.
+
+When the application opens, there is a list of available daemons along the left sidebar and a picture of a yak in the main window, as shown in Figure \ref{yaq:fig:yaqc_qtpy_startup}.
+Daemons are shown in alphabetical order.
+Each daemon has a checkbox which indicates the current state of ``busy'' for that daemon.
+Offline daemons have a simple text box which shows that the daemon is offline.
+Each of the daemon sections can be expanded, providing additional options for controlling the hardware.
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=9in]{"yaq/images/yaqc_qtpy_startup"}
+\caption[\yaqcqtpy{} Startup]{
+	Image of \yaqcqtpy{} upon initial opening.
+}
+\label{yaq:fig:yaqc_qtpy_startup}
+\end{figure}
+\end{landscape}
+
+When expanded, each daemon provides a ``card'' which provides information and controls for that daemon.
+At the top of the card, the host and port that are used to communicate with the daemon are shown.
+Additionally, all properties (whether provided by a trait or unique to the daemon) that have ``control\_kind'' set to ``hinted'' are shown in this sidebar.
+This provides immediate access to the most important information and controls for that daemon.
+Values with units can be set in compatible units, and values with enumerated options are provided as a drop down menu.
+Each daemon has a button to open the advanced menu for that daemon.
+The advanced menu appears in the main portion of the window (where the yak picture appears at initial start-up) and has trait-based user interfaces.
+Figure \ref{yaq:fig:left_sidebar} shows an example of the left sidebar with some sections expanded.
+
+\begin{figure}
+\includegraphics[width=4.5in]{"yaq/images/left_sidebar"}
+\caption[\yaqcqtpy{} Left Sidebar]{
+	The left sidebar of \yaqcqtpy{} which provides collapsible sections for each known daemon.
+	The busy state is represented by the checkbox on the line with the daemon name
+	Properties with ``control\_kind'' of ``hinted'' are shown directly in this sidebar.
+	An advanced window for each daemon can be accessed by pressing the button below the properties.
+}
+\label{yaq:fig:left_sidebar}
+\end{figure}
+
+\subsubsection{Hiding}
+
+Because the number of daemons installed on a system is often larger the number of daemons that regularly need to be interacted with in engineering contexts, \yaqcqtpy{} implements a system of "hiding" those daemons that are not desired.
+Daemons which are hidden are still accessible in the application, but show up in a collapsed section below all of the non-hidden daemons.
+To hide (or unhide) a daemon, a button is provided as a collapsed subitem of the ``view advanced menu'' for that item.
+When clicked, the card for that daemon will move to the other section, in appropriate alphabetical order.
+Figure \ref{yaq:fig:hiding} shows the Hide and Unhide buttons for two daemons, along with the Hidden collapsable section which holds all of the hidden daemons.
+Daemons which are hidden are stored in a configuration file by their host:port string, and remain hidden through restarting the application.
+
+
+\begin{figure}
+\includegraphics[width=4.5in]{"yaq/images/hiding"}
+\caption[\yaqcqtpy{} Hiding]{
+	Under the collapsed menu for the advanced menu, a button to Hide (or Unhide) the daemon is provided.
+	Hidden daemons appear at the bottom of the list of daemons, under a collapsed heading labeled ``Hidden''.
+}
+\label{yaq:fig:hiding}
+\end{figure}
+
+\subsubsection{Dependent Daemons}
+
+Daemons which implement the ``has-dependents'' trait have additional daemons that are associated with that hardware.
+These are shown as a collapsable section labeled ``Dependents''.
+In this section, the cards for each of the sub daemons are shown.
+It is common (though by no means guaranteed) that the dependent daemons are also included in the top level list.
+Thus, it is also common to then hide those daemons as they are rarely interacted with directly, and even when they are it is usually in the context of their parent daemon.
+Figure \ref{yaq:fig:dependents} shows the dependent daemons for an Attune daemon.
+
+\begin{figure}
+\includegraphics[width=4.5in]{"yaq/images/dependents"}
+\caption[\yaqcqtpy{} Dependent Hardware]{
+	Daemons which implement the ``has-dependents'' trait have a collapsed section with the cards for each dependent.
+}
+\label{yaq:fig:dependents}
+\end{figure}
+
+\subsubsection{Configuration Tab}
+
+Each daemon has an advanced menu which consists of some number of tabs.
+The first few tabs appear for all daemons and are fairly generic as a result.
+Next are tabs for particular traits, such as ``has-position'' and ``is-sensor''.
+Finally, individual daemons can provide plugins for \yaqcqtpy{} which provide additional specialized intefaces for that device.
+The default tab when opening is the last tab, which in general is the most specific interface available.
+
+The first tab in the list, config, displays a read-only view of the full configuration of the daemon, displayed in TOML.
+This is directly the response from calling the \texttt{get\_config} message for the daemon.
+Figure \ref{yaq:fig:config} shows this panel.
+
+\begin{figure}
+\includegraphics[width=4.5in]{"yaq/images/config"}
+\caption[\yaqcqtpy{} Configuration Tab]{
+	Each daemon's advanced menu includes the full configuration, displayed as TOML.
+	This configuration is not editable, it is provided for information only.
+}
+\label{yaq:fig:config}
+\end{figure}
+
+\subsubsection{Python Console Tab}
+
+The second tab, also available for each daemon, provides an IPython\cite{} console so that all capabilities of the daemon are available, including running arbitrary Python code to compute inputs.
+The console automatically runs a cel which creates a client using \texttt{yaqc}.
+Two names for the daemon are provided, the actual name of the daemon, and the one character variable name \texttt{c}, which stands for ``client''.
+This Python console, including the initial cell that is run with parameters appropriate for the individual daemon, is shown in Figure \ref{yaq:fig:console}.
+
+\begin{figure}
+\includegraphics[width=6.5in]{"yaq/images/console"}
+\caption[\yaqcqtpy{} Python Console Tab]{
+	The advanced menu includes a Python console with the \texttt{yaqc} client for the daemon pre-loaded.
+}
+\label{yaq:fig:console}
+\end{figure}
+
+\subsubsection{Has Position Tab}
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/has_position_graph"}
+\caption[\yaqcqtpy{} has-position Graph]{
+	Graph produced for daemons which implement the 	``has-position'' trait.
+	Plots the position versus time, with the current set point shown as a horizontal green line.
+	Limits are shown as horizontal red lines.
+}
+\label{yaq:fig:has_position_graph}
+\end{figure}
+\end{landscape}
+
+\begin{figure}
+\includegraphics[width=4.5in]{"yaq/images/has_position_plot_controls"}
+\caption[\yaqcqtpy{} has-position Plot Controls]{
+	The controls and information about the plot for ``has-position'' daemons.
+}
+\label{yaq:fig:has_position_plot_controls}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=4.5in]{"yaq/images/has_position_info"}
+\caption[\yaqcqtpy{} has-position Information]{
+	Information about the daemon, including the information from the ``id'' message and implemented traits.
+}
+\label{yaq:fig:has_position_info}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=4.5in]{"yaq/images/has_position_properties"}
+\caption[\yaqcqtpy{} Properties]{
+	All of the properties that have ``control\_kind'' of ``hinted'' or ``normal'' show up in the advanced sidebar.
+	Additionally, daemons which implement ``is-homeable'' have a ``home'' button to initiate the homing procedure.
+}
+\label{yaq:fig:has_position_properties}
+\end{figure}
+
+\subsubsection{Is Sensor Tab}
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/is_sensor_graph"}
+\caption[\yaqcqtpy{} is-sensor Graph]{
+	Graph produced for daemons which implement the 	``is-sensor'' trait.
+	Plots the channel versus time, with the zero shown as a horizontal green line.
+	The most recent value and the channel name is shown at the top.
+}
+\label{yaq:fig:is_sensor_graph}
+\end{figure}
+\end{landscape}
+
+\begin{figure}
+\includegraphics[width=4.5in]{"yaq/images/is_sensor_plot_controls"}
+\caption[\yaqcqtpy{} is-sensor Plot Controls]{
+	The plot controls for ``is-sensor'' graph, found in the right sidebar.
+	The number of points, poll period, and axis limits are controlled for the x axis.
+	The channel can be chaned using the y axis controls.
+}
+\label{yaq:fig:is_sensor_plot_controls}
+\end{figure}
+
+\subsubsection{Specialized Plugins}
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/attune_plugin"}
+\caption[\yaqcqtpy{} Attune Plugin]{
+	The attune daemon has a plug in which provides plots of the currently applied attune instrument.
+	The right sidebar provides controls including which value to show on the plot and information about the available tuning ranges and tunes in each arrangement.
+}
+\label{yaq:fig:attune_plugin}
+\end{figure}
+\end{landscape}
 
 
 \clearpage
