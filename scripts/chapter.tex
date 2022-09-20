@@ -3,22 +3,62 @@
 \clearpage
 
 \section{Introduction}  
+
+This appendix contains an assortment of scripts which are useful in the Wright Group.
+
+Many of these scripts are in active use on a regular basis, with only minor modifications for inclusion here.
+Such modifications include reformatting the code for a line length of 79 characters, removing commented out or otherwise unreachable code, and adjusting some of the comments.
+
 \clearpage
 
 \section{WrightTools}  
+
+\subsection{Quick 2D}
+\includepython{scripts/bluesky_data_quick2D.py}
+
+\clearpage
+
 \section{Attune}  
 
+\subsection{Undo Tune}
+\includepython{scripts/undo_tune.py}
+\clearpage
+
 \subsection{Intensity workup}
-\includepython{test.py}
+\includepython{scripts/intensity.py}
+\clearpage
+
+\subsection{Spectral Delay Correction workup}
+\includepython{scripts/SDC_Workup.py}
+\clearpage
 
 \subsection{Setpoint workup}
-\includepython{test.py}
+\includepython{scripts/setpoint.py}
+\clearpage
 
 \subsection{Tune Test workup}
-\includepython{test.py}
+\includepython{scripts/tunetest.py}
+\clearpage
 
 \subsection{Holistic workup}
-\includepython{test.py}
+\includepython{scripts/holistic_manual.py}
+
+\clearpage
+
+\section{Hardware Communication}  
+
+\subsection{NI DAQ Round Robin}
+
+This script produces a plot that helps to visualize the measurements of the DAQ and make informed choices about pixel index for measuring the state and for determining the phase offset for choppers.
+
+\includepython{scripts/DAQ_round_robin.py}
+\clearpage
+
+
+\subsection{InGaAs Plotting}
+\includepython{scripts/ingaas_plot.py}
+
+\clearpage
 
 \section{Bluesky Run Engine}  
 

@@ -1,30 +1,96 @@
 \chapter{Acquistion} \label{cha:acq}
 
 \newcommand\biab{\texttt{bluesky-in-a-box} }
-\newcommand\yaq{\texttt{yaq} }
 \newcommand\wrightfakes{\texttt{wright-fakes} }
 \newcommand\wrightplans{\texttt{wright-plans} }
 \newcommand\blueskycmds{\texttt{bluesky-cmds} }
+\newcommand\yaqccmds{\texttt{yaqc-cmds}}
+\newcommand\yaqcqtpy{\texttt{yaqc-qtpy}}
 \newglossaryentry{UUID}{name=UUID, description={Universally Unique Identifier}}
 
 \clearpage
 
-\section{Introduction}  % =========================================================================
+\section{Introduction}
 
 \subsection{PyCMDS: Monolithic Data Acquisition Program}
 
 \newglossaryentry{PyCMDS}{name=PyCMDS, description={A monolithic Python program for collecting CMDS data}}
 \newglossaryentry{CMDS}{name=CMDS, description={Coherent Multi-Dimensional Spectroscopy}}
 
-\Gls{PyCMDS} is a program to do \gls{CMDS}
+\Gls{PyCMDS} is a program originally created by Dr. Blaise Thompson to perform \gls{CMDS} experiments\cite{}.
+Prior to PyCMDS, the Wright Group had been through several iterations of programs perform experiments, primarily written using LabVIEW\cite{}\cite{}.
+As the name suggests, PyCMDS was written in Python.
+This jump to a standard text based language meant that changes to the software could be shared more easily.
+PyCMDS was the first time the Wright Group wrote acquisition software to run on multiple laser systems.
+To achieve this, all of the possible known hardware interfaces were included in application code and a series of configuration files were used to specify which hardware was active.
+
+PyCMDS was a monolithic program, incoporating everything from communicating with hardware to orchestrating motor motion, to recording data files, and providing graphical user interfaces.
+While ``modularity'' was an idea that occured for PyCMDS, here it meant that internal structures were reusable, as opposed to allowing integrations with external programs.
+Parts of PyCMDS were tightly coupled, meaning that deep knowledge of the entire system was required for even seemingly small changes.
+
+PyCMDS introduced the idea of ``Scan Modules'', separatly parameterizable instructions to do different kinds of data acquistitions.
+Initially, the goal was for scientists to be able to create their own scan modules for each new kind of experiment.
+However, the complexity of actually implementing them, combined with lack of documentation and the raw flexiblity of the ``default'' module, ``SCAN'', led to no one actually implementing many additional modules.
+The concept of ``Constants'', expressions which are used to set hardware that is not an axis of the scan but nonetheless needs to be moved for the desired slice, was introduced by the ``SCAN'' module.
+
+While the design of PyCMDS was good enough to get it running two laser systems that are quite similar in nature, if consisting of different parts from different manufacturers, its faults were evident.
+Virtual hardware was implemented to allow for development of PyCMDS away from the active instruments, but even then it made some development tasks.
+Ultimately, the rigidity of some hardware interfaces led to the creation of \yaq{}, and the first inclusions of \yaq{} in PyCMDS.
+Specifically, some of the hardware interface code was not able to run on Windows 10, making upgrading the system impossible without a large effort.
+That upgrade path, along with some issues relating to losing motor positions, was the driving factor in the creation of \yaq{}.
+
+
+\subsection{\texttt{yaqc-cmds}: Steps towards modularity}
+
+\newglossaryentry{yaqc-cmds}{name=yaqc-cmds, description={Pronounced ``Yak C Commands''. A custom program for collecting CMDS data using \yaq{} to communicate with hardware}}
+
+While the transition was not entirely made overnight, upon removing the last of the hardware interface code from the acquisition program, we decided that it deserved a new name, \yaqccmds{}, pronounced "Yak C Commands".
+This name comes from the fact that it is a \yaq{} client, the ``yaqc'', and that it instructs, or ``commands'' the instrument to acquire CMDS data, the ``cmds''.
+This name represents one of the biggest steps in the modular approach to instrumentation.
+\yaq{} plays a central role in the data collection for the program.
+
+To users, the change was fairly minimal: the user interface was largely unchanged and the available acquisitions were the same.
+At the same time, the other big change to the program was that the output data format was updated to be the HDF5-based ``WT5'' format from WrightTools, rather than the plain text PyCMDS data format.
+This data format change allows for better representation of multidimensional data sets, especially those collected by using array detectors or cameras, while keeping data file sizes manageable.
+
+\yaqccmds{} is a program attempting to be a one stop shop for both engineering tasks like working up initial signal and for actual data collection.
+Figure \ref{acq:fig:yaqccmds} shows the main queue panel of the application.
+Along the left side of the program is a control panel for the hardware known to the program.
+This allows setting of position and associated values whenever no scans are currently acquiring.
+In the middle is the queue itself, running top to bottom in order of execution.
+On the right, there is a panel that gives controls for the queue, including creating a new queue, running the queue, and enqueueing new items.
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=9in]{"acquisition/images/yaqc-cmds"}
+\caption[yaqc-cmds]{
+	The main queue window of \yaqccmds{}.
+}
+\label{acq:fig:yaqcccmds}
+\end{figure}
+\end{landscape}
+
+In addition to the queue, \yaqccmds{} has advanced menus for each hardware, including the menus that eventually became part of \yaqcqtpy{} for the Attune daemons.
+These advanced menus were much more critical prior to using \yaq{}, but were kept for consistency.
+
+Finally, there is a live plot tab which plots individual slices of data as they are collected.
+When the queue is idle, a large number at the top displays the most recent reading from a sensor, which is being polled.
+
+While less monolithic than its progenitor, \yaqccmds{} retained some of its faults.
+Writing new acquisition modules, while possible, was not well documented and was challenging to do correctly without deep knowledge of the internals of the program.
+This meant that most users, even advanced users, had little to no path to actually realize new ideas they had.
+There is no mechanism for running scans outside of the application, so developing new acquisition modules necessitated also implenting their user interface, and the systems were deeply integrated together.
+
+The program also required carefully constructed configuration files.
+While each section was relatively easy, \yaqccmds{} expected all enabled hardware to be available when the program starts, and would freeze or fail to open if even one instance of the expected hardware was missing or unresponsive.
+Users would frequently need to reconfigure and restart the program when hardware configuration changed, such as enabling or disabling a particular sensor.
+
+Ultimately, the flaws of \yaqccmds{} led to the separation of the program into \yaqcqtpy{} for the engineering focused tasks and a new program for the task of data acquisition.
+This new program builds on top of an ecosystem provided by the broader scientific community, Bluesky\cite{}.
 
 \clearpage
 
-\section{\texttt{yaqc-cmds}: Steps towards modularity}  % =============================================================
-
-\newglossaryentry{yaqc-cmds}{name=yaqc-cmds, description={Pronounced ``Yak C Commands''. A custom program for collecting CMDS data using \yaq to communicate with hardware}}
-
-\section{\texttt{bluesky}: Fully modular data acquisition}  % ===================================================================
+\section{\texttt{bluesky}: Fully modular data acquisition}
 
 \subsection{Bluesky}
 \newglossaryentry{Blueskyproj}{name={Bluesky (Project)}, description={A collaboration primarily consisting of members of National Labs which provides libraries in Python do perform experimental science}}
@@ -42,7 +108,7 @@ At the center is the Bluesky library itself, which provides the orchestration of
 
 The libraries provided by the Bluesky project are often developed together, providing integration where needed.
 However, the libraries are still separable, allowing for alternatives to be incorporated with ease to suit particular needs of an instrument.
-For instance, while the Bluesky Project provides Ophyd\cite{}, a useful hardware abstraction library with a particular focus on EPICS process values, the Wright Group has provided an alternative hardware interface based on \yaq, \texttt{yaqc-bluesky}\cite{}.
+For instance, while the Bluesky Project provides Ophyd\cite{}, a useful hardware abstraction library with a particular focus on EPICS process values, the Wright Group has provided an alternative hardware interface based on \yaq{}, \texttt{yaqc-bluesky}\cite{}.
 
 \subsubsection{The Event Model}
 
@@ -495,9 +561,9 @@ It is recommended to add your user account to the \texttt{docker} group to avoid
 sudo usermod -aG docker $USER
 \end{codefragment}
 
-\paragraph{Configure available \yaq hardware}
+\paragraph{Configure available \yaq{} hardware}
 
-This section assumes that the system has \yaq hardware running and set up to be listed by \texttt{yaqd list}.
+This section assumes that the system has \yaq{} hardware running and set up to be listed by \texttt{yaqd list}.
 If this is a development machine, it is recommended to install \ref{wright-fakes} prior to proceeding.
 
 \texttt{bluesky-in-a-box} uses \texttt{happi}\cite{}, a project created by the Stanford Linear Accelerator Center (SLAC), to communicate what hardware is available to the \texttt{re-manager} and \texttt{hwproxy}.
@@ -506,7 +572,7 @@ Using \texttt{happi} allows the possibility of easily and transparently using ha
 
 \texttt{happi} is a Python package that can be installed with either \texttt{conda install happi} or \texttt{pip install happi}.
 This will install a Command Line Interface (CLI) Application to manage a database (stored as a JSON file) of available hardware.
-In addition, for \texttt{happi} to be able to work with \yaq hardware you must \texttt{conda install yaqc-bluesky} or \texttt{pip install yaqc-bluesky}.
+In addition, for \texttt{happi} to be able to work with \yaq{} hardware you must \texttt{conda install yaqc-bluesky} or \texttt{pip install yaqc-bluesky}.
 
 To get started, set up a configuration file for \texttt{happi}.
 On Windows, start by creating a folder \nolinkurl{~\\AppData\\Local\\happi\\happi}
@@ -588,7 +654,7 @@ The RE Manager starts a Bluesky Run Engine (hence the name) and consumes the pla
 These plans encode the steps for taking data: moving motors, triggering sensors, and emitting Event Model documents.
 
 The RE Manager is responsible for connecting to the devices which are listed by the HAPPI database, providing its own list of available devices (which filters out those that are offline or are subdevices of other hardware such as OPA motors).
-At present, \biab expects that all hardware specified is \yaq hardware, though support for additional interface layers requires only that they are specified in HAPPI and that the necessary dependencies get added to the \texttt{re-manager} container.
+At present, \biab expects that all hardware specified is \yaq{} hardware, though support for additional interface layers requires only that they are specified in HAPPI and that the necessary dependencies get added to the \texttt{re-manager} container.
 It is also responsible for providing a list of available plans.
 For \biab, all of the \wrightplans are available, as well as the built-in Bluesky \texttt{count}, \texttt{sleep}, and \texttt{mv} plans.
 \texttt{count} generates a time series of readings, separated by a wait period.
@@ -737,6 +803,8 @@ This comes, of course, at the cost of not having a queue or the user interfaces 
 
 \subsection{\texttt{qserver}: Command Line Frontend to \texttt{bluesky-queueserver}}
 
+\texttt{qserver} is a command line program for interacting with \texttt{bluesky-queueserver}.
+It is provided by the project itself, and serves as a valueable tool for both troubleshooting and as an ``escape hatch'' for things that more narrowly focussed interfaces do not make possible.
 
 \subsubsection{Installation}
 
@@ -752,6 +820,49 @@ or:
 \begin{codefragment}{bash}
 pip install bluesky-queueserver
 \end{codefragment}
+
+\subsubsection{Usage}
+
+The most common use for \texttt{qserver} is to simply query the server for its current state:
+
+\begin{codefragment}{bash}
+$ qserver status
+Arguments: ['status']
+17:29:47 - MESSAGE: 
+{'devices_allowed_uid': '60b8e736-2b3e-4531-831f-d46dec9a477b',
+ 'devices_existing_uid': 'f203f778-5e9d-454d-9c8d-30a3c193c8f9',
+ 'items_in_history': 19,
+ 'items_in_queue': 0,
+ 'lock': {'environment': False, 'queue': False},
+ 'lock_info_uid': '581a37ac-d2d9-4967-b998-d044f1570d25',
+ 'manager_state': 'idle',
+ 'msg': 'RE Manager v0.0.16',
+ 'pause_pending': False,
+ 'plan_history_uid': '587f5b9f-ffe0-404b-be11-37b723c628ad',
+ 'plan_queue_mode': {'loop': False},
+ 'plan_queue_uid': '19b7952c-9c2f-4bd5-a621-6d5750912916',
+ 'plans_allowed_uid': '0650be18-94d3-4966-969c-a0b1264a2473',
+ 'plans_existing_uid': '08851d8e-8156-4407-9f60-6d7e7979bc10',
+ 'queue_stop_pending': False,
+ 're_state': 'idle',
+ 'run_list_uid': '2a9e07dc-f8c7-4c39-a9b6-c90f6c9b9833',
+ 'running_item_uid': None,
+ 'task_results_uid': 'efc52454-d902-4358-9470-80de6a7416db',
+ 'worker_background_tasks': 0,
+ 'worker_environment_exists': True,
+ 'worker_environment_state': 'idle'}
+\end{codefragment}
+
+This gives a fair amount of helpful information, such as the size of the queue and history, and the state of various parts of the queue server itself.
+
+Additional examples of how to use \texttt{qserver} are provided by the built-in help text:
+
+\begin{codefragment}{bash}
+$ qserver help
+\end{codefragment}
+
+This will print an extensive list of available uses for the program, including adding items to the queue and controlling the running state of the queue.
+All of the interactions that are possible as a client of the QueueServer are possible through this interface, though many of them are easier to interact with in a more specialized interface such as the graphical one detailed in the next section.
 
 \subsection{\blueskycmds: Graphical Frontend to \texttt{bluesky-queueserver}}
 
@@ -1056,11 +1167,11 @@ The Logs tab is a good first step towards troubleshooting when something unexpec
 \subsection{\texttt{wright-fakes}: Simulated Hardware for Development}
 \label{wright-fakes}
 
-\wrightfakes is a collection of docker containers each running a single \yaq daemon.
+\wrightfakes is a collection of docker containers each running a single \yaq{} daemon.
 \wrightfakes provides an entire system, mimicking a laser table, but using only fake daemons to represent motors.
 It includes detectors, a monochromator, delays, neutral density wheels, and OPAs (including the component motors of the OPAs and delays).
 
-This serves as a quick and easy way to start a suite of \yaq daemons which is consistent and provides the variety of hardware needed to thoroughly test the data acquisition software.
+This serves as a quick and easy way to start a suite of \yaq{} daemons which is consistent and provides the variety of hardware needed to thoroughly test the data acquisition software.
 
 \subsubsection{Installation}
 These instructions assume that Docker is already installed, for more information see the \ref{biab-install}.
@@ -1080,7 +1191,7 @@ docker compose up --build
 \end{codefragment}
 
 This builds the system of simulated daemons and starts running the daemons through docker.
-If the port that is expected for a \yaq daemon is already in use, the container will fail to run, much the same as if you tried to run a second instance of a \yaq daemon
+If the port that is expected for a \yaq{} daemon is already in use, the container will fail to run, much the same as if you tried to run a second instance of a \yaq{} daemon
 
 
 If you are using Docker Desktop, then you can restart the fake daemons from the ``Containers/Apps'' tab of the Docker Desktop application, in the same manner as \biab.
@@ -1108,7 +1219,42 @@ yaqd scan --start=39876 --stop=39877
 \end{codefragment}
 
 \subsection{Bluesky Community and Ecosystem}
-\subsubsection{\texttt{tiled}}
-\subsubsection{\texttt{databroker}}
+
+While an impressive library in its own right, the real power of Bluesky comes from the ecosystem that surrounds the library.
+There is a community of people who are all working towards making various pieces of the ecosystem better.
+Some are adding hardware interfaces, much like \yaqcbluesky{}, which expand the available hardware that can be used by Bluesky.
+The ``default'' such library, Ophyd\cite{}, is currently undergoing a major transformation with the goal of making it easier to adapt to new hardware and interface libraries\cite{NOBUGS_Ophyd_v2}.
+While \yaq{} is a key piece of enabling the Wright Group to use Bluesky, the future could include using one of the alternate libraries for some key pieces of hardware, which might not even need any work on the part of Wright Group members themselves, other than configuration.
+
+In addition to hardware, other components of the ecosystem are constanly being improved and worked on, including ones that we do not currently use.
+This includes components for building GUIs, Bluesky Widgets, and access to data after it is recorded, Databroker and Tiled.
+These three projects, in particular, are worth monitoring for their features and periodically considering if it is worth the time investment to adapt workflows of the Wright Group.
+
+\subsubsection{Bluesky Widgets}
+Bluesky Widgets\cite{} is a library which provides reusable graphical components for interacting with Bluesky and specifically for Bluesky QueueServer.
+In addition to the reusable components, the library provides a set of example applications which show practical versions of the components the library provides.
+Bluesky Widgets is actually already a dependency of \blueskycmds{}, though only for its data model for ingesting event documents, and not for any of the Qt widgets which are provided.
+Some of the example applications, such as the ``Queue Monitor'' application may prove to be generally useful either along side of or instead of programs like \blueskycmds{}.
+
+\subsubsection{Databroker}
+Databroker\cite{} is the ecosystem provided tool for accessing data from Bluesky acquisitions.
+Primarily, it returns data as Xarray\cite{} Dataset objects, which can then be manipulated, plotted, and stored for future use.
+In particular, Databroker can read data directly from the Mongo database that stores each event in sequence.
+This is part of the reason for even having the Mongo database in the first place.
+Ultimately, the initial decision was to ease the transition for users by providing WT5 files much like they are already used to.
+However, the tools provided by databroker and Xarray may yet prove to easily allow some data manipulation that is hard or impossible with WrightTools and WT5.
+Additionally, Databroker is in the process of converting to being built on top of the next project, Tiled, so perhaps it would be better for users to use Tiled directly even if the further tools such as Xarray are desired.
+
+\subsubsection{Tiled}
+
+In many ways, Tiled is the successor to Databroker.
+As a project, Tiled is quite ambitious, aiming to provide a unified interface to many different forms of data.
+Tiled provides a server, which ingests data from folders or databases and provides metadata about the tree of data provided.
+Tiled also provides a client Python library, which includes the ability to search data, download data in a variety of formats, including loading only portions of the available data.
+Additionally, there is a web server which provides the ability to browse data and view previews as images or graphs interactively.
+Tiled is a powerful tool that is well designed and built on standards.
+Tiled was not immediately used by the Wright Group because a) it was actively being developed in parallel,  b) it represents a larger change to user workflow than we wished to introduce in one step, and c) it incurs additional systemic complexity of running an additional server component.
+In the future, it may be possible to get a large portion of the benefits of Tiled, with minimal disruption of user workflow, by using plug-ins to allow tiled to read and provide WT5 files directly.
+
 
 \clearpage
