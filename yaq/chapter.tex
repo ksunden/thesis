@@ -757,6 +757,13 @@ This Python console, including the initial cell that is run with parameters appr
 
 \subsubsection{Has Position Tab}
 
+The ``has-position'' tab provides useful interactions for all hardware which implement the trait of the same name.
+Figure \ref{yaq:fig:has_position_graph} shows an example of this tab for a daemon called ``d1''.
+At the top, the name and most recent reading are displayed in large font such that it can be viewed from accross the room.
+Underneath, a graph showing the last minute of recorded positions for that daemon is shown.
+Limits and the current setpoint are shown as horizontal lines, in red and green colors, respectively.
+While some daemons are unable to report intermediate positions, if available these will be shown for position of the daemon while in motion.
+
 \begin{landscape}
 \begin{figure}
 \includegraphics[width=8in]{"yaq/images/has_position_graph"}
@@ -769,6 +776,13 @@ This Python console, including the initial cell that is run with parameters appr
 \end{figure}
 \end{landscape}
 
+
+The right sidebar provides additional controls to interact with the daemon.
+At the top, a collapsable section allows control over the plot as shown.
+In particular, it allows locking of the y axis limits to focus on a particular range of the axis.
+This section also displays what the limits that are actively being used are.
+Figure \ref{yaq:fig:has_position_plot_controls} shows the plot controls tree.
+
 \begin{figure}
 \includegraphics[width=4.5in]{"yaq/images/has_position_plot_controls"}
 \caption[\yaqcqtpy{} has-position Plot Controls]{
@@ -777,6 +791,14 @@ This Python console, including the initial cell that is run with parameters appr
 \label{yaq:fig:has_position_plot_controls}
 \end{figure}
 
+
+Below the plot controls are two sections which give information about the daemon, ``id'' and ``traits'', as shown in Figure \ref{yaq:fig:has_position_info}.
+The ``id'' section provides information such as the name, make, model, and serial number as provided by \texttt{client.id()}.
+This information can be helpful for correlating the daemon to the physical hardware.
+Since the displayed daemon is a pure software daemon, the make, model and serial number fields are all blank.
+Below ``id'' is an array of trait names, with check boxes which are checked for the traits implemented by the daemon.
+This provides quick answers for whether or not you can use features from a given trait with that daemon.
+
 \begin{figure}
 \includegraphics[width=4.5in]{"yaq/images/has_position_info"}
 \caption[\yaqcqtpy{} has-position Information]{
@@ -784,6 +806,20 @@ This Python console, including the initial cell that is run with parameters appr
 }
 \label{yaq:fig:has_position_info}
 \end{figure}
+
+Below the information sections is a section for ``properties'', as shown in Figure \ref{yaq:fig:has_position_properties}.
+This provides UI elements for all properties of ``hinted'' or ``normal'' control kind as specified by the properties entry in the AVPR.
+These properties may be added by traits or by individual daemons.
+Properties with a setter are editable fields which when edited will call the set message.
+All properties are polled for their current value.
+Properties with units can be set in alternative units from the user interface, the conversion is performed by the client and the native value is actually provided to the daemon.
+Any property that has type of boolean will be displayed as a check box.
+Strings, integers, and floating point numbers are shown as text boxes, with floating point numbers additionally having a units dropdown.
+Enumerated types, either using an Avro Enum type or by virtue of having an ``options\_getter'' specified by the associated property, are displayed as a dropdown combo box.
+If the property has a type other than those specified, it is ignored, as there are no interface elements associated with other types.
+If a user wishes to interact with such properties, a plug-in module must be provided that includes interface to set and display the property with an alternate type.
+
+Below the ``properties'', if the ``is-homeable'' trait is implemented, then a button is shown which calls \texttt{client.home()} when pressed.
 
 \begin{figure}
 \includegraphics[width=4.5in]{"yaq/images/has_position_properties"}
@@ -795,6 +831,16 @@ This Python console, including the initial cell that is run with parameters appr
 \end{figure}
 
 \subsubsection{Is Sensor Tab}
+
+The ``is-sensor'' tab is designed to be informative for interacting with daemons that implement the trait of the same name.
+Its primary display is shown in Figure \ref{yaq:fig:is_sensor_graph}.
+At the top, much like the ``has-position'' tab, a name and most recent value are shown.
+In this case, however, it is the name of the channel, rather than of the daemon itself, as sensors can have multiple channels.
+Below the large number is a graph showing the most recent series of measurements.
+At this time, the tab is only useful for channels which are scalar values, such that the plot shows a plot of value over time.
+In the future, shaped sensors such as array detectors should show the appropriate measurement against their mapping or index values rather than only plotting versus time.
+Additionally, two dimensional detectors such as cameras should show their images rather than a lower dimensional slice.
+
 
 \begin{landscape}
 \begin{figure}
@@ -808,75 +854,229 @@ This Python console, including the initial cell that is run with parameters appr
 \end{figure}
 \end{landscape}
 
+Similar to ``has-position'', the right sidebar has controls for the plot, as shown in Figure \ref{yaq:fig:is_sensor_plot_controls}.
+These controls are more extensive than the controls provided for ``has-position'', providing separate controls for the x axis and y axis.
+The x axis controls allow control over the number of points that are kept in memory, along with the rate to poll for new readings, which defaults to half a second.
+Finally, it allows control over the range displayed on the x axis, defaulting to -60, or one minute in the past.
+The y axis controls allow for changing the displayed channel, and adjusting the limits.
+By default if the limits are not locked, then the ymax and ymin values will expand the range to show new data points, but never contract, even if the points that caused them to expand are no longer kept in memory.
+Pressing the button for resetting the y limits causes the limits to contract to the range currently held in memory, ignoring past values which may be larger or smaller.
+
+
+In addition to the plot controls, the right panel contains much of the same options as provided by the ``has-position'' tab: ``id'', ``traits'' and ``properties''.
+Many sensors have no properties, but this is where options such as integration time would be provided.
+
 \begin{figure}
 \includegraphics[width=4.5in]{"yaq/images/is_sensor_plot_controls"}
 \caption[\yaqcqtpy{} is-sensor Plot Controls]{
 	The plot controls for ``is-sensor'' graph, found in the right sidebar.
 	The number of points, poll period, and axis limits are controlled for the x axis.
-	The channel can be chaned using the y axis controls.
+	The displayed channel can be changed using the y axis controls.
 }
 \label{yaq:fig:is_sensor_plot_controls}
 \end{figure}
 
 \subsubsection{Specialized Plugins}
 
+While traits allow for useful and consistent interfaces, some hardware has additional functionality that benefits from more specialized user interface.
+These plugins use Python's system of ``entrypoints'', which provide named and grouped references to a Python class or function.
+For \yaqcqtpy{} plugins, this should be a reference to a Callable object which accepts an instance of \texttt{QClient} (the Qt wrapper around \texttt{yaqc}) and returns a QWidget that can be displayed in the main area of \yaqcqtpy{}.
+Most often this is actually a class which inherits from QWidget, but that is not a strict requirement.
+The entrypoint is given the group of \texttt{"yaqc\_qtpy.main.<daemon kind>"} and the name of the individual entry point is the title that will appear as the tab.
+
+\paragraph{attune}
+
+The Attune daemon in particular has one such plugin for displaying the active Attune Instrument object for the daemon, shown in Figure \ref{yaq:fig:attune_plugin}.
+The right sidebar has many of the same fields as the has-position and is-sensor tabs: id, traits, properties, and a button since the daemon implements is-homeable.
+Additionally there is a collapsible information section in the sidebar which gives the names and ranges for each available Arrangement in the Instrument object.
+If you expand the arrangement range heading, a list of Tunes in that arrangement is shown.
+
+The main portion of the widget is a graph which displays one tune, with setpoint on the x axis and motor position on the y axis.
+The current setpoint is shown as a vertical yellow line.
+Only tunes from the current arrangement can be graphed, and it is controlled using the top section from the right sidebar.
+Additionally, the x axis units can be selected.
+
 \begin{landscape}
 \begin{figure}
 \includegraphics[width=8in]{"yaq/images/attune_plugin"}
 \caption[\yaqcqtpy{} Attune Plugin]{
-	The attune daemon has a plug in which provides plots of the currently applied attune instrument.
+	The attune daemon has a plugin which provides plots of the currently applied attune instrument.
 	The right sidebar provides controls including which value to show on the plot and information about the available tuning ranges and tunes in each arrangement.
 }
 \label{yaq:fig:attune_plugin}
 \end{figure}
 \end{landscape}
 
+\paragraph{attune-delay}
+
+The attune-delay daemon provides a quite similar interface to the attune daemon.
+However, since attune-delay is cumulative for all active arrangements, you can select the arrangement in the display controls.
+Additionally, the Arrangments for an attune-delay daemon do not have meaningful ranges and require controls to enable and disable each individual offset.
+Thus the ``instrument'' portion of the right sidebar includes boolean checkboxes which call the appropriate method to toggle each offset individually.
+
+\paragraph{ni-daqmx-tmux}
+
+\paragraph{gage-samples}
+
+\paragraph{gage-segments}
 
 \clearpage
 
 \section{Guides}
 
+This section provides a series of guides for implenting various features in \yaq{}.
+The first guide is a general guide to writing daemons.
+This is followed by some general guidance on what is meant in \yaq{} when we say ``configuration'' and ``state''.
+Then a discussion about the process for creating \yaq{} standards is provided.
+Following this, a series of guides relating to the details of implementing each trait are provided, listed in alphabetical order.
+These guides are specific to implementing each trait in Python, using the mix-in classes provided by \texttt{yaqd-core}.
+Finally, there are a series of guides for implementing particular common patterns or features of the core Python implementation.
+This last section has a particular emphasis on properly accounting for the asynchronous nature of the reference implementation.
+
 \subsection{Writing a Daemon}
 
-Intro, reference video of yaqd-new-era
-
-First steps are to communicate with your hardware from python, ignore yaq entirely.
-Look at manuals and documentations, look for manufacturer libraries
-Reasonable to start interactively, consider making a script
-
-Adding to an existing package or using a cookiecutter
-
-Using cookiecutter
-- answer questions
-- name your package after manufacturer
-- name your daemon
-
-Output of the cookiecutter
-- boilerplate
-- pyproject.toml
-	- defining entry points
-- readme
-- toml file for daemon
-- py file for daemon
-
-Existing package
-
-Writing the toml file
-- Consider what traits your daemon will implement
-- Add additional messages, properties, types, config, state
-
-Use yaq-traits to convert the toml file into avpr
-
-Implementing the python
-Import all of the classes from yaqd_core
-Multiple inheritence, order matters
-
-Define methods for each of the messages your protocol supports
-Many are inherited via traits, and those traits may have more limited subsets that need to be implemented
+Writing daemons is one of the key parts of the \yaq{} ecosystem.
+It is designed to be as easy as possible, though precedence is given to ensuring client interactions are easy and consistent.
+An example of implementing a new daemon, specifically a New Era Instruments syringe pump, is provided as a video tutorial\cite{}.
 
 
-Install via flit
-Write a config file
+The first step in writing a daemon is to interface directly with the hardware in question, ignoring \yaq{} entirely at first.
+This includes looking up manuals and other documentation, finding Python libraries built to communicate with the hardware, which may be provided by the manufacturer directly or by the scientific community of users of the hardware.
+It is reasonable to start in an interactive Python prompt, but it is strongly recommended to write a python script which does each distinct communication with the hardware: determine how to initiate communication, set the position, query the state of relevant variables or measurements, home the hardware, and gracefully shutdown communication.
+Writing a script is not strictly necessary, but it makes creating the daemon easier, a matter of coping and pasting each individual snippet into the appropriate method of the daemon and hooking in the parameters.
+
+Once communication and proper control of the hardware is established, the first question is if it is the first daemon in a new package or if it is adding to an existing package.
+The standard practice is to group multiple daemons into packages for each manufacturer.
+While this is not a hard requirement, it is a suggestion to balance installing only the packages that are required for a particular system while keeping the maintenance burden manageable.
+If this is the first daemon for a manufacturer, a new package must be created.
+
+\yaq{} provides a ``cookiecutter'' package template which helps to create new \yaq{} packages\cite{}.
+Cookiecutter is a Python project that allows a template folder structure to be generated after asking a series of questions to obtain variables that are used for file names and contents\cite{}.
+
+To use the \yaq{} cookiecutter package, first install \texttt{cookiecutter} itself (use the option appropriate for your system):
+
+\begin{codefragment}{bash}
+pip install cookiecutter
+conda install cookiecutter
+\end{codefragment}
+
+And run the command line program, giving the URL for the cookiecutter repository:
+
+\begin{codefragment}{bash}
+$ cookiecutter https://github.com/yaq-project/yaqd-cookiecutter-python
+project_name [yaqd-boilerplate]: yaqd-new-era
+project_slug [yaqd-new-era]: 
+project_src_dir [yaqd_new_era]: 
+project_short_description [Yaqd Boilerplate contains all the boilerplate you need to create a yaq daemon.]: Daemons for New Era Instruments hardware.
+version [0.1.0]: 2022.11.0
+Select open_source_license:
+1 - GNU Lesser General Public License v3 (LGPL)
+2 - MIT license
+3 - BSD license
+4 - ISC license
+5 - Apache Software License 2.0
+6 - GNU General Public License v3 (GPL)
+7 - Not open source
+Choose from 1, 2, 3, 4, 5, 6, 7 [1]: 
+use_pytest [n]: 
+first_daemon_kind [my-daemon]: new-era-ne1000
+first_daemon_module [_new_era_ne1000]: 
+class_name [NewEraNe1000]: 
+\end{codefragment}
+
+This will result in a series of prompts, with the default choice given in brackets.
+Some of the later prompts default to values derived from earlier prompts.
+Some values are required to be valid Python identifier names, specifically those that have underscores instead of dashes and the \texttt{class\_name}.
+If you are okay with the default given, hit enter.
+Otherwise, provide a valid alternative.
+
+The \texttt{product\_name} typically starts with \texttt{"yaqd-"} and ends with the manufacturer name.
+The \texttt{project\_slug} and \texttt{project\_src\_dir} are derived from the \texttt{product\_name} and are usually the correct value.
+While some of the other options will fill out default values in a handful of places, the only other options worth highlighting are the license and the \texttt{first\_daemon\_kind}.
+The license gives an option of several possible open source licenses, for which the appropriate text will be found in \texttt{LICENSE.txt}.
+\yaq{}'s Python implementation itself is licensed under the GNU Lesser General Public License (LGPL), and that is a reasonable default if you are not opinionated about software licenses.
+\texttt{first\_daemon\_kind} is used to compute the default value for the last two options and represents the \texttt{kind} of the daemon for which the boilerplate code is provided.
+The cookiecutter will automatically create a Python file that has makes starting the new daemon easier.
+It will also provide the appropriate TOML file with the correct name and headings ready to be filled out.
+
+In addition, the cookiecutter provides a number of files that provide configuration for tools used in the \yaq{} ecosystem, including pre-commit\cite{}, and GitHub Actions\cite{} workflows to run \texttt{mypy}\cite{}, publish the package to PyPI\cite{}, and to test that the command line applications provided by the python package run as expected.
+By default, there is no proper testing infrastructure for actual correctness of running daemons, as most daemons require hardware to even initialize.
+Instead, the tests ensure that the application runs, providing help and version information even without trying to start the actual daemons.
+
+A full list of files created by the cookiecutter is provided below:
+
+\begin{codefragment}{bash}
+├── CHANGELOG.md
+├── .github
+│   └── workflows
+│       ├── python-mypy.yml
+│       ├── python-publish.yml
+│       └── run-entry-points.yml
+├── .gitignore
+├── LICENSE
+├── .pre-commit-config.yaml
+├── pyproject.toml
+├── README.md
+└── yaqd_new_era
+    ├── __init__.py
+    ├── _new_era_ne1000.py
+    ├── new-era-ne1000.toml
+    ├── VERSION
+    └── __version__.py
+\end{codefragment}
+
+The provided \texttt{pyproject.toml} file will include the entrypoint that specifies the command line application for the first daemon.
+
+
+When adding a new daemon to an existing repository, many of the files do not need to be created or edited.
+A new python file and associated TOML file should be added to the main python package source directory (\texttt{yaqd\_new\_era} in this example).
+\texttt{pyproject.toml} should be updated to include the new entrypoint, which should look similar to the existing entrypoint, but updated with the new file and daemon kind name.
+The \texttt{README.md} should be updated to include a reference to the new daemon.
+And lastly, the \texttt{run-entry-points.yml} GitHub Action should be updated to additionally test the new entrypoint.
+
+The next step is to define the external interface of the daemon, which is done using the TOML file.
+First consider what traits are appropriate for this daemon.
+Is it a sensor? or a motor?
+Does it communicate using UART-style serial?
+Add the appropriate list of traits to the \texttt{traits} list in the TOML file.
+
+Then add any additional messages, configuration, and state to the appropriate sections.
+If messages are logically connected such that one is a ``getter'' and one is a ``setter'' then it is preferable to group these messages into a ``property'' as well.
+Each message defines its input and output types.
+
+Once complete, use \texttt{yaq-traits} to convert the TOML file into a fully specified Avro Protocol (avpr) file.
+This completes the target contract that is advertized to clients as the available interface.
+The daemon is not complete until this contract is fulfilled.
+
+The next step is to implement the Python module.
+Import all of the mix-in classes for the chosen traits from \texttt{yaqd\_core}
+Since these are mix-in classes are compositional in nature, but have some dependencies on each other, order does matter for the class declaration line.
+In general, more specific traits should appear further to the left, and more general traits should appear further to the right, e.g. \texttt{UsesUART} should appear left of \texttt{UsesSerial}.
+\texttt{IsDaemon} should generally be the last entry in the list.
+
+From there, implement each specified trait, as detailed below.
+Copy the relevant lines from the script written initially for each method where hardware communication is required.
+If you are regularly polling information, this is typically done in a method called \texttt{update\_state}.
+
+Once all traits are implemented, add the implementation for any unique messages that are provided.
+Ensure that all configuration values that are required are used appropriately and that all state values that are declared are properly written to when they are updated.
+
+Once implemented, the daemon can be installed using \texttt{flit}\cite{}:
+
+\begin{codefragment}{bash}
+$ flit install --pth-file
+\end{codefragment}
+
+This will install the package in editable mode, such that changes to the local directory will change the daemon when it is run.
+
+Before the daemon can actually be tested, a configuration file must be written:
+
+\begin{codefragment}{bash}
+$ yaqd edit-config new-era-ne1000
+\end{codefragment}
+
+At a minimum a section providing the name as a TOML table and the \yaq{} port must be provided.
+If there are additional required configuration values, those must be provided as well, otherwise the daemon will not initialize properly.
 
 
 \subsection{Configuration versus State}
@@ -931,7 +1131,66 @@ Even in the latter case, it can be useful to include the \texttt{has-limits} tra
 
 \subsection{Implementing traits: has-mapping}
 
-\subsection{Implementing traits: has-measure-trigger}
+\texttt{has-mapping} builds upon the \texttt{is-sensor} trait by providing access to parallel arrays, such as the wavelength data for an array detector or spatial information for a camera.
+Since \texttt{has-mapping} requires \texttt{is-sensor}, all of the details of implementing a sensor apply.
+Implementing \texttt{has-mapping} requires only the setting of some instance attributes which are quite similar to how all \texttt{is-sensor} devices manage the channel names, units, and shapes.
+All of the messages provided by the trait are implemented by the provided mix-in class, referencing the expected variables.
+Mappings have their own names, strings which identify them as separable arrays.
+A channel may have multiple mappings, including multiple mappings along the same axis, this simply means that all of the arrays are parallel.
+For instance, a camera may provide a mapping for both wavelength information and index information, the latter of which may identify where on the physical camera a selected area of interest is located, while the former provides information of interest to plotting.
+A channel may also have multiple mappings for different axis, such as the x axis and y axis of a camera.
+
+The three variables are \texttt{self.\_channel\_mappings}, \texttt{self.\_mapping\_units}, and \texttt{self.\_mappings}.
+Each of these is a dictionary which provides information about the mappings.
+The first, \texttt{self.\_channel\_mappings}, determines which mappings are associated with each channel.
+The keys are the channel names, and the values are a list of mapping names which apply to that channel.
+Each channel should appear in this list, but may have zero mappings associated.
+The second variable, \texttt{self.\_mapping\_units} works much the same as \texttt{self.\_channel\_units} for any sensor, except that the keys are the mapping names.
+The values are either \texttt{None} for unitless quantities or a string for the unit.
+Both \texttt{self.\_channel\_mappings} and \texttt{self.\_mapping\_units} should be static and only set once.
+Finally, \texttt{self.\_mappings} is a dictionary with the mapping names as keys and the actual arrays (or scalars, though such usage is uncommon) as values.
+The arrays must have shapes which broadcast to all associated channels identified by \texttt{self.\_channel\_mappings}.
+
+If the mapping is entirely static (e.g. it is read from the device and is not dependent on other inputs) then all of the variables can be set in the daemon's \texttt{\_\_init\_\_} method.
+If the mappings are dynamic, then they must be set as a response to updated inputs.
+The mix-in class manages the state of a fourth variable, \texttt{self.\_mapping\_id}, which is an integer that simply increments every time new mapping arrays are provided.
+
+The following snippet shows the relevant portions of a daemon which implements a camera with an area of interest specified by configuration variables and mappings which identify the physical indices of the axes:
+
+\begin{codefragment}{python}
+class MyDaemon(HasMapping, HasMeasureTrigger, IsSensor, IsDaemon):
+    def __init__(self, name, config, config_filepath):
+        super().__init__(name, config, config_filepath):
+
+	...
+
+	self.x_index = np.arange(
+            config["aoi_left"], config["aoi_left"] + config["aoi_width"], dtype="i2"
+        )[None, :]
+        self.y_index = np.arange(
+            config["aoi_top"], config["aoi_top"] + config["aoi_height"], dtype="i2"
+        )[:, None]
+
+        # populate channels
+        self._channel_names = ["image"]
+        self._channel_units = {"image": None}
+        self._channel_mappings = {"image": ["x_index", "y_index"]}
+        self._channel_shapes = {"image": [config["aoi_height"], config["aoi_width"]]}
+        self._mappings = {"x_index": self.x_index, "y_index": self.y_index}
+\end{codefragment}
+
+
+This example if for a daemon with a static mapping, one with a dynamic mapping would include a line such as:
+
+
+\begin{codefragment}{python}
+	self._mappings = self.gen_mapping()
+\end{codefragment}
+
+Where \texttt{self.gen\_mapping} is a function which returns a valid mapping dictionary.
+This line could appear multiple times and does not need to be in \texttt{\_\_init\_\_}, though it should be called at least once before a measurement is taken.
+
+
 
 \subsection{Implementing traits: has-position}
 
@@ -1018,12 +1277,12 @@ class MyDaemon(HasTurret, IsDaemon):
     ...
 
     def get_turret_options(self):
-	return ["ir", "vis", "uv"]
+        return ["ir", "vis", "uv"]
 
     def set_turret(self, turret):
-    	self.device.set_turret(self.gratings[turret]["index"])
-	self.device.set_position(self._state["destination"])
-	self._calculate_limits()
+        self.device.set_turret(self.gratings[turret]["index"])
+        self.device.set_position(self._state["destination"])
+        self._calculate_limits()
 \end{codefragment}
 
 \subsection{Implementing traits: is-discrete}
@@ -1067,10 +1326,10 @@ class MyDaemon(IsHomeable, HasPosition, IsDaemon):
 
     async def _home(self):
         self._homing = True
-	self._done_homing = False
+        self._done_homing = False
         self._busy = True
-	self.device.home()
-	while not self.device.homed():
+        self.device.home()
+        while not self.device.homed():
             await asyncio.sleep(0.01)
         self.set_position(self._state["destination"])
         self._homing = False
@@ -1100,7 +1359,7 @@ If the native interface itself must block in a way that asyncio cannot bypass, t
 
 \begin{codefragment}{python}
 class MyDaemon(HasMeasureTrigger, IsSensor, IsDaemon):
-    def __ini__(self, name, config, config_filepath):
+    def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath):
         self.device = AsyncDevice()
         self.channel_names = ["ch0", "ch1", "ch2", "ch3"]
@@ -1183,14 +1442,13 @@ from yaqd_core import UsesUart, UsesSerial, IsDaemon
 
 class MyDaemon(UsesUart, UsesSerial, IsDaemon):
     def __init__(self, name, config, config_filepath):
-	super().__init__(name, config, config_filepath)
-	self._ser = serial.Serial(config["serial_port"], config["baud_rate"])
+        super().__init__(name, config, config_filepath)
+        self._ser = serial.Serial(config["serial_port"], config["baud_rate"])
 
     def close(self):
-	self._ser.close()
+        self._ser.close()
 \end{codefragment}
 
-\subsection{Daemon patterns: Busy}
 
 \subsection{Daemon patterns: loading and saving state}
 
@@ -1232,8 +1490,312 @@ class MyDaemon(IsDaemon):
 \end{codefragment}
 
 
-\subsection{Daemon patterns: serial devices}
 
 \subsection{Daemon patterns: async interfaces}
+
+The Python implementation of \yaq{} makes use of Asyncio\cite{} to do what is called ``cooperative multitasking''.
+Asyncio is built in to the Python language and provides additional syntax to declare functions which are called asynchronously.
+Asyncio has an ``event loop'' which schedules a series of tasks, tracking dependencies between tasks and allowing those tasks that are able to run execution time.
+The key idea, and the reason it is called ``cooperative'', is that each task should not block so as to allow all of the other tasks to complete.
+Only one task is ever actually running at any given instant, though many may be ready to run and awaiting selection, giving an effect very similar to having multiple threads, but without as much overhead or risk of invalid shared data.
+Asyncio is good for tasks which are mostly waiting for things to happen such as user input or network traffic.
+This behavior makes Asyncio an ideal choice for tasks such as networking or other input-output (IO) bound tasks, which is why it is used by \yaq{}, a framework that does both networking and IO with hardware.
+Conversely, Asyncio is a poor choice for computation heavy tasks, as it does add overhead and a long running computation will prevent other tasks from recieving computation time.
+
+While the internals of the core \yaq{} library make extensive use of Asyncio to manage incoming RPC messages and running multiple daemon instances in the same process, where possible the usage of Asyncio is not something that daemon implementors need to spend a lot of time worrying about for most messages.
+There are some exceptions, though, as any long running tasks require at least a little bit of knowledge of Asyncio and best practices.
+The actual python function called as a response to an incoming RPC message is always synchronous.
+It is expected to itself return quickly, which is better for both the daemon process itself and for clients.
+The synchronous method that is directly called may, however, initiate an asynchronous task.
+
+Asyncio introduces two additional keywords for the Python language: \texttt{async} and \texttt{await}.
+\texttt{async} is used to declare functions as asynchronous and \texttt{await} is used to call such functions, preventing the calling function from continuing until a result is provided:
+
+\begin{codefragment}{python}
+    async def async_function(self):
+        await asyncio.sleep(1)
+\end{codefragment}
+
+Functions which have the \texttt{async} keyword are often referred to as ``coroutines'' to indicate that the mechanism by which they are called differs from standard function calls and that they are part of the cooperative multitasking.
+\texttt{await} can only be used within an asynchronous function, so to start a parallel task from a synchronous method you would do:
+
+\begin{codefragment}{python}
+    def sync_funtion(self):
+        self._loop.create_task(async_function)
+\end{codefragment}
+
+This works in \yaq{} because there is already a running event loop and each daemon instance holds a reference to the event loop.
+
+When writing an asynchronous method, you must be considerate of other tasks that may be running.
+This means that there should not be places where the code is blocking, waiting for something to happen.
+Instead, use an asynchronous equivalent where possible.
+For instance, instead of using \texttt{time.sleep(1.0)}, use \texttt{await asyncio.sleep(1.0)}.
+An increasing number of libraries are either implementing an Asyncio interface or have an alternative dependency that is only Asyncio, consider using these interfaces if ones built specifically for your hardware exist.
+The \texttt{await} keyword returns execution control to the scheduler and allows other tasks to complete rather than holding on to the processing.
+If there is a way to wait specifically for something to happen or a result to be finished, rather than polling, that is preferable.
+If there is a loop, especially one that may be an infinite loop, ensure that there is an \texttt{await} statement for every possible code path.
+Even if you have no explicit thing to wait for, there should be a line for \texttt{await asyncio.sleep(0)}.
+This tells the scheduler that other tasks can run, but if no other tasks are ready, this task can continue immediately.
+This ensures that other tasks get an opportunity to run, rather than having one task which monopolizes the computation time.
+In particular, if you are handling exceptions, make sure that an await happens either before the exception can occur or in the \texttt{except} block.
+
+There are three main areas that a daemon implementor needs to think about Asyncio: monitoring state updates from the daemon that are not in response to client messages, homing motors, and reading sensors.
+
+\subsubsection{Monitoring state updates}
+
+For a lot of hardware, there are messages to determine the state of the hardware such as position or whether or not it is actively moving, as read directly from the hardware interface.
+It is generally good practice to poll this information to maintain a complete and correct understanding of the state of the hardware.
+However, these updates are not raised as a reaction to direct client RPC calls, and instead have to happen in parallel, as a separate Asyncio task.
+By convention, a task called \texttt{update\_state} is used for this purpose.
+There is nothing actually special about this method other than that it is explicitly cancelled upon shutdown, automatically.
+Users are free to start their own tasks if it makes logical sense to have more than one task running in parallel.
+In fact, by adding any created tasks, as returned by \texttt{self.\_loop.create\_task}, to the \texttt{self.\_tasks} list these additional tasks will be similarly cancelled at when a shutdown is requested.
+By default, the method does precisely nothing, simply returning and ending the task.
+
+When it is used, it almost always has a loop, often one that is intentionally infinite.
+Take, for example, the version of the \texttt{update\_state} method from the Attune Delay daemon:
+
+\begin{codefragment}{python}
+    async def update_state(self):
+        """Continually monitor and update the current daemon state."""
+        while True:
+            self._busy = self._wrapped_daemon.busy()
+            self._state["position"] = self._to_ps(self._wrapped_daemon.get_position())
+            if self._busy:
+                await asyncio.sleep(0.01)
+            else:
+                await asyncio.sleep(0.1)
+\end{codefragment}
+
+This method starts with \texttt{while True:}, which is an infinite loop.
+There are no \texttt{break} statements, nor do we expect in normal operation for there to be any exceptions raised.
+The task will not terminate without being cancelled from another task.
+Since this particular daemon wraps another daemon, the busy state is read and updated, along with a small amount of calculation for the position.
+Importantly, this is followed by an \texttt{await} statement, though the poll freqency is faster when busy compared to when it is not busy.
+
+
+\subsubsection{Homing}
+
+An example of this pattern is already shown above in the section on implementing the \texttt{is-homing} trait.
+Essentially this is a case of the synchronous method needing to initiate a longer task.
+For some hardware, it may make sense to treat simple setting of position in much the same way, though most manage it by polling the state for updates.
+There are often additional flags or Asyncio events that must be managed in relation to homing, the specifics will vary for particular hardware.
+
+\subsubsection{Reading sensors}
+
+The abstract method for all sensors that implement \texttt{has-measure-trigger} is an asynchronous method, \texttt{self.\_measure}.
+In many cases, the fact of this being asynchronous can be largely ignored.
+If the hardware has an interface which returns quickly and there is no necessary waiting period such as an integration time, then this method can simply communicate with the hardware and return.
+It is not necessary to have an \texttt{await} statement just because it is an \texttt{async} function.
+
+The reason the abstract method is asynchronous is so that it generalizes to hardware which may have either waiting periods or natively asynchronous communication.
+If it had been implemented as a synchronous method, then implementing such interfaces would have been much more difficult.
+Conversely, since it is an asynchronous method, those implementations that would have been served by a synchronous implementation only have an additional keyword.
+
+Using Asyncio works well for sensors which have a ``kickoff'' method to initiate the measurement which is not itself a blocking method call.
+These sensors typically also have a method that informs the caller of whether or not the measurment is done.
+Such methods can be polled with an \texttt{await asyncio.sleep} call to limit the poll rate and allow other tasks to complete.
+Finally, when it is ready the actual data can be read and returned.
+
+There are some sensors that do not fit well into that pattern, though.
+Some sensors only provide fully blocking calls that wait for the entire acquisition time.
+In this instance, the blocking method can still be used, but should be wrapped and called in a way that does not prevent the Asyncio event loop from running additional tasks.
+This is done by using \texttt{self.\_loop.run\_in\_executor}, which is a method provided by Asyncio that runs a blocking call in a separate thread, and allows the calling funtion to \texttt{await} the result as if it is an asynchronous function.
+This is not preferable behavior, as the standard hazards of using threads once again apply, even the ones that using Asyncio usually sidesteps, but it allows for daemons with such hardware interfaces to behave correctly.
+
+An example of a blocking interface using a thread pool executor:
+
+\begin{codefragment}{python}
+    async def _measure(self):
+        arr = await self._loop.run_in_executor(
+            None,
+            self.device.trigger_and_read
+        )
+        return {"chan": arr}
+\end{codefragment}
+
+\subsection{Daemon patterns: busy}
+
+The concept of \texttt{busy} is something all \yaq{} daemons have in common.
+The exact specifics do vary, but generally for motors it means that the motor is actively moving and for sensors it means that the daemon is acquiring a measurement.
+A sensor that is looping or a sensor that does not implement \texttt{has-measure-trigger} will always report that \texttt{busy} is True.
+This perhaps unintuitive choice was made so that a sensor that is in looping mode is no different to a client that is expecting a non-triggered sensor.
+
+In general, \texttt{busy} gets set to True when an RPC message which changes the state of the daemon is called, and is set to False when that change is complete.
+This is then used to guard against unexpectedly using the result of RPC calls when the daemon is in a state of flux or otherwise is not ready.
+When possibly, busy can be read directly from the hardware, though care must be taken to ensure that if a change has been requested busy never reports False until that change is complete.
+A specific (but recurring) instance of this idea is explored in detail below.
+
+\texttt{busy} is a boolean flag that can be read internally by daemon methods using \texttt{self.\_busy} and by clients over the RPC by using \texttt{client.busy()}.
+If one wants to wait for a specific state, it is possible to simply poll the busy state until it is either True or False, whichever is required.
+While that is the only mechanism available to clients, internally there are additional features that allow you to explicitly wait for the rising or falling edge of \texttt{busy} without polling.
+There is a pair of \texttt{asyncio.Event} objects\cite{} which allow explicit awaiting on either busy or not busy, \texttt{self.\_busy\_sig} and \texttt{self.\_not\_busy\_sig}.
+These provide signals that the Asyncio event loop explicitly knows that tasks waiting on them are not ready until the associated \texttt{event.set()} method is called.
+These \texttt{set} methods are called (or reset) whenever \texttt{self.\_busy} is updated, so daemon implementors need only to properly update that boolean for everything else to work as expected.
+
+Example usage of the \texttt{busy} Asyncio features:
+
+\begin{codefragment}{python}
+async def update_state(self):
+    while True:
+        await self._not_busy_sig.wait()
+        self._logger.info("No longer busy")
+        await self._busy_sig.wait()
+        self._logger.info("Busy again")
+\end{codefragment}
+
+\subsection{Daemon patterns: async serial devices}
+
+One of the most common hardware interfaces is RS-232 style serial communication.
+While the exact protocol for what bytes get sent over the wire differs greatly, many of these interfaces share common behaviors.
+Often there are multiple devices that are addressed and communicated to over the same serial bus. 
+In some cases, the information provided by replies from hardware is insufficient to in and of itself identify which method is being replied to.
+For this hardware, careful timing control must be used to correlate the request to the reply.
+In other cases, the reply itself contains both information about which device and what information is contained in the message.
+Sometimes, these self describing messages can even originate directly from the hardware, with no explicit request from the daemon side of the communication.
+
+When the messages are self describing, a good pattern is to allow the write actions, that is requests for information or commands to move, etc., to happen in multiple places, but have a centralized task to interpret the replies.
+Using this pattern, the code can be more logically separated, and there is less strict timing considerations regarding ensuring that you get the reply to the message you requested specifically.
+This is because all replies are handled, but with grace for time between replies being variable, and multiple requests can be pending.
+
+However, there are some common pitfalls of this approach, for which care must be taken.
+Because the Asyncio scheduler does not guarantee order of execution (and simply because communication with hardware takes time), there may be replies that are not processed by reading task that indicate that the device is not busy, even when a move has been requested.
+If care is not taken to account for this, the reply handler will accept that the daemon is not busy and clients may read that it is not busy and assume it is safe to continue.
+The same (though potentially even more avenues for ``not busy'' to be unintentionally reported) can be said for homing of motors that communicate in this way.
+That said, once you understand what is happening, it is not so difficult to enforce correct external behavior using a few additional boolean flags.
+
+To put this in concrete terms, I will walk through the Thorlabs Ell series daemon.
+This daemon uses a class called a \texttt{SerialDispatcher} which buffers write actions to ensure that the devices have time to process the commands and does some parsing of all incoming data from hardware.
+The dispatcher is responsible for determining that a message is correctly formed and which specific daemon instance should recieve the message.
+The dispatcher is not required for all hardware, particularly if there is never more than one device on the serial bus.
+
+First, the \texttt{\_\_init\_\_} method:
+
+\begin{codefragment}{python}
+def __init__(self, name, config, config_filepath):
+    self._homing = True
+    self._homing_sig = asyncio.Event()
+    self._move_started = False
+    self._address = config["address"]
+    if config["serial_port"] in ThorlabsEllx.serial_dispatchers:
+        self._serial = ThorlabsEllx.serial_dispatchers[config["serial_port"]]
+    else:
+        self._serial = SerialDispatcherEll(
+            aserial.ASerial(config["serial_port"], config["baud_rate"])
+        )
+        ThorlabsEllx.serial_dispatchers[config["serial_port"]] = self._serial
+    self._read_queue = asyncio.Queue()
+    self._serial.workers[self._address] = self._read_queue
+    super().__init__(name, config, config_filepath)
+    self._units = config["units"]
+    self._conversion = config["scalar"]
+    self._serial.write(f"{self._address:X}gs\r\n".encode())
+    self._state["status"] = ""
+    self._tasks.append(self._loop.create_task(self._home()))
+    self._tasks.append(self._loop.create_task(self._consume_from_serial()))
+\end{codefragment}
+
+\texttt{\_homing} and \texttt{\_move\_started} are the two boolean flag variables that will help ensure that \texttt{busy} is properly reported at all times.
+\texttt{\_homing\_sig} is an Asyncio Event, much like those associated with \texttt{busy}.
+It is used to inform the homing task that homing is complete so that it can reset the position to the current destination.
+The \texttt{SerialDispatcher} objects are shared among all daemons that communicate over the same serial bus, so if it already exists, the instance retains a reference to the previously made dispatcher, and creates a new one if it does not already exist.
+
+\texttt{read\_queue} is an Asyncio Queue\cite{} object which is a first-in first-out (FIFO) queue that is appended to by the dispatcher, and consumed by the daemon.
+It is added to the serial dispatcher with the address as a key.
+
+At startup, the daemon requests the initial status using \texttt{gs}.
+It also requests a Home operation and initiates the \texttt{\_consume\_from\_serial} task, each of which are added to the list of \texttt{self.\_tasks} which are properly cancelled upon shutdown.
+
+\texttt{\_consume\_from\_serial} is the task which waits for messages from the hardware and properly updates the daemon's internal state accordingly:
+
+\begin{codefragment}{python}
+async def _consume_from_serial(self):
+    while True:
+        comm, val = await self._read_queue.get()
+        self.logger.debug(f"incoming serial: {comm} {val}")
+
+        if "PO" == comm:
+            position = struct.unpack(">l", bytes.fromhex(val))[0]
+            position /= self._conversion
+            self._state["position"] = position
+        elif "GS" == comm:
+            hw_busy = int(val, 16) != 0
+            if not hw_busy and self._homing:
+                self.homing_sig.set()
+            self._busy = hw_busy or self._homing or self._move_started
+            self._state["status"] = self.error_dict.get(int(val, 16), "")
+            if int(val, 16) not in (0, 9):
+                # ignore normal busy/ready mode, log any other error
+                self.logger.error(f"ERROR CODE: {self._state['status']}")
+        else:
+            self.logger.warning(f"Unhandled serial response: {comm}{val}")
+
+        self._read_queue.task_done()
+        if self._read_queue.empty():
+            self._move_started = False
+\end{codefragment}
+
+The \texttt{await} for this \texttt{async} method is not a simple poll frequency, but rather waiting for a preprocessed message from the dispatcher.
+The message comes as a tuple of the command ID and the remaining unparsed contents, which contain the actual information.
+Unrecognized messages are logged, as well as reported error states from the hardware.
+Importantly, the line which sets \texttt{self.\_busy} does not only account for the hardware busy state, but also for the daemon's own knowledge of whether a home or set position has been initiated, using the boolean flags.
+At the bottom, the queue marks the task as processed and resets the \texttt{\_move\_started} flag if there are no messages left to process.
+This works specifically because the problem of having unprocessed messages which contradict the correct \texttt{busy} state is no longer possible once there are no active messages.
+The hardware has been informed to move, and will correctly report \texttt{busy} in any messages recieved \textit{after} the the write is complete.
+
+However, processing incoming information only happens for this device if it has been requested, so this daemon uses \texttt{self.update\_state} to request updates for the status and position:
+
+
+\begin{codefragment}{python}
+async def update_state(self):
+    while True:
+        if not self._move_started:
+            self._serial.write(f"{self._address:X}gs\r\n".encode())
+        if not self._homing and not self._move_started:
+            self._serial.write(f"{self._address:X}gp\r\n".encode())
+        await asyncio.sleep(0.2)
+\end{codefragment}
+
+The poll frequency matters, as if you ask faster than you can parse the replies, the queue will never empty.
+A faster polling frequency will give finer grained updates in position.
+Ideally, the polling is at a rate where it does not matter if you are one polling period later for the purposes of timing control, but that the replies are always processed before new requests are made.
+To fully ensure that the queue empties when the timing control requires it, fewer additional replies are requested when the boolean flags are set, though homing does rely on the status being updated.
+Note that in this case, \texttt{update\_state} does \textit{cause} the state to be updated, but the actual updates are in \texttt{\_consume\_from\_serial}.
+
+Finally, \texttt{home} and \texttt{set\_position} take into account the added variables:
+
+\begin{codefragment}{python}
+def _set_position(self, position):
+    self._move_started = True
+    if not self._homing:
+        pos = round(position * (self._conversion))
+        pos1 = struct.pack(">l", pos).hex().upper()
+        self._serial.write(f"{self._address:X}ma{pos1}\r\n".encode())
+
+def home(self):
+    self._busy = True
+    self._loop.create_task(self._home())
+
+async def _home(self):
+    self._homing = True
+    self._serial.write(f"{self._address:X}ho0\r\n".encode())
+    await asyncio.sleep(0.2)
+    await self._read_queue.join()
+    self._homing_sig.clear()
+    await self._homing_sig.wait()
+    self._homing = False
+    self.set_position(self._state["destination"])
+\end{codefragment}
+
+\texttt{\_set\_position} flips \texttt{\_move\_started} to True and does not preempt an active home.
+If a home is occurring, the position will be properly set at the end of the home operation anyway.
+
+Homing may seem complicated at first, but is actually only a few simple ideas.
+First, there is the homing flag, which surrounds all of the homing operation, set to true at the start and False at the end of the method.
+This ensures that \texttt{busy} never goes False during this method (and the behavior of \texttt{set\_position} itself ensures it never goes False until that move is complete as well).
+Next, the method actually writes the home command, and waits a short bit to ensure that the message gets sent since the Serial Dispatcher buffers those commands and writes them asynchronously.
+Third, it clears the incoming message buffer, ensuring that any messages that had outdated \texttt{busy} state information are processed while the homing flag prevents \texttt{busy} from being False.
+Next it resets the signal used to determine if homing is complete and waits for it to be set by \texttt{\_consume\_from\_serial}.
+Finally, it sets the position to the expected destination.
 
 \clearpage
