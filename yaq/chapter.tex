@@ -900,8 +900,8 @@ Additionally, the x axis units can be selected.
 \begin{figure}
 \includegraphics[width=8in]{"yaq/images/attune_plugin"}
 \caption[\yaqcqtpy{} Attune Plugin]{
-	The attune daemon has a plugin which provides plots of the currently applied attune instrument.
-	The right sidebar provides controls including which value to show on the plot and information about the available tuning ranges and tunes in each arrangement.
+	The attune daemon has a plugin which provides plots of the currently applied Attune Instrument.
+	The right sidebar provides controls including which tune to show on the plot and information about the available tuning ranges and tunes in each arrangement.
 }
 \label{yaq:fig:attune_plugin}
 \end{figure}
@@ -909,16 +909,100 @@ Additionally, the x axis units can be selected.
 
 \paragraph{attune-delay}
 
-The attune-delay daemon provides a quite similar interface to the attune daemon.
-However, since attune-delay is cumulative for all active arrangements, you can select the arrangement in the display controls.
-Additionally, the Arrangments for an attune-delay daemon do not have meaningful ranges and require controls to enable and disable each individual offset.
+The attune-delay daemon provides a quite similar interface to the attune daemon, as shown in Figure \ref{yaq::fig:attune_delay_plugin}.
+This daemon performse Spectral Delay Correction (SDC), which accounts for changes in arrival time of laser pulses as a function of wavelength by compensating using the motor that introduces delay.
+However, since the effective spectral delay is cumulative for multiple light sources, you can select the arrangement in the display controls.
+Additionally, the Arrangments for an \texttt{attune-delay} daemon do not have meaningful ranges and require controls to enable and disable each individual offset.
 Thus the ``instrument'' portion of the right sidebar includes boolean checkboxes which call the appropriate method to toggle each offset individually.
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/attune_delay"}
+\caption[\yaqcqtpy{} Attune Delay Plugin]{
+	The \texttt{attune-delay} daemon has a plugin which provides plots of the currently applied spectral delay correction Attune Instrument.
+	The right sidebar provides controls including which tune to show on the plot and information about the available spectral delay corrections.
+}
+\label{yaq:fig:attune_delay_plugin}
+\end{figure}
+\end{landscape}
+
 
 \paragraph{ni-daqmx-tmux}
 
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/ni_daq_samples"}
+\caption[\yaqcqtpy{} NI DAQmx Tmux Plugin (samples)]{
+	The measured samples for the \texttt{ni-daqmx-tmux} daemon.
+	A selected channel (the primary signal channel in this case) is highlighted with relevant regions being deliniated by marker lines.
+}
+\label{yaq:fig:ni_daq_samples}
+\end{figure}
+\end{landscape}
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/ni_daq_shots"}
+\caption[\yaqcqtpy{} NI DAQmx Tmux Plugin (shots)]{
+	The ``Shots'' tab of the \textt{ni-daqmx-tmux} plugin shows the contents of the measured shots for a selected channel.
+	In this case, the shots are oscilating back and forth for each shot, because this is a chopper channel.
+}
+\label{yaq:fig:ni_daq_shots}
+\end{figure}
+\end{landscape}
+
+
 \paragraph{gage-samples}
 
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/gage_samples_ai0"}
+\caption[\yaqcqtpy{} Gage DAQ Plugin (samples)]{
+	The \texttt{gage-samples} plugin shows the measured samples of a single segment.
+	The x axis is sample index, which is analogous to time.
+	The y axis is voltage.
+	The two highlighted regions are the signal region (green) and the baseline region (red).
+	The average of each region is shown as a horizontal line.
+}
+\label{yaq:fig:gage_samples_ai0}
+\end{figure}
+\end{landscape}
+
+
+
 \paragraph{gage-segments}
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/gage_segments_ai0"}
+\caption[\yaqcqtpy{} Gage DAQ Plugin (segments)]{
+	The \texttt{gage-segments} plugin shows the calculated signal time for a series of averaged segments.
+	This is using dual chopping: the cyan segment is when both lasers are unblocked, red is when both are blocked, and the remaing two are one blocked but not the other.
+}
+\label{yaq:fig:gage_segments_ai0}
+\end{figure}
+\end{landscape}
+
+When viewing the channel that is used to compute chopper phase, the configured ranges of each phase are shown as horizontal regions.
+This can be seen in Figure \ref{yaq:fig:gage_segments_ai3}.
+Segments which are in those regions are used to compute the different chopper phases and combined to give differential signal.
+Any segments either not in one of the bins or within a configurable width of the edges of the bins are ignored, as they may have a mix of chopper phases.
+The numeric ranges of the bins are configurable and shown on the right.
+
+\begin{landscape}
+\begin{figure}
+\includegraphics[width=8in]{"yaq/images/gage_segments_ai3"}
+\caption[\yaqcqtpy{} Gage DAQ Plugin (chopping binning)]{
+	The \texttt{gage-segments} plugin when viewing the channel used for determining chopping phase.
+	The bins are shown as horizontal regions.
+}
+\label{yaq:fig:gage_segments_ai3}
+\end{figure}
+\end{landscape}
+
+
+
+
 
 \clearpage
 
