@@ -658,6 +658,8 @@ tune of the arrangement back onto the original tune points.
 parameter \texttt{restore\_setpoints} which prevents the tune points
 from being interpolated back if it is set to \texttt{False}.
 
+Figure \ref{rep:fig:tune_test} shows the plot associated with the following code:
+
 \begin{codefragment}{python}
 data.transform("w3", "wm-w3")
 out = attune.tune_test(
@@ -668,7 +670,13 @@ out = attune.tune_test(
 )
 \end{codefragment}
 
-\includegraphics{imgs/tune_test.png}
+\begin{figure}
+\includegraphics{representation/images/tune_test.png}
+\caption[Tune Test]{
+	An example plot created by \texttt{attune.tune\_test}.
+}
+\label{rep:fig:tune_test}
+\end{figure}
 
 The optimal tune test plot is flat at 0 deviation from expected color.
 
@@ -694,6 +702,8 @@ motors in femtosecond tuning procedures such as the \texttt{delay\_2}
 motor of a Light Conversion TOPAS-C OPA or any additional mixing process
 after signal and idler have been generated.
 
+Figure \ref{rep:fig:intensity} shows the plot associated with the following code:
+
 \begin{codefragment}{python}
 data.transform("w1=wm", "w1_Delay_2_points")
 new = attune.intensity(
@@ -705,7 +715,13 @@ new = attune.intensity(
 )
 \end{codefragment}
 
-\includegraphics{imgs/intensity.png}
+\begin{figure}
+\includegraphics{representation/images/intensity.png}
+\caption[Intensity]{
+	An example plot created by \texttt{attune.intensity}.
+}
+\label{rep:fig:intensity}
+\end{figure}
 
 In the plot, the optimal position of the motor would be to follow the
 ridge of the most intense peak.
@@ -741,6 +757,8 @@ intensity information. This is usually done by taking the
 \texttt{WrightTools.data.Data.moment} with \texttt{moment=1} along the
 spectral axis of the scan.
 
+Figure \ref{rep:fig:setpoint} shows the plot associated with the following code:
+
 \begin{codefragment}{python}
 data.transform("w1=wm", "w1_Crystal_2_points", "wa-w1")
 data.level(0, 2, 5)
@@ -760,7 +778,13 @@ out = attune.setpoint(
 )
 \end{codefragment}
 
-\includegraphics{imgs/setpoint.png}
+\begin{figure}
+\includegraphics{representation/images/setpoint.png}
+\caption[Setpoint]{
+	An example plot created by \texttt{attune.setpoint}.
+}
+\label{rep:fig:setpoint}
+\end{figure}
 
 In the graph, the color represents deviation from the expected color and
 pure white is the optimal motor position.
@@ -813,6 +837,8 @@ In principle, this algorithm generalizes to an arbitrary number of
 dimensions, however the plotting step in particular only works for 2
 dimensional data.
 
+Figure \ref{rep:fig:holistic} shows the plot associated with the following code:
+
 \begin{codefragment}{python}
 data.transform("w1_Crystal_1", "w1_Delay_1", "wa")
 out = attune.holistic(
@@ -826,7 +852,13 @@ out = attune.holistic(
 )
 \end{codefragment}
 
-\includegraphics{imgs/holistic.png}
+\begin{figure}
+	\includegraphics[width=5in]{representation/images/holistic.png}
+\caption[Holistic]{
+	An example plot created by \texttt{attune.holistic}.
+}
+\label{rep:fig:holistic}
+\end{figure}
 
 The axes of both plots are in 2D motor-space. The top plot is an
 intensity plot with contours of constant color overlaid. The bottom plot
