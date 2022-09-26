@@ -427,7 +427,43 @@ Its keys consist of the following:
 \end{itemize}
 
 \begin{codefragment}{python}
-True
+\noop# Equivalent to an intensity scan
+motortune(
+    [det],
+    w1,
+    True,
+    {"delay_2":{"method": "scan", "width": 2.0, "npts": 31}},
+    {"device": mono, "method": "zero"}
+)
+# Equivalent to a setpoint scan
+motortune(
+    [det],
+    w1,
+    True,
+    {"crystal_2":{"method": "scan", "width": 30, "npts": 31}},
+    {"device": mono, "method": "scan", "width": -250, "npts": 51, "units": "wn"}
+)
+# Equivalent to a tune test scan
+motortune([det],
+    w1,
+    True,
+    {},
+    {"device": mono, "method": "scan", "width": -250, "npts": 51, "units": "wn"}
+)
+# Equivalent to a holistic scan
+motortune([array],
+    w1,
+    True,
+    {"delay_1":{"method": "scan", "width": 1.0, "npts": 31}},
+    {"device": mono, "method": "track"}
+)
+
+# Pure motorspace scan
+motortune([det],
+    w1,
+    False,
+    {"delay_2":{"method": "scan", "width": 2.0, "npts": 31}}
+)
 \end{codefragment}
 
 \subsubsection{\texttt{run\_intensity}}
@@ -445,7 +481,14 @@ def run_intensity(detectors, opa, motor, width, npts, spectrometer, *, md=None):
 \texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
 
 \begin{codefragment}{python}
-True
+run_intensity(
+    [det],
+    w1,
+    "delay_2",
+    2.0,
+    31,
+    {"device": mono, "method": "zero"}
+)
 \end{codefragment}
 
 \subsubsection{\texttt{run\_setpoint}}
@@ -463,7 +506,14 @@ def run_setpoint(detectors, opa, motor, width, npts, spectrometer, *, md=None):
 \texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
 
 \begin{codefragment}{python}
-True
+run_setpopint(
+    [det],
+    w1,
+    "crystal_2",
+    3.0,
+    31,
+    {"device": mono, "method": "scan", "width": -250, "npts": 51, "units": "wn"}
+)
 \end{codefragment}
 
 \subsubsection{\texttt{run\_tune\_test}}
@@ -480,7 +530,11 @@ def run_tune_test(detectors, opa, spectrometer, *, md=None):
 \texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
 
 \begin{codefragment}{python}
-True
+run_tune_test(
+    [det],
+    w1,
+    {"device": mono, "method": "scan", "width": -250, "npts": 51, "units": "wn"}
+)
 \end{codefragment}
 
 \subsubsection{\texttt{run\_holistic}}
@@ -499,7 +553,15 @@ def run_holistic(detectors, opa, motor0, motor1, width, npts, spectrometer, *, m
 \texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
 
 \begin{codefragment}{python}
-True
+run_holistic(
+    [array],
+    w1,
+    "crystal_1",
+    "delay_1",
+    1.0,
+    31,
+    {"device": mono, "method": "track"}
+)
 \end{codefragment}
 
 
