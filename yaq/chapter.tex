@@ -881,7 +881,7 @@ Many sensors have no properties, but this is where options such as integration t
 While traits allow for useful and consistent interfaces, some hardware has additional functionality that benefits from more specialized user interface.
 These plugins use Python's system of ``entrypoints'', which provide named and grouped references to a Python class or function.
 For \yaqcqtpy{} plugins, this should be a reference to a Callable object which accepts an instance of \texttt{QClient} (the Qt wrapper around \texttt{yaqc}) and returns a QWidget that can be displayed in the main area of \yaqcqtpy{}.
-Most often this is actually a class which inherits from QWidget, but that is not a strict requirement.
+Most often this is actually a class which inherits from \texttt{QWidget}, but that is not a strict requirement.
 The entrypoint is given the group of \texttt{"yaqc\_qtpy.main.<daemon kind>"} and the name of the individual entry point is the title that will appear as the tab.
 
 \paragraph{attune}
