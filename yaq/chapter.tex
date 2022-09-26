@@ -929,6 +929,20 @@ Thus the ``instrument'' portion of the right sidebar includes boolean checkboxes
 
 \paragraph{ni-daqmx-tmux}
 
+The \texttt{ni-daqmx-tmux} daemon has a specialized pluginwhich provides two tabs: one which displays samples from a single shot (Figure \ref{yaq:fig:ni_daq_samples}) and one which displays a sequence of measured shots (Figure \ref{yaq:fig:ni_daq_shots}).
+The former is useful for determining which samples are appropriate to use for computation of each channel value.
+The primary display of this tab is a graph which shows the meaqsured value for each sample in a single collected laser shot.
+The x axis is sample index, which is analogous to time, roughly equivalent to microseconds.
+The y axis is voltage measured for a single analog channel.
+Since this daemon is built for a DAQ that has a single digitizer, each sample represents an instant in time that can only be measured on one physical channel.
+Thus, to account for multiple sensors, different time windows must be chosen for each sensor.
+This often means taking advantage of the fact that different sensors have varied instrument response functions, and therefore peak positions in time.
+However, the peaks are rarely fully discriminated by time alone, so it is often true that the primary signal channel is priorized for capturing the peak, and other channels are captured on the tail.
+The values that change the behavior of the daemon are all found in the daemon's configuration, and therefore require external editing and restarting the daemon to take effect.
+The current values are shown in the right sidebar, for convenience.
+All user editible fields in the right sidebar affect the plot only, no function of the daemon itself.
+
+
 \begin{landscape}
 \begin{figure}
 \includegraphics[width=8in]{"yaq/images/ni_daq_samples"}
@@ -939,6 +953,13 @@ Thus the ``instrument'' portion of the right sidebar includes boolean checkboxes
 \label{yaq:fig:ni_daq_samples}
 \end{figure}
 \end{landscape}
+
+The second tab, labeled ``Shots'', displays the value of many sequential measurments for a single channel.
+The primary panel of this window is a graph of this channel, selectable by a drop-down menu on the right.
+The x axis of the graph is shot index, which is analogous to time and for a 1 kHz laser system is equivalent to one millisecond.
+The y axis of the graph is the voltage recorded.
+The particular graph shown as an example is a chopper which is blocking every other shot, therefore oscillating between -1 and 1 Volts on the y axis.
+This view is useful for evaluating signal to noise and ensuring that laser chopping schemes are functioning as intended.
 
 \begin{landscape}
 \begin{figure}
@@ -972,6 +993,22 @@ Thus the ``instrument'' portion of the right sidebar includes boolean checkboxes
 
 \paragraph{gage-segments}
 
+The system which uses this DAQ is capable of a 100 kHz repetition rate.
+This increased repetition rate means that the chopper settings cannot reliably be synced to the repetition rate.
+Unlike the NI DAQ used by the 1 kHz laser systems, the Gage DAQ performs multiple levels of averaging, including on-board averaging.
+The on-board averaging for the Gage DAQ results in ``segments'' which consist of a series of laser shots averaged together at each measured sample.
+The ``gage-segments'' plugin for \yaqcqtpy{}, shown in Figure \ref{yaq:fig:gage_segments_ai0}, is similar to the ``Shots'' tab of the NI plugin.
+However, it is important to acknowledge that each point shown in the ``gage-segments'' graph may actually represent multiple individual laser shots.
+The main panel of this plugin consists of a graph which shows the measured value of each averaged segment.
+The x axis is segment index, analogous to time, though the correlation to seconds is dependent on multiple configuration values, including those of the DAQ itself and of the upstream laser.
+The y axis is a voltage measurement.
+When using dual chopping, there are four chopping phases: both blocked, both open, and each chopper blocking alone.
+Each chopper phase has an associated color and the regions where each are valid are highlighted.
+The right hand sidebar has controls for updating the plot, including polling for new measurements and changing the number of segments shown and channel that is displayed.
+Below the plot controls is a portion of the configuration, which may be useful to reference.
+Finally, there is the properties of the daemon.
+In this case, these properties will affect the number of averaged shots in each segment, the proportion of segments that are omitted from futher calculation at chopper boundaries and the total number of segments collected to perform a single measurement.
+
 \begin{landscape}
 \begin{figure}
 \includegraphics[width=8in]{"yaq/images/gage_segments_ai0"}
@@ -983,6 +1020,11 @@ Thus the ``instrument'' portion of the right sidebar includes boolean checkboxes
 \end{figure}
 \end{landscape}
 
+When chopping, all shots it the same averaged segment must have the \textit{same} chopper phases, otherwise it will produce an intermediate result.
+Segments with partial occlusion for some shots but not others are omitted from further calclulation.
+This allows using the chopper at a slower, more reasonable speed while still gaining the noise reduction of chopping.
+Unfortunately, there is not an easy way to apply a software phase offset of the measured chopper state, as there is for single shot chopping, where you can simply carefully select where to measure the chopper sensor in the shot so that it has a reliable relationship to the passing or blocking of the laser shot.
+Thus, it is required that the laser passes directly opposite of the sensor, so that the sensor reads the same phase as the laser and is partially occluded in the same segment.
 When viewing the channel that is used to compute chopper phase, the configured ranges of each phase are shown as horizontal regions.
 This can be seen in Figure \ref{yaq:fig:gage_segments_ai3}.
 Segments which are in those regions are used to compute the different chopper phases and combined to give differential signal.
@@ -999,8 +1041,6 @@ The numeric ranges of the bins are configurable and shown on the right.
 \label{yaq:fig:gage_segments_ai3}
 \end{figure}
 \end{landscape}
-
-
 
 
 
