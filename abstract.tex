@@ -4,22 +4,20 @@
 \addcontentsline{toc}{chapter}{Abstract}
 
 
-
-
-Software important to science
-
-modularity
-
-\yaq{} is ...
-
-\yaq{} allows ...
-
-modularity
-
-builds on top of wt, attune
-
-integration into bluesky
-
-modularity
-
-
+Custom scientific instruments are often comprised of many smaller components, some purchased and some built by the researchers.
+As such, each component has unique command structure and available functionality which must be surmounted.
+In most scientific instruments, this challenge is overcome for a single particular instrument, performing a single task.
+The interface must be learned anew to incoporate the same hardware on a different instrument or for a new experiment.
+\yaq{} is a hardware interface layer designed to decouple the deep knowledge of the component interface from the deep knowledge of the scientific application.
+This modular approach allows hardware components to be reused more easily without requiring that the direct interface is reimplemented.
+To accomplish this task, \yaq{} uses a small background program, called a ``daemon'' which manages the direct hardware interface.
+A consistent set of self describing methods are then exposed for a ``client'' application to use.
+\yaq{} standardizes common operations, making hardware that logically behaves similarly often interchangable, while still enabling access to specialized functionality that may necessitate a particular component.
+While \yaq{} was initially designed with the needs of the Wright Group in mind to control multiple laser systems and collect Coherent Multidimensional Spectroscopy data, it has found utility in multiple experimental fields, including collecting data from high pressure gas phase reactions and controlling flow rates of kinetics reactors using syringe pumps.
+While \yaq{} can be used by small individual experiment specific client programs, its self description and interface consistency promises lend themselves to integration with larger orchestration layers.
+Herein, one such integration is described in detail as it is utilized by the Wright Group.
+Bluesky is a collaboration among several National Laboratory facilities to provide a powerful generic experiment orchestration interface.
+\yaq{} provides an additional hardware interface layer for Bluesky.
+\yaq{} is an open source project with an ethos of sharing the burden of developing hardware support accross the community so that all can benefit.
+This practice provides a foundation of \yaq{} hardware support that can be relied upon by experimentalists, and expanded when new hardware is desired.
+\yaq{} is a growing ecosystem of tools built for experimentalists to interact with their instruments.
