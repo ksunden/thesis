@@ -569,6 +569,10 @@ run_holistic(
 
 \texttt{bluesky-in-a-box} runs all of the services using Docker\cite{}.
 Specifically, \texttt{bluesky-in-a-box} uses Docker Compose\cite{} to simultaneously start and stop all services, accounting for dependencies between them.
+A summary of the the architecture of \biab{} is provided in Figure \ref{acq:fig:biab_arch}.
+There are six docker containers: Redis, Mongo, WT5, zmq-proxy, hw-proxy and re-manager.
+These all transmit data to one another, and with additional programs running outside of Docker, as signified by the arrows between boxes.
+A summary of the exposed TCP Ports is provided in Table \ref{acq:tab:biab_ports}.
 
 \begin{figure}
 \includegraphics[width=7in]{"acquisition/images/bluesky-in-a-box-architecture"}
@@ -579,6 +583,22 @@ The parts below the line are run on the host system and represent the more direc
 }
 \label{acq:fig:biab_arch}
 \end{figure}
+
+\begin{table}
+\centering
+\begin{tabular}{lll}
+\hline
+Port  & Protocol & Content    \\ \hline
+5567  & zmq      & Event Model Documents publishing   \\
+5568  & zmq      & Event Model Documents subscribing    \\
+6379  & redis    & Normally only used internally, storage of the queue and history    \\
+27017 & mongo    & Event Model Documents storage and access via databroker \\
+60615 & JSON/zmq & re-manager control and query    \\
+60620 & JSON/zmq & hw-proxy queries    \\
+60625 & JSON/zmq & re-manager log entry subscribing    \\ \hline
+\end{tabular}
+	\caption[\biab{} Ports]{Summary of open ports in \biab{}.
+\end{table}
 
 \subsubsection{Installation}
 \label{biab-install}
