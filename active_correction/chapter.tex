@@ -4,11 +4,23 @@
 
 \section{Introduction}  % =========================================================================
 
-Thompson introduced many of the ideas of active correction
+Blaise Thompson extensively discussed multiple forms of active corrections applied to CMDS instruments in Chapter 6 of his dissertation\cite{}.
+Most prominently, this includes Spectral Delay Correction (SDC).
+At the time, active correction for SDC was performed by the orchestration layer, PyCMDS, as the ``autonomic'' system.
+The implementation of the autonomic system was tightly coupled to the custom orchstration provided by PyCMDS.
+This proved inflexible, and caused the hardware definitions to be intractable in many cases, leading to hard to understand behavior.
 
-At the time, it was handled by orchestration
+When the Wright Group was considering using Bluesky as an orchestration layer, the behavior of the autonomic system was one of the key pieces that made that transition seem hard at first.
+There did not seem to be an easy and correct way of inserting the offset logic into the Bluesky Run Engine, as it was implemented for PyCMDS.
+Additionally, Bluesky meant separating the behavior as collected, which runs through the Run Engine, from the behavior of hardware in an interactive session, as when attempting to initially find signal.
+Upon reflecting, and taking a step back to consider the desired outcome, the solution became obvious: instead of inserting this logic as a modifier to the Run Engine, that logic can be implemented as a daemon which wraps the hardware daemon.
+This intermediate daemon provides the controls of offsets being applied or ignored.
+Additionally, daemons can be more specialized to the particular task, and thus are easier to use and describe compared to the general purpose autonomic system of PyCMDS.
+To the client program, whether that is an interactive client like \yaqcqtpy{} or the Bluesky Run Engine, this daemon looks and acts like a simple motor that gets told to go to a particular position and does so.
 
-bluesky made it obvious that orchestration is the wrong layer for this
+Herein, we will look at two instances of active correction as daemons.
+First, SDC itself and the \texttt{attune-delay} daemon which implements it.
+And second, the \texttt{ndinterp} daemon which allows for more complicated relationships among controlling hardware.
 
 \clearpage
 
