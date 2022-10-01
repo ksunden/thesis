@@ -85,6 +85,24 @@ Figure \ref{opa4:fig:interrupt_schematic} shows a schematic representation of th
 This motif is repeated eight times.
 Figure \ref{opa4:fig:interrupt_board} shows a rendering of the circuit board itself.
 
+\begin{table}[]                                                                                                     
+\begin{tabular}{ll}                                                                                                 
+\hline                                                                                                              
+Interrupt Number & GPIO Pin   \\ \hline                                                                                        
+1   & 17 \\                                                                                               
+2   & 22 \\                                                                                               
+3   & 5  \\                                                                                               
+4   & 6  \\                                                                                               
+5   & 13 \\                                                                                               
+6   & 26 \\                                                                                               
+7   & 23 \\                                                                                               
+8   & 24 \\ \hline                                                                                        
+\end{tabular}                                                                                                       
+        \caption[Interrupt Hat GPIO Pins]{The pin correspondence the interrupt hat.}                         
+        \label{opa4:tab:interrupt_pinout}                                                                                        
+\end{table}     
+
+
 \begin{figure}
 \includegraphics{opa400/images/interrupt_schematic}
 \caption[Interrupt Hat Schematic]{
@@ -119,6 +137,24 @@ The rear panel has AC power input and a power switch.
 The front panel has a cut out for access to the Raspberry Pi USB and Ethernet ports as well as connectors for the stepper motors.
 The pinout for the Wright Group's standard DE-9 D-subminiature stepper motor port is provided in Table \ref{opa4:tab:de9}.
 Figure \ref{opa4:fig:control_box_photo} shows a photograph of the completed control box.
+
+\begin{table}[]
+\begin{tabular}{ll}
+\hline
+Pin & Connection   \\ \hline
+1   & NC           \\
+2   & Limit Signal \\
+3   & +5 V         \\
+4   & GND          \\
+5   & NC           \\
+6   & B2           \\
+7   & B1           \\
+8   & A1           \\
+9   & A2           \\ \hline
+\end{tabular}
+	\caption[Stepper Motor DE9 Pinout]{The pinout for the stepper motor DE9 connector.}
+	\label{opa4:tab:de9}
+\end{table}
 
 \begin{figure}
 \includegraphics{opa400/images/control_box_photo}
