@@ -617,7 +617,7 @@ Password:
 \yaqcqtpy{} is a graphical application which provides easy access to most features provided by \yaq{}, especially those defined by traits and properties.
 It is designed to be generically useful to all \yaq{} users, and does not attempt to specialize for particular use cases or perform data acquisition tasks.
 Rather, it is designed to be useful for ``engineering'' tasks such as alignment or initially acquiring signal.
-Its name comes because it is implemented using \texttt{yaqc}\cite{}, the generic Python \yaq{} client and QtPy\cite{}, an abstraction layer providing a unified interface to several Python binding for Qt\cite{}, a graphical application toolkit.
+Its name comes because it is implemented using \texttt{yaqc}\cite{yaqc}, the generic Python \yaq{} client and QtPy\cite{QtPy}, an abstraction layer providing a unified interface to several Python bindings for Qt\cite{Qt}, a graphical application toolkit.
 
 \subsubsection{Installation}
 
@@ -742,7 +742,7 @@ Figure \ref{yaq:fig:config} shows this panel.
 
 \subsubsection{Python Console Tab}
 
-The second tab, also available for each daemon, provides an IPython\cite{} console so that all capabilities of the daemon are available, including running arbitrary Python code to compute inputs.
+The second tab, also available for each daemon, provides an IPython\cite{IPython} console so that all capabilities of the daemon are available, including running arbitrary Python code to compute inputs.
 The console automatically runs a cel which creates a client using \texttt{yaqc}.
 Two names for the daemon are provided, the actual name of the daemon, and the one character variable name \texttt{c}, which stands for ``client''.
 This Python console, including the initial cell that is run with parameters appropriate for the individual daemon, is shown in Figure \ref{yaq:fig:console}.
@@ -1061,7 +1061,7 @@ This last section has a particular emphasis on properly accounting for the async
 
 Writing daemons is one of the key parts of the \yaq{} ecosystem.
 It is designed to be as easy as possible, though precedence is given to ensuring client interactions are easy and consistent.
-An example of implementing a new daemon, specifically a New Era Instruments syringe pump, is provided as a video tutorial\cite{}.
+An example of implementing a new daemon, specifically a New Era Instruments syringe pump, is provided as a video tutorial\cite{letsyaq}.
 
 
 The first step in writing a daemon is to interface directly with the hardware in question, ignoring \yaq{} entirely at first.
@@ -1074,8 +1074,8 @@ The standard practice is to group multiple daemons into packages for each manufa
 While this is not a hard requirement, it is a suggestion to balance installing only the packages that are required for a particular system while keeping the maintenance burden manageable.
 If this is the first daemon for a manufacturer, a new package must be created.
 
-\yaq{} provides a ``cookiecutter'' package template which helps to create new \yaq{} packages\cite{}.
-Cookiecutter is a Python project that allows a template folder structure to be generated after asking a series of questions to obtain variables that are used for file names and contents\cite{}.
+\yaq{} provides a ``cookiecutter'' package template which helps to create new \yaq{} packages\cite{yaqd-cookiecutter}.
+Cookiecutter is a Python project that allows a template folder structure to be generated after asking a series of questions to obtain variables that are used for file names and contents\cite{cookiecutter}.
 
 To use the \yaq{} cookiecutter package, first install \texttt{cookiecutter} itself (use the option appropriate for your system):
 
@@ -1123,7 +1123,7 @@ The license gives an option of several possible open source licenses, for which 
 The cookiecutter will automatically create a Python file that has makes starting the new daemon easier.
 It will also provide the appropriate TOML file with the correct name and headings ready to be filled out.
 
-In addition, the cookiecutter provides a number of files that provide configuration for tools used in the \yaq{} ecosystem, including pre-commit\cite{}, and GitHub Actions\cite{} workflows to run \texttt{mypy}\cite{}, publish the package to PyPI\cite{}, and to test that the command line applications provided by the python package run as expected.
+In addition, the cookiecutter provides a number of files that provide configuration for tools used in the \yaq{} ecosystem, including pre-commit\cite{pre-commit}, and GitHub Actions\cite{githubactions} workflows to run \texttt{mypy}\cite{mypy}, publish the package to PyPI\cite{PyPI}, and to test that the command line applications provided by the python package run as expected.
 By default, there is no proper testing infrastructure for actual correctness of running daemons, as most daemons require hardware to even initialize.
 Instead, the tests ensure that the application runs, providing help and version information even without trying to start the actual daemons.
 
@@ -1185,7 +1185,7 @@ If you are regularly polling information, this is typically done in a method cal
 Once all traits are implemented, add the implementation for any unique messages that are provided.
 Ensure that all configuration values that are required are used appropriately and that all state values that are declared are properly written to when they are updated.
 
-Once implemented, the daemon can be installed using \texttt{flit}\cite{}:
+Once implemented, the daemon can be installed using \texttt{flit}\cite{flit}:
 
 \begin{codefragment}{bash}
 $ flit install --pth-file
@@ -1218,7 +1218,7 @@ A state value must have a default, as the daemon may not be able to start withou
 \subsection{\yaq{} Enhancement Proposals}
 
 \yaq{} Enhancement Proposals, or YEPs, are the formal process for standardizing the \yaq{} ecosystem.
-YEPs are modeled after similar systems used by various open source communities including Python itself\cite{} and Numpy\cite{}.
+YEPs are modeled after similar systems used by various open source communities including Python itself\cite{pep0} and Numpy\cite{neps}.
 YEPs include the formal definitions of various parts of the \yaq{} ecosystem, including the RPC itself and traits.
 
 The purpose of the formalism of the YEP process is to encourage carefully considered additions to \yaq{}.
@@ -1503,8 +1503,8 @@ If you are implementing a sensor that does not have a software trigger, such as 
 
 \texttt{uses-i2c} is a trait which exists solely to standardize the name of the config value for the I2C address, \texttt{i2c\_addr}.
 
-I2C (inter-integrated circuit) is a low-level communication protocol for serial communication designed for communication between two devices such as microcontollers\cite{}
-SMBus\cite{} is a similar protocol that is slightly more strict, but largely is interoperable with I2C, and is thus included for the purposes of the \yaq{} trait.
+I2C (inter-integrated circuit) is a low-level communication protocol for serial communication designed for communication between two devices such as microcontollers\cite{i2c}.
+SMBus\cite{smbus} is a similar protocol that is slightly more strict, but largely is interoperable with I2C, and is thus included for the purposes of the \yaq{} trait.
 I2C typically exists on a network with one primary device and a series of secondary devices.
 The primary device controls the timing and generates requests for data from the secondary devices.
 The address is an integer which is used to designate which secondary device should accept the data and write responses.
@@ -1558,7 +1558,7 @@ baud_rate.default = 19200
 As a python implementation, the \texttt{UsesUart} class does nothing other than ensure that the required \texttt{UsesSerial} class is included in the class inheritance.
 The config values defined by \texttt{uses-uart} are accessed in the normal fashion.
 
-While devices using this trait may wish to consider using some of the more advanced patterns below, it is entirely valid to start with a simple PySerial\cite{} implementation as shown here:
+While devices using this trait may wish to consider using some of the more advanced patterns below, it is entirely valid to start with a simple PySerial\cite{pyserial} implementation as shown here:
 
 \begin{codefragment}{python}
 import serial
@@ -1577,7 +1577,7 @@ class MyDaemon(UsesUart, UsesSerial, IsDaemon):
 \subsection{Daemon patterns: loading and saving state}
 
 Daemon state management is usually fairly automated such that individual daemon authors rarely need to think deeply on the subject.
-State files are stored in a standard location as a TOML file as specified by YEP 103\cite{}
+State files are stored in a standard location as a TOML file as specified by YEP 103\cite{yep103}
 At initialization time, the file is read if it exists, and missing values are filled with the default value from the protocol definition.
 
 These values are held in memory in a dictionary called \texttt{self.\_state}, which is updated by the daemon when the daemons state changes, either due to user interaction or due to changes read from the hardware itself.
@@ -1589,8 +1589,8 @@ If you have a complicated state such as a nested dictionary, then you may wish t
 \subsection{Daemon patterns: logging}
 
 Logging can be a powerful tool for decyphering what a daemon is doing.
-In the Python implementation, the logging system of \yaq{} is integrated with the standard library logging module\cite{}.
-\yaq{} defines a few extra logging levels to conform to a non-python specific standard initially provided by sd-daemon\cite{} and syslogv\cite{}.
+In the Python implementation, the logging system of \yaq{} is integrated with the standard library logging module\cite{pylogging}.
+\yaq{} defines a few extra logging levels to conform to a non-python specific standard initially provided by sd-daemon\cite{sddaemon} and syslog\cite{Gerhards_2009}.
 In practice, however, the extra levels are rarely used.
 
 Each daemon instance has its own logger, \texttt{self.logger}, which is set up to properly format the log messages and print to STDERR and, if configured, output to a file as well.
@@ -1617,7 +1617,7 @@ class MyDaemon(IsDaemon):
 
 \subsection{Daemon patterns: async interfaces}
 
-The Python implementation of \yaq{} makes use of Asyncio\cite{} to do what is called ``cooperative multitasking''.
+The Python implementation of \yaq{} makes use of Asyncio\cite{asyncio} to do what is called ``cooperative multitasking''.
 Asyncio is built in to the Python language and provides additional syntax to declare functions which are called asynchronously.
 Asyncio has an ``event loop'' which schedules a series of tasks, tracking dependencies between tasks and allowing those tasks that are able to run execution time.
 The key idea, and the reason it is called ``cooperative'', is that each task should not block so as to allow all of the other tasks to complete.
@@ -1753,7 +1753,7 @@ A specific (but recurring) instance of this idea is explored in detail below.
 \texttt{busy} is a boolean flag that can be read internally by daemon methods using \texttt{self.\_busy} and by clients over the RPC by using \texttt{client.busy()}.
 If one wants to wait for a specific state, it is possible to simply poll the busy state until it is either True or False, whichever is required.
 While that is the only mechanism available to clients, internally there are additional features that allow you to explicitly wait for the rising or falling edge of \texttt{busy} without polling.
-There is a pair of \texttt{asyncio.Event} objects\cite{} which allow explicit awaiting on either busy or not busy, \texttt{self.\_busy\_sig} and \texttt{self.\_not\_busy\_sig}.
+There is a pair of \texttt{asyncio.Event} objects\cite{asyncioevent} which allow explicit awaiting on either busy or not busy, \texttt{self.\_busy\_sig} and \texttt{self.\_not\_busy\_sig}.
 These provide signals that the Asyncio event loop explicitly knows that tasks waiting on them are not ready until the associated \texttt{event.set()} method is called.
 These \texttt{set} methods are called (or reset) whenever \texttt{self.\_busy} is updated, so daemon implementors need only to properly update that boolean for everything else to work as expected.
 
@@ -1824,7 +1824,7 @@ def __init__(self, name, config, config_filepath):
 It is used to inform the homing task that homing is complete so that it can reset the position to the current destination.
 The \texttt{SerialDispatcher} objects are shared among all daemons that communicate over the same serial bus, so if it already exists, the instance retains a reference to the previously made dispatcher, and creates a new one if it does not already exist.
 
-\texttt{read\_queue} is an Asyncio Queue\cite{} object which is a first-in first-out (FIFO) queue that is appended to by the dispatcher, and consumed by the daemon.
+\texttt{read\_queue} is an Asyncio Queue\cite{asyncioqueue} object which is a first-in first-out (FIFO) queue that is appended to by the dispatcher, and consumed by the daemon.
 It is added to the serial dispatcher with the address as a key.
 
 At startup, the daemon requests the initial status using \texttt{gs}.
