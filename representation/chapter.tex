@@ -1,4 +1,3 @@
-\chapter{Representation of Scientific Data} \label{cha:rep}
 
 \clearpage
 
@@ -11,28 +10,26 @@
 This section was originally published in the Journal of Open Source Software \cite{}.
 
 \hypertarget{introduction}{%
-\subsection{Introduction}\label{introduction}}
+\section{Introduction}\label{introduction}}
 
 ``Multidimensional spectroscopy'' (MDS) is a family of analytical
 techniques that record the response of a material to multiple
 stimuli---typically multiple ultrafast pulses of light. This approach
-has several unique capabilities;
+has several unique capabilities:
 
 \begin{itemize}
 \tightlist
 \item
-  resolving congested states (Zhao and Wright 1999; Donaldson et al.
-  2008),
+	resolving congested states \cite{@ZhaoWei1999b}\cite{@DonaldsonPaulMurray2008a},
 \item
   extracting spectra that would otherwise be selection-rule disallowed
-  (Boyle, Neff-Mallon, and Wright 2013; Boyle et al. 2014),
+		\cite{@BoyleErinSelene2013b}\cite{@BoyleErinSelene2014a},
 \item
-  resolving fully coherent dynamics (Pakoulev et al. 2009),
+  resolving fully coherent dynamics \cite{@PakoulevAndreiV2009a},
 \item
-  measuring coupling (Wright 2011),
+  measuring coupling \cite{@WrightJohnCurtis2011a},
 \item
-  and resolving ultrafast dynamics (Smallwood and Cundiff 2018; Czech et
-  al. 2015).
+	and resolving ultrafast dynamics \cite{@SmallwoodChristopherL2018a}\cite{@CzechKyleJonathan2015a}.
 \end{itemize}
 
 In our view, the most exciting aspect of these techniques is the vast
@@ -70,7 +67,7 @@ our knowledge, \texttt{WrightTools} is the first MDS-focused toolkit to
 be freely avaliable and openly licensed.
 
 \hypertarget{challenges-and-implementation}{%
-\subsection{Challenges and
+\section{Challenges and
 Implementation}\label{challenges-and-implementation}}
 
 There are several recurring challenges in MDS data processing and
@@ -94,16 +91,17 @@ representation:
 \end{itemize}
 
 The excellent Scientific Python ecosystem is well suited to address all
-of these challenges (Travis E. Oliphant 2007). Numpy supports
-interaction with and manipulation of multidimensional arrays (Travis E.
-Oliphant 2006). Matplotlib supports one, two, and even three-dimensional
-plotting (Hunter 2007). h5py (Collette 2013) interfaces with hdf5 (The
-HDF Group 1997), allowing for storage and memory-safe access to large
-multidimensional arrays in a binary format that can be accessed from a
-variety of different popular languages, including MATLAB and Fortran.
-\texttt{WrightTools} does not intend to replace or reimplement these
-core libraries. Instead, \texttt{WrightTools} offers an interface that
-impedance-matches multidimensional spectroscopy and Scientific Python.
+of these challenges \cite{@OliphantTravisE2007a}. Numpy supports
+interaction with and manipulation of multidimensional arrays
+\cite{@OliphantTravisE2006a}. Matplotlib supports one, two, and even
+three-dimensional plotting \cite{@HunterJohnD2007a}. h5py
+\cite{@ColletteAndrew2013} interfaces with hdf5 \cite{@hdf5}, allowing for
+storage and memory-safe access to large multidimensional arrays in a
+binary format that can be accessed from a variety of different popular
+languages, including MATLAB and Fortran. \texttt{WrightTools} does not
+intend to replace or reimplement these core libraries. Instead,
+\texttt{WrightTools} offers an interface that impedance-matches
+multidimensional spectroscopy and Scientific Python.
 
 \texttt{WrightTools} defines a universal MDS data format: the
 \texttt{wt5} file. These are simply hdf5 files with certain internal
@@ -137,7 +135,7 @@ different strategies are used to explore the dataset. Furthermore, it is
 often useful to ``combine'' multiple variables using simple algebraic
 relationships to exploit the natural symmetry of many MDS experiments
 and to draw comparisons between different members of the MDS family
-(Neff-Mallon and Wright 2017). In light of these details,
+\cite{@NeffMallonNathanA2017a}. In light of these details,
 \texttt{WrightTools} provides a high-level \texttt{Axis} class that
 allows users to transparently define which variables, variable
 relationships, and unit conventions are important to them for
@@ -185,11 +183,11 @@ stitched into a looping animated gif. A convenience function,
 matplotlib's built-in widgets.
 
 \hypertarget{availability}{%
-\subsection{Availability}\label{availability}}
+\section{Availability}\label{availability}}
 
 \texttt{WrightTools} is hosted on
 \href{http://github.com/wright-group/WrightTools/}{GitHub} and archived
-on Zenodo (Thompson, Sunden, Morrow, Kohler, et al. 2018).
+on Zenodo \cite{@ThompsonBlaiseJonathan2018WrightTools}.
 \texttt{WrightTools} is distributed using
 \href{http://pypi.org/project/WrightTools/}{pip} and
 \href{http://anaconda.org/conda-forge/wrighttools}{conda} (through
@@ -197,14 +195,16 @@ conda-forge). Documentation is available at
 \href{http://wright.tools}{wright.tools}.
 
 \hypertarget{impact}{%
-\subsection{Impact}\label{impact}}
+\section{Impact}\label{impact}}
 
 \texttt{WrightTools} has directly enabled no fewer than eleven
-publications (Czech et al. 2015; Kohler, Thompson, and Wright 2017,
-2018; Neff-Mallon and Wright 2017; Chen et al. 2017; Morrow, Kohler, and
-Wright 2017; Horak et al. 2018; Sunden, Thompson, and Wright 2018;
-Handali, Sunden, Kaufman, et al. 2018; Morrow et al. 2018; Handali,
-Sunden, Thompson, et al. 2018). Many of these publications have
+publications \cite{@CzechKyleJonathan2015a}\cite{@KohlerDanielDavid2017a}
+\cite{@NeffMallonNathanA2017a}\cite{@ChenJie2017a}
+\cite{@MorrowDarienJames2017a}\cite{@HorakErikH2018a}
+\cite{@SundenKyleFoster2018a}\cite{@KohlerDanielDavid2018a}
+\cite{@HandaliJonathanDaniel2018a}\cite{@MorrowDarienJames2018a}
+\cite{@HandaliJonathanDaniel2018b}.
+Many of these publications have
 associated open datasets and \texttt{WrightTools}-based processing
 scripts which enhance the scientific community's ability to audit and
 reproduce the published work. Although these publications span several
@@ -224,15 +224,16 @@ practitioners. We hope that \texttt{WrightTools}, and the universal
 \texttt{wt5} file format, will become a useful open source core
 technology for this growing community. We are particularly excited about
 ongoing projects that build on top of \texttt{WrightTools}, including
-packages for data acquisition and simulation (Thompson, Sunden, Morrow,
-and Neff-Mallon 2018; Sunden, Thompson, and Wright 2018).
+packages for data acquisition and simulation
+\cite{@ThompsonBlaiseJonathan2018PyCMDS}\cite{@SundenKyleFoster2018a}.
 
 \hypertarget{acknowledgements}{%
-\subsection{Acknowledgements}\label{acknowledgements}}
+\section{Acknowledgements}\label{acknowledgements}}
 
 The development of \texttt{WrightTools} has been supported by by the
 National Science Foundation Division of Chemistry under Grant
 No.~CHE--1709060. D.J.M acknowledges support from the Link Foundation.
+
 
 \section{Attune}  % --------------------------------------------------------------------
 
