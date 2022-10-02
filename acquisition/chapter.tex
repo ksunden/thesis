@@ -17,8 +17,8 @@
 \newglossaryentry{PyCMDS}{name=PyCMDS, description={A monolithic Python program for collecting CMDS data}}
 \newglossaryentry{CMDS}{name=CMDS, description={Coherent Multi-Dimensional Spectroscopy}}
 
-\Gls{PyCMDS} is a program originally created by Dr. Blaise Thompson to perform \gls{CMDS} experiments\cite{}.
-Prior to PyCMDS, the Wright Group had been through several iterations of programs perform experiments, primarily written using LabVIEW\cite{}\cite{}.
+\Gls{PyCMDS} is a program originally created by Dr. Blaise Thompson to perform \gls{CMDS} experiments\cite{PyCMDS0.8.0}.
+Prior to PyCMDS, the Wright Group had been through several iterations of programs perform experiments, primarily written using LabVIEW\cite{KainSchuyler2017a}\cite{MeyerKentAlbert2004b}.
 As the name suggests, PyCMDS was written in Python.
 This jump to a standard text based language meant that changes to the software could be shared more easily.
 PyCMDS was the first time the Wright Group wrote acquisition software to run on multiple laser systems.
@@ -86,7 +86,7 @@ While each section was relatively easy, \yaqccmds{} expected all enabled hardwar
 Users would frequently need to reconfigure and restart the program when hardware configuration changed, such as enabling or disabling a particular sensor.
 
 Ultimately, the flaws of \yaqccmds{} led to the separation of the program into \yaqcqtpy{} for the engineering focused tasks and a new program for the task of data acquisition.
-This new program builds on top of an ecosystem provided by the broader scientific community, Bluesky\cite{}.
+This new program builds on top of an ecosystem provided by the broader scientific community, Bluesky\cite{AllanDanielB2019a}.
 
 \clearpage
 
@@ -108,11 +108,11 @@ At the center is the Bluesky library itself, which provides the orchestration of
 
 The libraries provided by the Bluesky project are often developed together, providing integration where needed.
 However, the libraries are still separable, allowing for alternatives to be incorporated with ease to suit particular needs of an instrument.
-For instance, while the Bluesky Project provides Ophyd\cite{}, a useful hardware abstraction library with a particular focus on EPICS process values, the Wright Group has provided an alternative hardware interface based on \yaq{}, \texttt{yaqc-bluesky}\cite{}.
+For instance, while the Bluesky Project provides Ophyd\cite{Lauer2020}, a useful hardware abstraction library with a particular focus on EPICS process values, the Wright Group has provided an alternative hardware interface based on \yaq{}, \texttt{yaqc-bluesky}\cite{yaqcbluesky}.
 
 \subsubsection{The Event Model}
 
-The Event Model\cite{} is Bluesky's mechanism for representing collected data.
+The Event Model\cite{eventmodel} is Bluesky's mechanism for representing collected data.
 Each experiment is broken down into a sequence of JSON-compatible objects with particular structures.
 Figure \ref{acq:fig:event_model} demonstrats pictorally the four most useful Event Model document types.
 An experiment, or ``run'', begins with a ``start'' document.
@@ -196,7 +196,7 @@ This is even more critical because the units for energy and the units for wavele
 
 A common pattern in the built-in Bluesky plans is to use a ``\gls{varcyc}'' a repeating pattern of three to six arguments passed positionally where each set defines one axis of the scan.
 Where this pattern was used in the underlying plan, \wrightplans adds the units as a string to the end of that cycle of arguments.
-The exception to this is \texttt{scan\_nd\_wp}, which is specified as a single \texttt{cycler}\cite{} object to define the positions.
+The exception to this is \texttt{scan\_nd\_wp}, which is specified as a single \texttt{cycler}\cite{cycler} object to define the positions.
 In this case, the units are specified as a dictionary mapping the device object to the unit string.
 If the unit is not provided in the dictionary or the unit is given as \texttt{None}, then the native units of the device in question are used.
 
@@ -367,7 +367,7 @@ def scan_nd_wp(
 ):
 \end{codefragment}
 
-Instead of specifying motor motion independently to the plan, this is done prior and a single \texttt{cycler}\cite{} object is handed to the Scan ND plan.
+Instead of specifying motor motion independently to the plan, this is done prior and a single \texttt{cycler}\cite{cycler} object is handed to the Scan ND plan.
 This cycler can perform arbitrary inner and outer product computations to define a trajectory through N-dimensional motor space.
 As such, it can be used to perform scans similar to at least simple versions of Constants, mixing axes that scan together with those that scan against each other.
 The motors are the keys of the Cycler object.
@@ -567,8 +567,8 @@ run_holistic(
 
 \subsection{\texttt{bluesky-in-a-box}: Background Services to Collect Scientific Data}
 
-\texttt{bluesky-in-a-box} runs all of the services using Docker\cite{}.
-Specifically, \texttt{bluesky-in-a-box} uses Docker Compose\cite{} to simultaneously start and stop all services, accounting for dependencies between them.
+\texttt{bluesky-in-a-box} runs all of the services using Docker\cite{merkel2014docker}\cite{dockerdocs}.
+Specifically, \texttt{bluesky-in-a-box} uses Docker Compose\cite{dockercompose} to simultaneously start and stop all services, accounting for dependencies between them.
 A summary of the the architecture of \biab{} is provided in Figure \ref{acq:fig:biab_arch}.
 There are six docker containers: Redis, Mongo, WT5, zmq-proxy, hw-proxy and re-manager.
 These all transmit data to one another, and with additional programs running outside of Docker, as signified by the arrows between boxes.
@@ -613,15 +613,15 @@ Technically, this should only be required for Windows and MacOS installations.
 
 \paragraph{Set up WSL (Windows only)}
 
-The docker containers for \texttt{bluesky-in-a-box} define a Linux\cite{} environment for each service.
-Microsoft has invested in the Windows Subsystem for Linux (WSL)\cite{} to make running Linux environments on Windows machines efficient.
+The docker containers for \texttt{bluesky-in-a-box} define a Linux environment for each service.
+Microsoft has invested in the Windows Subsystem for Linux (WSL)\cite{wsl} to make running Linux environments on Windows machines efficient.
 To install on Windows 10 or above, you simply need to open a command prompt as an administrator (cmd.exe or powershell) and run \texttt{wsl --install}.
 The install process will prompt you to reboot the machine.
 It is recommended to install a version of Linux into WSL explicitly, by running \texttt{wsl --install -d debian} (or whatever distribution is your preference).
 
 \paragraph{Install Docker}
 
-On Windows and MacOS, the preferred method of installing Docker is to install Docker Desktop\cite{}.
+On Windows and MacOS, the preferred method of installing Docker is to install Docker Desktop\cite{dockerdesktop}.
 This is a standard installer wizard which will guide you through the steps to install.
 Once installed, you should toggle a handful of settings.
 Most notably, under the ``Resources $\rightarrow$ WSL Integration'', it should be enabled for all distributions installed.
@@ -648,7 +648,7 @@ sudo usermod -aG docker $USER
 This section assumes that the system has \yaq{} hardware running and set up to be listed by \texttt{yaqd list}.
 If this is a development machine, it is recommended to install \ref{wright-fakes} prior to proceeding.
 
-\texttt{bluesky-in-a-box} uses \texttt{happi}\cite{}, a project created by the Stanford Linear Accelerator Center (SLAC), to communicate what hardware is available to the \texttt{re-manager} and \texttt{hwproxy}.
+\texttt{bluesky-in-a-box} uses \texttt{happi}\cite{happi}, a project created by the Stanford Linear Accelerator Center (SLAC), to communicate what hardware is available to the \texttt{re-manager} and \texttt{hwproxy}.
 It provides a standard way of declaring available hardware and how to create a Bluesky-compatible Python object for each.
 Using \texttt{happi} allows the possibility of easily and transparently using hardware supported by additional control layers beyond \texttt{yaq}.
 
@@ -745,18 +745,18 @@ For \biab, all of the \wrightplans are available, as well as the built-in Bluesk
 All of the plans which generate data are wrapped with the Bluesky \texttt{baseline} decorator, which reads \textit{all} movable hardware once before and once after the plan itself is consumed.
 This allows for a full record of the state of the system without recording all hardware for every data point, even when it not told to move for a given plan.
 
-The RE Manager container provides a few ways of interacting, which are largely based on intefaces over a ZeroMQ\cite{} message system.
+The RE Manager container provides a few ways of interacting, which are largely based on intefaces over a ZeroMQ\cite{Hintjens_2013} message system.
 ZeroMQ (abbreviated ZMQ or 0MQ) provides a standard way of either doing request/reply Remote Procedure Calls (RPCs) or publish/subscribe (pub/sub) data flows where one end provides a stream of data and the other is expecting that stream of data.
 The former, RPC style requests, is used to enqueue plans, interact with the queue itself, and to query the state of the RE Manager.
 The latter, pub/sub style requests, is used to publish the Event Model documents as well as (separately) publishing the console output of the RE Manager so that it can be displayed in client applications.
 These ZMQ interfaces are considered trusted interfaces, and as such do no authentication of users.
-If such authentication is needed, it can be provided by additional tools by the authors of \texttt{bluesky-queueserver} which wrap the ZMQ interface in a FastAPI\cite{} interface served over TCP, with authentication done by that service.
+If such authentication is needed, it can be provided by additional tools by the authors of \texttt{bluesky-queueserver} which wrap the ZMQ interface in a FastAPI\cite{fastapi} interface served over TCP, with authentication done by that service.
 This is recommended in the future if remote access is desired to instruments runing \biab, however initial development is focused on running a self contained system which provides access primarily to the direct machine running the instrument.
 
 \subsubsection{\texttt{zmq-proxy}}
 
 \texttt{zmq-proxy} is a small program provide by Bluesky which simply routes Event Model documents that it reads from on port and writes them to any number of subscribers on a second port.
-The same purpose in larger systems where caching, latency, and network reliability are important may be achived by an industry standard service like Apache Kafka\cite{}.
+The same purpose in larger systems where caching, latency, and network reliability are important may be achived by an industry standard service like Apache Kafka\cite{kafka}.
 Because \biab is running on a single machine, network reliability and latency are not anticipated problem and we do not currently require caching, so the simpler program is used.
 \texttt{zmq-proxy} provides a server for each end of the communication, which allows multiple clients to act as sources or sinks of the documents which are being shuttled.
 In practice, usually only one service, the RE Manager, should ordinarily be the source of the documents.
@@ -775,7 +775,7 @@ Larger scans have caused significant memory problems when attempting to plot man
 
 \subsubsection{\texttt{mongo}}
 
-MongoDB\cite{} is an industry standard database for storing JSON-like documents.
+MongoDB\cite{Dirolf_Chodorow_2010} is an industry standard database for storing JSON-like documents.
 Mongo is widely used by the upstream authors of Bluesky at various National Labs as the immediate store of data being recorded from instruments.
 As such, there are pre-existing tools in the ecosystem that pair well with a Mongo database.
 The Mongo Docker container is provided to allow exploration of this ecosystem of tools with the data collected by \biab.
@@ -787,14 +787,14 @@ It is a more complex task to ensure that the data gets written in a manner appro
 
 \subsubsection{\texttt{redis}}
 
-Redis\cite{} is an industry standard service for in-memory key-value data store.
+Redis\cite{redis} is an industry standard service for in-memory key-value data store.
 It is used by the RE Manager container to track the state of the queue of plans.
 Redis is required for the operation of the RE Manager, and thus must be running.
 However, there is little to no direct interaction with redis, so unless you are actively developing \texttt{bluesky-queueserver}, it can largely be ignored.
 
 \subsubsection{\texttt{hwproxy}}
 
-\texttt{bluesky-hwproxy}\cite{} is a small project started for inclusion in \biab.
+\texttt{bluesky-hwproxy}\cite{bluesky-hwproxy} is a small project started for inclusion in \biab.
 Its primary purpose is to provide read-only access to the hardware which is available to the RE Manager.
 This allows for rich graphical programs like \blueskycmds to query information about hardware such as limits and units.
 \texttt{hwproxy} wraps the device loading portions of \texttt{bluesky-queueserver} and exposes the standard Bluesky Protocol methods over a ZMQ interface very similar to that used by the RE Manager itself.
@@ -1205,7 +1205,7 @@ Most of the items in the context menu simply copy information to the clipboard: 
 \subsubsection{The Plot Tab}
 
 The Plot tab presents a live representation of recent data collected for the current plan.
-The primary window is a PyQtGraph\cite{} plot showing the most recent five slices of collected data.
+The primary window is a PyQtGraph\cite{pyqtgraph} plot showing the most recent five slices of collected data.
 The current slice is the brightest cyan slice, with the previous slices shown as duller colors progressively until the last one which is gray.
 At the top, the currently plotted channel name and most recent collected value are shown in large font size.
 The plotting does handle array detectors, for which the top number shown is the maximum value of the most recent array collected.
@@ -1305,7 +1305,7 @@ yaqd scan --start=39876 --stop=39877
 While an impressive library in its own right, the real power of Bluesky comes from the ecosystem that surrounds the library.
 There is a community of people who are all working towards making various pieces of the ecosystem better.
 Some are adding hardware interfaces, much like \yaqcbluesky{}, which expand the available hardware that can be used by Bluesky.
-The ``default'' such library, Ophyd\cite{}, is currently undergoing a major transformation with the goal of making it easier to adapt to new hardware and interface libraries\cite{NOBUGS_Ophyd_v2}.
+The ``default'' such library, Ophyd\cite{Lauer2020}, is currently undergoing a major transformation with the goal of making it easier to adapt to new hardware and interface libraries\cite{NOBUGS_Ophyd_v2}.
 While \yaq{} is a key piece of enabling the Wright Group to use Bluesky, the future could include using one of the alternate libraries for some key pieces of hardware, which might not even need any work on the part of Wright Group members themselves, other than configuration.
 
 In addition to hardware, other components of the ecosystem are constanly being improved and worked on, including ones that we do not currently use.
@@ -1313,14 +1313,14 @@ This includes components for building GUIs, Bluesky Widgets, and access to data 
 These three projects, in particular, are worth monitoring for their features and periodically considering if it is worth the time investment to adapt workflows of the Wright Group.
 
 \subsubsection{Bluesky Widgets}
-Bluesky Widgets\cite{} is a library which provides reusable graphical components for interacting with Bluesky and specifically for Bluesky QueueServer.
+Bluesky Widgets\cite{bluesky-widgets} is a library which provides reusable graphical components for interacting with Bluesky and specifically for Bluesky QueueServer.
 In addition to the reusable components, the library provides a set of example applications which show practical versions of the components the library provides.
 Bluesky Widgets is actually already a dependency of \blueskycmds{}, though only for its data model for ingesting event documents, and not for any of the Qt widgets which are provided.
 Some of the example applications, such as the ``Queue Monitor'' application may prove to be generally useful either along side of or instead of programs like \blueskycmds{}.
 
 \subsubsection{Databroker}
-Databroker\cite{} is the ecosystem provided tool for accessing data from Bluesky acquisitions.
-Primarily, it returns data as Xarray\cite{} Dataset objects, which can then be manipulated, plotted, and stored for future use.
+Databroker\cite{Arkilic2015} is the ecosystem provided tool for accessing data from Bluesky acquisitions.
+Primarily, it returns data as Xarray\cite{Hoyer_2017} Dataset objects, which can then be manipulated, plotted, and stored for future use.
 In particular, Databroker can read data directly from the Mongo database that stores each event in sequence.
 This is part of the reason for even having the Mongo database in the first place.
 Ultimately, the initial decision was to ease the transition for users by providing WT5 files much like they are already used to.
