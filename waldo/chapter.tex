@@ -1,78 +1,163 @@
-\chapter{WALDO: A case study on building a full instrument with \texttt{yaq}} \label{cha:waldo}
+\chapter{Waldo: A case study on building a full instrument with \texttt{yaq}} \label{cha:waldo}
 
 \clearpage
 
 \section{Introduction}  % =========================================================================
 
+This chapter serves as a case study on building an entire instrument with \yaq{} from the beginning.
+In particular, we will look at the process of designing the system with \yaq{} in mind.
+Herein, we examine the desired specifications for a new laser system, called ``Waldo''.
+With an understanding of desired behavior, we examine the choices made regarding hardware acquired for Waldo.
+Additionally, we will look at the implementation of \yaq{} daemons for the selected hardware.
+Ultimately, this leads up to the assembly and implementation of experimental orchestration software for the system.
+
+
 \clearpage
 
 \section{Design Requirements}  % =============================================================
 
+Waldo was commissioned to serve an intermediate pulse duration between those of the existing laser systems used by the Wright Group.
+The Wright Group's older CMDS systems have nominal pulse durations of 35 femtoseconds and 1 picosecond.
+Both of these systems have an upstream light source that is 1 kHz 800 nm pulses of their respective pulse duration.
+The light from the upstream source is split into two OPAs for the femtosecond system and four OPAs for the picosecond system.
+The two systems combined allow for study of a wide variety of molecular and material systems, however there are many cases where the ideal pulse duration is in between the two so either system is a compromise.
+
 \subsection{Specifications}
 
-- rep rate
-- pulse width
-- number of tunable sources
-- wavelength regions
-- range for delay
-- speed of detection, simultaneous acquisition
+The desired system for Waldo has a pulse duration of approximately 500 fs.
+An increased, but controllable, repetition rate of up to 100 kHz is desired.
+The increased repetition rate allows for more signal averaging over the same amount of laboratory time, therefore increasing the signal to noise ratio.
+This laser system must have three tunable light sources: one primarily producing visible wavelength ranges, and two primarily producing infrared wavelengths.
+This arrangement of lasers is based on the picosecond system and is primarily designed to interrogate vibrational modes coupled to electronic modes in molecular systems using CMDS techniques such as Doubly Vibrationally Enhanced (DOVE) or Triple Sum Frequency (TSF) spectroscopies.
+
+Since this system is designed for fully coherent experiments, a relatively short travel delay stage on two of the beam paths is sufficient.
+Approximately 50 mm is appropriate, with sufficient resolution to allow optimal temporal overlap of the sub-picosecond pulses.
+
+The monochromator must be capable of discriminating both infrared and visible light for tuning and experimental data collection.
+The signals for tuning are quite strong lasers, while the signals for many experiments are comparatively weak, so it must be able to handle both use cases.
+
+The detectors and electronics for measuring the signal from the detectors must both have instrument response functions that decay between laser shots.
+While the 1 kHZ systems had one millisecond between successive laser shots, this system will have only 10 microseconds.
+Thus detectors with relaxation times that were appropriate for the other laser systems may not be appropriate for this system.
+Additionally, there is less time to sample multiple signal channels serially, so it becomes important that the data acquisition card can do multiple simultaneous digitizations.
 
 
 \subsection{Hardware Selection}
 
-- many from same manufacturers as other systems
-   - means yaq daemons are either done, or at least similar enough as to only require minimal perturbations
-   - Extant Python interface a plus
+When selecting hardware for a new laser system, it is often a good idea to start with equipment that you already know.
+Even if the precise equipment you have is not sufficient, having common factors such as communication protocols will make integrating the new components much easier.
+It is often reasonable to use hardware from the same manufacturer as other hardware, as they often use the same low level interfaces.
+
+In this instance, using this principle means that many of the \yaq{} daemons for a brand new system are already written, or at least similar enough that they require only small perturbations from extant daemons.
+
+While Python in many ways is a ``glue'' language that \textit{can} make calls to external libraries, a manufacturer provided Python library is a distinct advantage towards confidence that a \yaq{} daemon will be quickly and easily implemented.
+Ideally, these libraries are themselves Open Source and distributed on PyPI\cite{PyPI} and conda\cite{conda}.
+Being distributed on these standard platforms makes listing the libraries as dependencies easy and makes distribution of the \yaq{} daemon simpler.
+Being Open Source obviates any potential copyright issues that could be taken if code from the manufacturer is distributed to make the \yaq{} daemon work.
+It also allows for changes to be made if bugs are discovered or feature enhancements are desired to make using the library easier.
+
+For Waldo, the upstream laser system was custom designed to the desired specifications by Light Conversion.
+The pump laser is a CARBIDE 1030 nm 100 kHz laser\cite{}.
+This pump light is fed into two systems: an ORPHEUS-HP for the visible tunable light and an ORPHEUS-TWINS which provides two separately tunable infrared lines.
+Each of the picosecond and femtosecond systems have at least one Light Conversion OPA.
+
+While originally the desire was that the increased repetition rate and monochromator rejection would mean that active chopping was not required, two Thorlabs Chopping systems\cite{} were added to the infrared lasers to provide active scatter rejection.
+These are similar models to those used on the other laser systems, though fitted with a different blade arrangement.
+
+The two infrared lines have motorized delay stages from Thorlabs\cite{}.
+Each stage provides 50 mm of travel with a resolution of 0.1 micrometers.
+
+A Horiba iHR 320 monochromator\cite{} was selected with gratings for mid infrared, near infrared, and visible light.
+This monochromator is from the same company as the smaller monochromators on the other laser systems.
+
+The detectors primarily used are a combination Mercury-Cadmium-Telluride (MCT) and Indium-Antimonide (InSb) detector\cite{} for infrared light and a Hammamatsu photomultiplier tube (PMT)\cite{} for visible light.
+Fast photodiodes can also be used, though are not commonly required.
+The signals generated from these detectors are read by a Gage Compuscope data acquisition card\cite{}.
+This differs from the other laser systems and is the only required daemon that is from a new manufacturer entirely.
+This card was chosen for its acquisition speed and available features such as on board averaging.
+It has four physical channels that can be measured simultaneously in parallel.
 
 
 \clearpage
 
 \section{Implementing Daemons}  % ===================================================================
 
-Much of the hardware comes before the core upstream laser is on the table
-As hardware arrives, daemons can be created _before_ it goes on the table.
-   - Some can be surmised from documentation, though it all must be tested thoroughly
-   - yaq makes testing the interface easy, as there are limited, well documented, ways to interface with the hardware.
-   - Mono had additional features: motorized mirrors and slits
-   - Delays were a different model that had some initial bugs
-   - Lightcon uses discrete motor positions
+Much of the hardware arrives before the core upstream laser is installed on the table, since the upstream laser components are custom ordered and require professional installation.
+As hardware arrives, \yaq{} daemons can be written and tested \textit{before} the hardware is installed on the laser table.
+While in many cases much of the necessary commands can be surmised from hardware documentation, the daemon as a whole must be tested thoroughly.
+\yaq{} makes testing the interface easy, as there are limited, well documented, ways to interface with the hardware.
+This approach means that time is more efficiently spent dealing with the smaller hardware before the bigger hardware is ready.
+Thus, once the upstream lasers arrive, installing the full system can proceed more rapidly.
 
-   New daemons:
-   - Integrated array detector inside of one of the opas
-   - gage daemon
-      - Less able to be worked out before the system is assembled, as signals are key to ensuring correctness
-      - Some done with pulse generators and such, but ultimately hard to fully replicate a running system.
-      - discuss chopping
+Much of the hardware was intentionally chosen to be similar to hardware with existing \yaq{} daemon support.
+The delays were a different model, but use the same protocol and the same command set.
+The configuration of having a multi-channel control box meant that some details which were consistent for all previously seen Thorlabs hardware were not quite identical, so a small amount of working out configuration and proper communication was required.
+When first installed, there were some recurring issues relating to the homing direction being reversed from expected, but a combination of restoring known settings using Thorlabs provided utilities and consistently using the hardware mean that these problems no longer occur.
+
+The Light Conversion hardware uses largely the same protocol as the previously implemented OPAs.
+Our control system does not actually use Light Conversion's mapping of desired wavelength onto motor positions.
+We chose to implement our own mapping because it provides increased control over the tuning operations and allows for consistent control over OPAs that are not Light Conversion products (including OPA400, our custom built OPA).
+As such, the interface we require from Light Conversion is the one to directly control each motor position as well as the shutters.
+One feature of the new Light Conversion OPAs that previous systems did not use is the ability to have discrete motor positions labeled.
+Light Conversion's description of discrete motor positions was an inspiring factor in the creation of the \texttt{is-discrete} \yaq{} trait, however it had not actually been required until the new laser system was installed.
+The discrete motors are used for binary settings such as inclusion or exclusion of a wave plate and for multi-position motors such filter wheels providing a bandpass of allowed light.
+The inclusion of discrete motors incurred changes to not only the \texttt{yaqd-attune}\cite{} daemon, but also the upstream Attune library itself to manage hardware that is fundamentally discrete as part of a tuning curve.
+
+The Horiba Monochromator was largely similar to the existing monochromators in terms of its control interface.
+However, the new monochromator has additional features including motorized mirrors for selecting input and output slits and motorized slits.
+The communication protocol for these additions had to be determined.
+Unfortunately, Horiba does not provide easy access to control the hardware from external programs.
+Prior to \yaq{}, PyCMDS used a generated Python file to interface with a dynamically linked library and provide access to the hardware.
+This method did not work when the laboratory machine was upgraded from Windows 7 to Windows 10.
+This incompatibility was one of the driving factors in the inception of \yaq{}, and made the Horiba MicroHR daemon one of the first daemons implemented.
+The direct communication protocol was reverse engineered by observing the USB traffic when the device was instructed to do certain tasks such as initializing or setting the wavelength.
+This process had to be repeated for the additional features of the new monochromator.
+
+There were two new daemons that had to be implemented, the Gage Compuscope daemon and a daemon for an integrated array detector located inside of the ORPHEUS-HP.
+While some work can be done using the Gage acquisition card alone, its primary use-case is in a tightly integrated system, where trigger signals directly from the upstream laser are important and signals are required to ensure correct interpretation of the data collected.
+While some of this could be done with standalone pulse generators, ultimately it is challenging to replicate a full laser system sufficiently to implement the core detection code.
+The chopping scheme has a significant tight coupling with the detection electronics.
+While the NI data acquisition cards used by the previous systems had sufficient inputs that both choppers could use a standalone channel for their digital input, the Gage board selected is limited to four channels.
+Thus some additional electronics were added to do weighted addition of the digital signals to be binned and read by a single analog input for the Gage system.
+Additionally, the chopping for the previous systems was synchronized to the repetition rate of the laser such that only one or two laser shots passed through each blade section.
+At 100 kHz, this is impractical given limitations of the rotation of the chopper wheels, and comparison to the beam size.
+Thus instead, the chopping scheme for this table is performed asynchronously from the trigger signal.
+The phase of the chopper is read, and multiple shots pass for each blade segment.
+The on board averaging further complicates chopping, requiring that all shots in an averaged segment have the same chopper phase to be meaningful.
+Thus, segments with impure chopper phase are omitted from further calculation.
+
+
+The second new daemon, for an RGB Photonics Qmini spectrometer\cite{}, also had to wait for the upstream laser to be installed, since it is integrated into one of the OPAs.
+This detector is functionally similar to the previously implemented Ocean Optics daemons\cite{}, though not identical.
+RGB Photonics provided a python library for interfacing with the hardware, though it was not distributed and therefore was included in the daemon's source repository.
 
 \clearpage
 
 \section{Assemble the Instrument}  % ===================================================================
 
-"The BIG day", when the upstream lasers get installed
-   - Done by a tech
-   - Can then build around it
-      - Chopping
-      - Optics for ensuring columation and beam size
-      - delays
-      - Focusing into sample
-      - sample cell itself
-      - focusing into mono
-      - enclosure
-      - alternate beam paths for tuning, etc
-Bluesky + yaq = <3
-   - Getting to experiments
-   - Started with old setup
-   - a false start or two with bluesky
-Building custom instrument is never "final"
-  - New ideas of new experiments to do
-  - Temporary setups for short term experiments
-     - Yoon group experiments
-  - Future addt'l control of existing hardware
-     - rep rate
-     - chopping
-     - upstream laser standby
+Ultimately, the laser system cannot be fully installed until the upstream lasers are installed.
+This step, which is performed by a technician from Light Conversion, is the first big step towards a working system.
+While individual daemons may be ready, there is no substitute for first light on the new laser table.
+Once the laser is installed, downstream hardware can be installed.
+In Waldo, the first hardware encountered outside of the OPA for the infrared light is the chopper wheels.
+These are positioned so that the sensor is directly opposite of the laser path.
+Following that, there are focusing optics to ensure collimation and reasonable beam size through the remaining optics.
+Other than alignment mirrors, the next hardware encountered is the delay stage.
+Following the delay stage are focusing optics for the sample and finally focussing optics into the monochromator.
+The visible light beam path is comparatively simple, with no chopper and a non-motorized delay which allows for small manual adjustments.
+The visible line sets the ``standard'', such that the infrared lines must overlap in time with it, rather than attempting to adjust all three beams to some arbitrary zero mark.
 
-Include photos and table
+While the system is being built, there are often lasers that are not as fully enclosed as we would ordinarily like.
+Extra precautions must be taken to ensure that beams are blocked and not reflecting at dangerous angles.
+Once the design settles a proper enclosure for the laser system is required.
+This enclosure not only protects from accidental stray laser light, but also provides a controlled environment that can be pumped with dry air to avoid effects of water molecules in the air.
+
+Once the hardware is installed, the promise of \yaq{} is that it makes using the existing orchestration ecosystem easy and no additional work is required to make it function.
+Waldo started by using \yaqccmds{}, as that was the standard orchestration software for the other two systems at the time.
+A summary of installed \yaq{} daemons on the Waldo laser system is provided in Table \ref{wald:tab:summary}.
+Waldo was, however, the first system to regularly use the newly implemented Bluesky interfaces for collecting experimental data.
+There were a few bumps along the way, bugs that needed correcting and issues with memory management.
+However, the Bluesky codebase is used by many more scientists and is separable into more modular systems which makes for more rapid development to address any bugs that do exist.
 
 \begin{table}[]
 \begin{tabular}{llllll}
@@ -128,5 +213,21 @@ host      & port  & kind                    & name               \\ \hline
 \label{waldo:tab:summary}
 \end{table}
 
+
+\clearpage
+
+\section{Assemble the Instrument}  % ===================================================================
+
+Building custom instrument is never ``done''.
+There are always new ideas of new experiments that require some additional aspect of control.
+Some experiments are temporary, providing proof of concept for some potential future direction.
+In the future, there are already plans to expand the list of daemons that are able to control aspects of Waldo.
+The upstream laser has variable repetition rate, which could be controlled by a daemon, allowing acquisitions at differing rates to occur more easily.
+As a related change, the desired frequency of the choppers is an important factor for experiments with differing repetition rates, so a daemon to control the choppers is also relevant.
+Finally, it could be useful to put the upstream laser on standby at the end of a queue.
+Shutters can already be used to limit unwanted light from potentially damaging samples, but if experiments are completed, there is no need for the upstream laser to be on.
+
+In all, \yaq{} made for an easier implementation of a new laser system.
+Prior to \yaq{}, it was much more difficult to implement the hardware interfaces, often requiring all of the hardware to be present to be able to debug a single piece of hardware.
 
 \clearpage
