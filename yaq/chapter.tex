@@ -264,7 +264,7 @@ Designing around self-describing protocols is a productive approach that has gre
 \subsection{\texttt{yaq-traits}}
 
 \hypertarget{installation}{%
-\subsubsection{Installation}\label{installation}}
+\subsubsection{Installation}}
 
 yaq-traits can be installed via PyPI\cite{yaq-traits} or conda-forge\cite{yaq-traits-conda}.
 
@@ -281,7 +281,6 @@ $ conda install yaq-traits
 \subsubsection{definitions}\label{definitions}}
 
 \begin{description}
-\tightlist
 \item[Avro Protocol (AVPR)\cite{avpr}]
 The Avro protocol is the fully specified description of the daemon. It
 describes the exposed method signatures (names, arguments, defaults to
@@ -300,7 +299,7 @@ different implementations
 \end{description}
 
 \hypertarget{usage}{%
-\subsubsection{Usage}\label{usage}}
+\subsubsection{Usage}}
 
 yaq-traits is a command line application.
 
@@ -402,7 +401,6 @@ Error: failed to verify expected trait(s):
 What to do when a check fails:
 
 \begin{itemize}
-\tightlist
 \item
   check that you have the most up to date \texttt{yaq-traits}
 \item
@@ -440,7 +438,6 @@ These identifying information about the daemon are provided as top level
 keys.
 
 \begin{description}
-\tightlist
 \item[\textbf{protocol} (string)]
 The name of the daemon. The equivalent for a trait definition is
 \textbf{trait}.
@@ -475,7 +472,7 @@ bugtracker = "https://git.example.com/example-daemon/-/issues"
 \end{codefragment}
 
 \hypertarget{installation-1}{%
-\paragraph{Installation}\label{installation-1}}
+\paragraph{Installation}}
 
 Installation is just like links, except with the specific goal of
 pointing to installable package references. For python, this likely
@@ -527,7 +524,6 @@ Each config parameter is a table with the name of the parameter as the
 key within the \texttt{{[}config{]}} table with the following keys:
 
 \begin{description}
-\tightlist
 \item[\textbf{type} (required)]
 Avro type definition, commonly a string such as \texttt{"int"} or
 \texttt{"ndarray"}, but may be a table representing collection types or
@@ -621,7 +617,7 @@ also added by \texttt{yaq-traits}
 \subsection{\texttt{yaqd-control}}
 
 \hypertarget{installation}{%
-\subsubsection{installation}\label{installation}}
+\subsubsection{installation}}
 
 yaqd-control can be installed via
 PyPI\cite{yaqd-control} or
@@ -637,7 +633,7 @@ $ conda install yaqd-control
 \end{codefragment}
 
 \hypertarget{usage}{%
-\subsubsection{Usage}\label{usage}}
+\subsubsection{Usage}}
 
 yaqd-control is a command line application.
 
@@ -1142,7 +1138,7 @@ Additionally, the x axis units can be selected.
 
 \paragraph{attune-delay}
 
-The attune-delay daemon provides a quite similar interface to the attune daemon, as shown in Figure \ref{yaq::fig:attune_delay_plugin}.
+The attune-delay daemon provides a quite similar interface to the attune daemon, as shown in Figure \ref{yaq:fig:attune_delay_plugin}.
 This daemon performse Spectral Delay Correction (SDC), which accounts for changes in arrival time of laser pulses as a function of wavelength by compensating using the motor that introduces delay.
 However, since the effective spectral delay is cumulative for multiple light sources, you can select the arrangement in the display controls.
 Additionally, the Arrangments for an \texttt{attune-delay} daemon do not have meaningful ranges and require controls to enable and disable each individual offset.
@@ -1198,7 +1194,7 @@ This view is useful for evaluating signal to noise and ensuring that laser chopp
 \begin{figure}
 \includegraphics[width=8in]{"yaq/images/ni_daq_shots"}
 \caption[\yaqcqtpy{} NI DAQmx Tmux Plugin (shots)]{
-	The ``Shots'' tab of the \textt{ni-daqmx-tmux} plugin shows the contents of the measured shots for a selected channel.
+	The ``Shots'' tab of the \texttt{ni-daqmx-tmux} plugin shows the contents of the measured shots for a selected channel.
 	In this case, the shots are oscilating back and forth for each shot, because this is a chopper channel.
 }
 \label{yaq:fig:ni_daq_shots}

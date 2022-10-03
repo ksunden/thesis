@@ -168,7 +168,7 @@ coherence/population state (the subscript) and the pulses which they
 have already interacted with (the superscript). Arrows indicate
 interactions with \(\omega_1\) (blue), \(\omega_{2^\prime}\) (red), and
 \(\omega_2\) (green). Figure was originally published as Figure S1 of
-Kohler, Thompson, and Wright \cite{KohlerDanielDavid2017a} \ref{sim:fig:fsa}}
+Kohler, Thompson, and Wright \cite{KohlerDanielDavid2017a} \label{sim:fig:fsa}}
 \end{figure}
 
 Figure \ref{sim:fig:fsa} shows a finite state automaton for the same
@@ -267,7 +267,6 @@ to be friendly to experimentalists and theorists alike. The key steps to
 running a basic simulation are:
 
 \begin{itemize}
-\tightlist
 \item
   Define the experimental space
 \item
@@ -304,35 +303,34 @@ long to integrate after the last pulse maximum. Here is an example of
 setting up a 3D (shape \(64x64x32\)) scan with an additional static
 parameter set:
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\ImportTok{import}\NormalTok{ WrightSim }\ImportTok{as}\NormalTok{ ws}
-\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\begin{codefragment}{python}
+import WrightSim as ws
+import numpy as np
 
-\NormalTok{dt }\OperatorTok{=} \FloatTok{50.}  \CommentTok{\# pulse duration (fs)}
-\NormalTok{nw }\OperatorTok{=} \DecValTok{64}  \CommentTok{\# number of frequency points (w1 and w2)}
-\NormalTok{nt }\OperatorTok{=} \DecValTok{32}  \CommentTok{\# number of delay points (d2)}
+dt = 50. # pulse duration (fs)
+nw = 64 # number of frequency points (w1 and w2)
+nt = 32 # number of delay points (d2)
 
-\CommentTok{\# create experiment}
-\NormalTok{exp }\OperatorTok{=}\NormalTok{ ws.experiment.builtin(}\StringTok{\textquotesingle{}trive\textquotesingle{}}\NormalTok{)}
+# create experiment
+exp = ws.experiment.builtin('trive')
 
-\CommentTok{\# set the scan ranges}
-\NormalTok{exp.w1.points }\OperatorTok{=}\NormalTok{ np.linspace(}\OperatorTok{{-}}\FloatTok{500.}\NormalTok{, }\FloatTok{500.}\NormalTok{, nw)}
-\NormalTok{exp.w2.points }\OperatorTok{=}\NormalTok{ np.linspace(}\OperatorTok{{-}}\FloatTok{500.}\NormalTok{, }\FloatTok{500.}\NormalTok{, nw)}
-\NormalTok{exp.d2.points }\OperatorTok{=}\NormalTok{ np.linspace(}\OperatorTok{{-}}\DecValTok{2} \OperatorTok{*}\NormalTok{ dt, }\DecValTok{8} \OperatorTok{*}\NormalTok{ dt, nt)}
-\CommentTok{\# tell WrightSim to treat the axis as scanned}
-\NormalTok{exp.w1.active }\OperatorTok{=}\NormalTok{ exp.w2.active }\OperatorTok{=}\NormalTok{ exp.d2.active }\OperatorTok{=} \VariableTok{True}
+# set the scan ranges
+exp.w1.points = np.linspace(-500., 500., nw)
+exp.w2.points = np.linspace(-500., 500., nw)
+exp.d2.points = np.linspace(-2 * dt, 8 * dt, nt)
+# tell WrightSim to treat the axis as scanned
+exp.w1.active = exp.w2.active = exp.d2.active = True
 
-\CommentTok{\# set a non{-}default delay time for the \textquotesingle{}d1\textquotesingle{} axis}
-\NormalTok{exp.d1.points }\OperatorTok{=} \DecValTok{4} \OperatorTok{*}\NormalTok{ dt  }\CommentTok{\# fs}
-\NormalTok{exp.d1.active }\OperatorTok{=} \VariableTok{False}
+# set a non-default delay time for the 'd1' axis
+exp.d1.points = 4 * dt # fs
+exp.d1.active = False
 
-\CommentTok{\# set time between iterations, buffers}
-\NormalTok{exp.timestep }\OperatorTok{=} \FloatTok{2.}  \CommentTok{\# fs}
-\NormalTok{exp.early\_buffer }\OperatorTok{=} \FloatTok{100.0}  \CommentTok{\# fs}
-\NormalTok{exp.late\_buffer  }\OperatorTok{=} \FloatTok{400.0}  \CommentTok{\# fs}
-\end{Highlighting}
-\end{Shaded}
+# set time between iterations, buffers
+exp.timestep = 2. # fs
+exp.early_buffer = 100.0 # fs
+exp.late_buffer = 400.0 # fs
+\end{codefragment}
+
 
 The Hamiltonian object is responsible for the density vector and holding
 on to the propagation function used when the experiment is run. Included
@@ -344,17 +342,15 @@ the \texttt{PyCUDA} implementation and a method to send itself to the
 CUDA device. Here is an example of setting up a Hamiltonian object with
 restricted pathways and explicitly set recorded element parameters:
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# create hamiltonian}
-\NormalTok{ham }\OperatorTok{=}\NormalTok{ ws.hamiltonian.Hamiltonian(w\_central}\OperatorTok{=}\FloatTok{0.}\NormalTok{)}
+\begin{codefragment}{python}
+# create hamiltonian
+ham = ws.hamiltonian.Hamiltonian(w_central=0.)
 
-\CommentTok{\# Select particular pathways}
-\NormalTok{ham.time\_orderings }\OperatorTok{=}\NormalTok{ [}\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{6}\NormalTok{]}
-\CommentTok{\# Select particular elements to be returned}
-\NormalTok{ham.recorded\_elements }\OperatorTok{=}\NormalTok{ [}\DecValTok{7}\NormalTok{,}\DecValTok{8}\NormalTok{]}
-\end{Highlighting}
-\end{Shaded}
+# Select particular pathways
+ham.time_orderings = [4, 5, 6]
+# Select particular elements to be returned
+ham.recorded_elements = [7,8]
+\end{codefragment}
 
 Finally, all that is left is to run the experiment itself. The run
 method takes the Hamiltonian object and a keyword argument \texttt{mp},
@@ -366,15 +362,14 @@ The exception is the special string
 \texttt{\textquotesingle{}gpu\textquotesingle{}}, which will cause
 \texttt{WrightSim} to run using \texttt{PyCUDA}.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# do scan, using PyCUDA}
-\NormalTok{scan }\OperatorTok{=}\NormalTok{ exp.run(ham, mp}\OperatorTok{=}\StringTok{\textquotesingle{}gpu\textquotesingle{}}\NormalTok{)}
+\begin{codefragment}{python}
+# do scan, using PyCUDA
+scan = exp.run(ham, mp='gpu')
 
-\CommentTok{\# obtain results as a NumPy array}
-\NormalTok{gpuSig }\OperatorTok{=}\NormalTok{ scan.sig.copy()}
-\end{Highlighting}
-\end{Shaded}
+# obtain results as a NumPy array
+gpuSig = scan.sig.copy()
+\end{codefragment}
+
 
 Running returns a \texttt{Scan} object, which contains several internal
 features of the scan including the electric field values themselves. The
