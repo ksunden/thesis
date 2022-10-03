@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="116.56541mm"
+   height="138.01372mm"
+   viewBox="0 0 116.56541 138.01372"
+   version="1.1"
+   id="svg1742"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="traits.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1744"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.66190376"
+     inkscape:cx="164.67651"
+     inkscape:cy="536.33175"
+     inkscape:window-width="1920"
+     inkscape:window-height="1051"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1739" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-6.4603193)">
+    <text
+       xml:space="preserve"
+       style="font-size:12.7px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="-0.81235349"
+       y="16.109343"
+       id="text1748"><tspan
+         sodipodi:role="line"
+         id="tspan1746"
+         style="stroke-width:0.264583"
+         x="-0.81235349"
+         y="16.109343">traits:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.87777px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="0"
+       y="31.294472"
+       id="text1752"><tspan
+         sodipodi:role="line"
+         id="tspan1750"
+         style="stroke-width:0.264583"
+         x="0"
+         y="31.294472">has-position:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="43.641685"
+         id="tspan1754">  set_position</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="55.988899"
+         id="tspan1758">  get_position</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="68.336113"
+         id="tspan1762">is-sensor:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="80.683327"
+         id="tspan1764">  get_measured</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="93.03054"
+         id="tspan1766">  get_channel_units</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="105.37775"
+         id="tspan1768">has-measure-trigger:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="117.72496"
+         id="tspan1770">  measure</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="130.07217"
+         id="tspan1774">is-daemon:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="142.41939"
+         id="tspan1778">  busy</tspan></text>
+  </g>
+</svg>

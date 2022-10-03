@@ -7,7 +7,7 @@
 
 \section{WrightTools}  % =============================================================
 
-This section was originally published in the Journal of Open Source Software \cite{}.
+This section was originally published in the Journal of Open Source Software \cite{ThompsonBlaiseJonathan2019a}.
 
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
@@ -20,16 +20,16 @@ has several unique capabilities:
 \begin{itemize}
 \tightlist
 \item
-	resolving congested states \cite{@ZhaoWei1999b}\cite{@DonaldsonPaulMurray2008a},
+	resolving congested states \cite{ZhaoWei1999b}\cite{DonaldsonPaulMurray2008a},
 \item
   extracting spectra that would otherwise be selection-rule disallowed
-		\cite{@BoyleErinSelene2013b}\cite{@BoyleErinSelene2014a},
+		\cite{BoyleErinSelene2013b}\cite{BoyleErinSelene2014a},
 \item
-  resolving fully coherent dynamics \cite{@PakoulevAndreiV2009a},
+  resolving fully coherent dynamics \cite{PakoulevAndreiV2009a},
 \item
-  measuring coupling \cite{@WrightJohnCurtis2011a},
+  measuring coupling \cite{WrightJohnCurtis2011a},
 \item
-	and resolving ultrafast dynamics \cite{@SmallwoodChristopherL2018a}\cite{@CzechKyleJonathan2015a}.
+	and resolving ultrafast dynamics \cite{SmallwoodChristopherL2018a}\cite{CzechKyleJonathan2015a}.
 \end{itemize}
 
 In our view, the most exciting aspect of these techniques is the vast
@@ -91,11 +91,11 @@ representation:
 \end{itemize}
 
 The excellent Scientific Python ecosystem is well suited to address all
-of these challenges \cite{@OliphantTravisE2007a}. Numpy supports
+of these challenges \cite{OliphantTravisE2007a}. Numpy supports
 interaction with and manipulation of multidimensional arrays
-\cite{@OliphantTravisE2006a}. Matplotlib supports one, two, and even
-three-dimensional plotting \cite{@HunterJohnD2007a}. h5py
-\cite{@ColletteAndrew2013} interfaces with hdf5 \cite{@hdf5}, allowing for
+\cite{OliphantTravisE2006a}. Matplotlib supports one, two, and even
+three-dimensional plotting \cite{HunterJohnD2007a}. h5py
+\cite{ColletteAndrew2013} interfaces with hdf5 \cite{hdf5}, allowing for
 storage and memory-safe access to large multidimensional arrays in a
 binary format that can be accessed from a variety of different popular
 languages, including MATLAB and Fortran. \texttt{WrightTools} does not
@@ -135,7 +135,7 @@ different strategies are used to explore the dataset. Furthermore, it is
 often useful to ``combine'' multiple variables using simple algebraic
 relationships to exploit the natural symmetry of many MDS experiments
 and to draw comparisons between different members of the MDS family
-\cite{@NeffMallonNathanA2017a}. In light of these details,
+\cite{NeffMallonNathanA2017a}. In light of these details,
 \texttt{WrightTools} provides a high-level \texttt{Axis} class that
 allows users to transparently define which variables, variable
 relationships, and unit conventions are important to them for
@@ -186,24 +186,24 @@ matplotlib's built-in widgets.
 \section{Availability}\label{availability}}
 
 \texttt{WrightTools} is hosted on
-\href{http://github.com/wright-group/WrightTools/}{GitHub} and archived
-on Zenodo \cite{@ThompsonBlaiseJonathan2018WrightTools}.
+GitHub\cite{wrighttools-github} and archived
+on Zenodo \cite{ThompsonBlaiseJonathan2018WrightTools}.
 \texttt{WrightTools} is distributed using
-\href{http://pypi.org/project/WrightTools/}{pip} and
-\href{http://anaconda.org/conda-forge/wrighttools}{conda} (through
+pip\cite{wrighttools-pypi} and
+conda\cite{wrighttools-conda} (through
 conda-forge). Documentation is available at
-\href{http://wright.tools}{wright.tools}.
+https://wright.tools\cite{wrighttools-docs}.
 
 \hypertarget{impact}{%
 \section{Impact}\label{impact}}
 
 \texttt{WrightTools} has directly enabled no fewer than eleven
-publications \cite{@CzechKyleJonathan2015a}\cite{@KohlerDanielDavid2017a}
-\cite{@NeffMallonNathanA2017a}\cite{@ChenJie2017a}
-\cite{@MorrowDarienJames2017a}\cite{@HorakErikH2018a}
-\cite{@SundenKyleFoster2018a}\cite{@KohlerDanielDavid2018a}
-\cite{@HandaliJonathanDaniel2018a}\cite{@MorrowDarienJames2018a}
-\cite{@HandaliJonathanDaniel2018b}.
+publications \cite{CzechKyleJonathan2015a}\cite{KohlerDanielDavid2017a}
+\cite{NeffMallonNathanA2017a}\cite{ChenJie2017a}
+\cite{MorrowDarienJames2017a}\cite{HorakErikH2018a}
+\cite{SundenKyleFoster2018a}\cite{KohlerDanielDavid2018a}
+\cite{HandaliJonathanDaniel2018a}\cite{MorrowDarienJames2018a}
+\cite{HandaliJonathanDaniel2018b}.
 Many of these publications have
 associated open datasets and \texttt{WrightTools}-based processing
 scripts which enhance the scientific community's ability to audit and
@@ -225,7 +225,7 @@ practitioners. We hope that \texttt{WrightTools}, and the universal
 technology for this growing community. We are particularly excited about
 ongoing projects that build on top of \texttt{WrightTools}, including
 packages for data acquisition and simulation
-\cite{@ThompsonBlaiseJonathan2018PyCMDS}\cite{@SundenKyleFoster2018a}.
+\cite{ThompsonBlaiseJonathan2018PyCMDS}\cite{SundenKyleFoster2018a}.
 
 \hypertarget{acknowledgements}{%
 \section{Acknowledgements}\label{acknowledgements}}
@@ -245,17 +245,12 @@ No.~CHE--1709060. D.J.M acknowledges support from the Link Foundation.
 \hypertarget{conda-forge}{%
 \subsubsection{conda-forge}\label{conda-forge}}
 
-\href{https://conda.io/docs/intro.html}{Conda} is a multilingual
+Conda\cite{conda} is a multilingual
 package/environment manager. It seamlessly handles non-Python library
 dependencies which many scientific Python tools rely upon. Conda is
 recommended, especially for Windows users. If you don't have Python yet,
-start by \href{https://www.continuum.io/downloads}{installing Anaconda}
-or \href{https://conda.io/miniconda.html}{miniconda}.
-
-\href{https://conda-forge.org/}{conda-forge} is a community-driven conda
-channel.
-\href{https://github.com/conda-forge/attune-feedstock}{conda-forge
-contains an attune feedstock}.
+start by installing Anaconda\cite{anaconda}
+or miniconda\cite{miniconda}.
 
 \begin{codefragment}{bash}
 conda config --add channels conda-forge
@@ -271,9 +266,9 @@ conda update attune
 \hypertarget{pip}{%
 \subsubsection{pip}\label{pip}}
 
-\href{https://pypi.python.org/pypi/pip}{pip} is Python's official
-package manager. \href{https://pypi.org/project/attune/}{attune is
-hosted on PyPI}.
+pip\cite{pip} is Python's official
+package manager. Attune is
+hosted on PyPI\cite{attune-pypi}.
 
 \begin{codefragment}{bash}
 pip install attune
@@ -784,8 +779,8 @@ can be found at \texttt{Tuning\ Transitions}.
 
 The following methods provide mechanisms of updating and generating
 \texttt{attune.Instrument} objects from measured data in the
-\href{https://wright.tools/en/stable/data.html}{WrightTools Data
-format}. This documentation assumes a working knowledge of the
+WrightTools Data
+format. This documentation assumes a working knowledge of the
 WrightTools Data format.
 
 There are four generic methods for working up measurements which each

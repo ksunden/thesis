@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="124.5091mm"
+   height="133.56221mm"
+   viewBox="0 0 124.5091 133.56221"
+   version="1.1"
+   id="svg1868"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="daemons.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1870"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.66190376"
+     inkscape:cx="164.67651"
+     inkscape:cy="352.01492"
+     inkscape:window-width="1920"
+     inkscape:window-height="1051"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1865" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(2.1420419e-8,-10.028136)">
+    <text
+       xml:space="preserve"
+       style="font-size:11.2889px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="-0.6779955"
+       y="18.605055"
+       id="text1874"><tspan
+         sodipodi:role="line"
+         id="tspan1872"
+         style="stroke-width:0.264583"
+         x="-0.6779955"
+         y="18.605055">daemons:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="-0.6779955"
+         y="32.716179"
+         id="tspan1876" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.87777px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="0"
+       y="32.325562"
+       id="text1880"><tspan
+         sodipodi:role="line"
+         id="tspan1878"
+         style="stroke-width:0.264583"
+         x="0"
+         y="32.325562">sensorA:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="44.672775"
+         id="tspan1882">  is-sensor</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="57.019989"
+         id="tspan1892">  is-daemon</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="69.367203"
+         id="tspan1884">sensorB:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="81.714417"
+         id="tspan1886">  has-measure-trigger</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="94.06163"
+         id="tspan1888">  is-sensor</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="106.40884"
+         id="tspan1890">  is-daemon</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="118.75605"
+         id="tspan1894">motorA:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="131.10327"
+         id="tspan1896">  has-position</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="143.45049"
+         id="tspan1898">  is-daemon</tspan></text>
+  </g>
+</svg>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="199.82228mm"
+   height="160.1022mm"
+   viewBox="0 0 199.82228 160.1022"
+   version="1.1"
+   id="svg1937"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="acquisition.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1939"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.66190376"
+     inkscape:cx="164.67651"
+     inkscape:cy="405.6481"
+     inkscape:window-width="1920"
+     inkscape:window-height="1051"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1934" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-7.2508012)">
+    <text
+       xml:space="preserve"
+       style="font-size:11.2889px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="-0.20394985"
+       y="15.82772"
+       id="text1943"><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="-0.20394985"
+         y="15.82772"
+         id="tspan1945">Acquisition:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.87777px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="0"
+       y="30.231415"
+       id="text1951"><tspan
+         sodipodi:role="line"
+         id="tspan1949"
+         style="stroke-width:0.264583"
+         x="0"
+         y="30.231415">for pos in [-1, -0.5, 0, 0.5, 1]:</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="42.578629"
+         id="tspan1953">  motorA.set_position(pos)</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="54.925842"
+         id="tspan1955">  while motorA.busy():</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="67.273056"
+         id="tspan1957">    sleep</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="79.62027"
+         id="tspan1959">  sensorB.measure()</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="91.967484"
+         id="tspan1961">  while sensorB.busy():</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="104.31469"
+         id="tspan1963">    sleep</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="116.6619"
+         id="tspan1965">  record(</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="129.00912"
+         id="tspan1967">    motorA.get_position(),</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="141.35634"
+         id="tspan1969">    sensorA.get_measured(),</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="153.70355"
+         id="tspan1971">    sensorB.get_measured(),</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="0"
+         y="166.05075"
+         id="tspan1973">  )</tspan></text>
+  </g>
+</svg>

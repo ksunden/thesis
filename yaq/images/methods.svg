@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="177.48654mm"
+   height="131.28087mm"
+   viewBox="0 0 177.48654 131.28087"
+   version="1.1"
+   id="svg1603"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="drawing.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1605"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.66190376"
+     inkscape:cx="164.67651"
+     inkscape:cy="620.1808"
+     inkscape:window-width="1920"
+     inkscape:window-height="1051"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1600" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-15.549785)">
+    <text
+       xml:space="preserve"
+       style="font-size:12.7px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="-0.6759277"
+       y="25.198809"
+       id="text1609"><tspan
+         sodipodi:role="line"
+         id="tspan1607"
+         style="stroke-width:0.264583"
+         x="-0.6759277"
+         y="25.198809">methods:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.87778px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="0"
+       y="47.181267"
+       id="text1613"><tspan
+         sodipodi:role="line"
+         id="tspan1611"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="0"
+         y="47.181267">get_channel_units:</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="0"
+         y="59.528492"
+         id="tspan1615">  request: No params</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="0"
+         y="71.875717"
+         id="tspan1617">  response: map of null|string</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.87778px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="-1.7763568e-15"
+       y="83.631401"
+       id="text1613-0"><tspan
+         sodipodi:role="line"
+         id="tspan1611-4"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="-1.7763568e-15"
+         y="83.631401">set_position:</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="-1.7763568e-15"
+         y="95.978622"
+         id="tspan1615-4">  request: float</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="-1.7763568e-15"
+         y="108.32585"
+         id="tspan1617-4">  response: null</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.87778px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="0"
+       y="120.08154"
+       id="text1613-4"><tspan
+         sodipodi:role="line"
+         id="tspan1611-7"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="0"
+         y="120.08154">get_position:</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="0"
+         y="132.42877"
+         id="tspan1615-6">  request: No params</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:9.87778px;stroke-width:0.264583"
+         x="0"
+         y="144.77599"
+         id="tspan1617-3">  response: float</tspan></text>
+  </g>
+</svg>
