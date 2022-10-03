@@ -7,9 +7,9 @@
 An Optical Parametric Amplifier (OPA) is a device which allows for tunable control of the color of light produced.
 In principle, a ``pump'' photon is split into two new photons, conventionally called ``signal'' and ``idler'' for the higher and lower energy photons, respectively.
 The signal and idler photons observe conservation of energy, meaning that the sum of the two photon energies is equal to the pump photon energy.
-The energy split is determined by a phase matching condition, which in our case is the angle with respect to the optical axis of a birefringent crystal, $\beta$-bariam borate (BBO).
+The energy split is determined by a phase matching condition, which in our case is the angle with respect to the optical axis of a birefringent crystal, $\beta$-barium borate (BBO).
 This process can be seeded by photons of the signal color, which increases efficiency of conversion.
-To obtain this seed, an inital preamplification step is performed by using white light mixed with the pump laser in the birefringent crystal to produce a broad spectrum output.
+To obtain this seed, an initial preamplification step is performed by using white light mixed with the pump laser in the birefringent crystal to produce a broad spectrum output.
 This broad spectrum output is reflected off of a grating to select a narrow range of frequencies to be amplified using a second pass through the crystal.
 Once signal and idler photons are created, additional mixing processes can be performed in additional crystals to produce new tunable wavelength ranges.
 Commonly this includes doubling or even quadrupling the signal or idler photons, or adding in residual pump photons to either signal or idler.
@@ -28,7 +28,15 @@ The design of OPA400 encompases both the optical components, the mechanical comp
 Many of the details of the design, including the custom electronic and mechanical parts, are available for this project 
 
 \subsection{Optical Design}
-% TODO optical design paragraph
+
+The optical design of OPA400 mirrors closely the same principles of designing the laser table as a whole.
+Optical path length is a critical dimension, so care must be taken when laying out optics and delay stages for fine adjustments are required.
+The path lengths are folded for compact spatial design and having proper degrees of freedom for alignment.
+High intensities are required for efficient generation of non-linear mixing, so focusing optics are required.
+Overlap of multiple beams in the BBO crystal is crucial in both space and time.
+Chromatically selective beam splitters are used pick off specific colors of light while allowing other colors, such as the parametric output, to pass through.
+The layout of OPA400 is shown in schematic form in Figure \ref{opa4:fig:opa_schematic} and in photograph form in \ref{opa4:fig:opa_photo}.
+
 \begin{figure}
 	\includegraphics[width=6in]{opa400/images/opa400_schematic}
 \caption[OPA 400 Optics]{
@@ -53,7 +61,7 @@ Many of the details of the design, including the custom electronic and mechanica
 
 \subsection{Hardware Selection}
 
-The hardware solected follows a ``homebuilt'' approach.
+The hardware selected follows a ``homebuilt'' approach.
 Where possible, namely for the delay stages, standard NEMA stepper motors were used because they are cheap and highly available.
 Where precision and/or compactness was a strict requirement, commercially available motors were used.
 This includes the Thorlabs Z812\cite{thorlabs_z812} motor for controlling the angle of the BBO Crystal and the Newport CONEX-AGP\cite{newport_conex_agp} rotational mount for the grating.

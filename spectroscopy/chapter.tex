@@ -4,22 +4,29 @@
 
 \section{Introduction}  % =========================================================================
 
-Linear spectroscopies: absorbance, reflectancce, raman
+Spectroscopy is the study of light interacting with matter.
+Light can be manipulated easily and provides a useful analytical tool for interrogating materials.
+There are readily available detectors to quantify the amount of light all the way from single photons to powerful bursts.
+Simple experiments can be performed with commodity equipment.
+The simplest spectroscopic experiments, called linear spectroscopies, are common analytical techniques which are taught to all budding chemists.
+Absorbance, fluorescence, reflectance, and raman spectroscopies are the most common techniques.
+By observing these four simple techniques, much information about the quantum states of a material can be obtained.
+Different techniques are sensitive to modes with different characteristics of the transitions, observing different selection rules.
 
-Nonlinear techniques
+Nonlinear techniques expand on the available information by interrogating coupling between multiple states.
+This allows for resolution of congested spectra \cite{},  and performing experiments which rely on states that would otherwise be disallowed by selection rules\cite{}.
+These techniques, broadly categorized as Coherent Multidimensional Spectroscopy (CMDS), have many parallels to common NMR measurements\cite{}.
+In the same ways that multiple NMR pulses reveal coupling between nuclear spin states, so do multiple frequencies of light reveal coupling between optical and vibrational states of molecules.
+CMDS relies on creating coherences, or superpositions, of multiple states.
+For this reason, they are sometimes more colloquially referred to as ``Shr\"odinger cat state spectroscopy''\cite{}.
 
-
-Comparison to NMR
-  "Cat state" spectroscopies
-
-Coupling
-
-Time domain techniques
- - interferometric
- - limitation therin
-    -bandwidth
-    -local oscillator
- - pump-probe and photon echo
+Most CMDS experiments are performed in the time domain, using broadband pulses which are used to create interferograms by scanning in time\cite{}.
+This is similar in principle to Fourier Transform infrared absorbance spectroscopy.
+Time domain CMDS experiments evolved from the tradition of pump-probe and photon echo spectroscopies\cite{}.
+Time domain experiments are limited by the pulse bandwidth of a single excitation pulse\cite{}.
+While much progress has been made in reliably producing broadband light sources\cite{}, the available range remains small in comparison to the range of many electronic and vibrational states.
+Additionally, the heterodyne detection of time domain techniques requires a local oscillator to produce the interferometric measurement.
+This limits the mixing processes available for interrogation, as an output color equal to one of the input colors is required.
 
 Frequency domain approaches
  - various names, multi resonant, floquet state
@@ -34,9 +41,11 @@ Challenges
  artifacts: absorptive, pulse effects, window effects, group/phase velocity mismatch
  many moving parts
 
-Experimental setup
- - two or more light sources
- - controllable time delay to ensure temporal overlap and provide delay as a discriminating axis of control
- - focusing optics to ensure spatial overlap
+Experimentally, a frequency domain instrument requires two or more tunable light sources.
+These light sources are typically Optical Parametric Amplifiers (OPAs) or Optical Parametric Oscillators (OPOs).
+Additionally, the frequency domain experiment requires a controllable time delay to both ensure temporal overlap and act as a discriminating axis for experiments.
+The delays are not used in the same fashion as time domain experiments, but are still a crucial part of the instrument.
+All of the incident laser pulses must arrive at the sample overlapped in time and space, and high intensities are required to elicit nonlinear response, so focusing optics are important.
+Introducing a small time delay between successive pulses can often greatly increase signal to noise ratios because non-resonant background signal is diminished to a greater degree than the resonant material response.
 
 \clearpage
