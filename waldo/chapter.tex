@@ -57,22 +57,22 @@ Being Open Source obviates any potential copyright issues that could be taken if
 It also allows for changes to be made if bugs are discovered or feature enhancements are desired to make using the library easier.
 
 For Waldo, the upstream laser system was custom designed to the desired specifications by Light Conversion.
-The pump laser is a CARBIDE 1030 nm 100 kHz laser\cite{}.
+The pump laser is a CARBIDE 1030 nm 100 kHz laser\cite{lightcon_carbide}.
 This pump light is fed into two systems: an ORPHEUS-HP for the visible tunable light and an ORPHEUS-TWINS which provides two separately tunable infrared lines.
 Each of the picosecond and femtosecond systems have at least one Light Conversion OPA.
 
-While originally the desire was that the increased repetition rate and monochromator rejection would mean that active chopping was not required, two Thorlabs Chopping systems\cite{} were added to the infrared lasers to provide active scatter rejection.
+While originally the desire was that the increased repetition rate and monochromator rejection would mean that active chopping was not required, two Thorlabs Chopping systems\cite{thorlabs_mc2000b} were added to the infrared lasers to provide active scatter rejection.
 These are similar models to those used on the other laser systems, though fitted with a different blade arrangement.
 
-The two infrared lines have motorized delay stages from Thorlabs\cite{}.
+The two infrared lines have motorized delay stages from Thorlabs\cite{thorlabs_lnr502e}.
 Each stage provides 50 mm of travel with a resolution of 0.1 micrometers.
 
-A Horiba iHR 320 monochromator\cite{} was selected with gratings for mid infrared, near infrared, and visible light.
+A Horiba iHR 320 monochromator\cite{horiba_ihr} was selected with gratings for mid infrared, near infrared, and visible light.
 This monochromator is from the same company as the smaller monochromators on the other laser systems.
 
-The detectors primarily used are a combination Mercury-Cadmium-Telluride (MCT) and Indium-Antimonide (InSb) detector\cite{} for infrared light and a Hammamatsu photomultiplier tube (PMT)\cite{} for visible light.
+The detectors primarily used are a combination Mercury-Cadmium-Telluride (MCT) and Indium-Antimonide (InSb) detector for infrared light and a Hammamatsu photomultiplier tube (PMT) for visible light.
 Fast photodiodes can also be used, though are not commonly required.
-The signals generated from these detectors are read by a Gage Compuscope data acquisition card\cite{}.
+The signals generated from these detectors are read by a Gage Compuscope data acquisition card\cite{gage_octave}.
 This differs from the other laser systems and is the only required daemon that is from a new manufacturer entirely.
 This card was chosen for its acquisition speed and available features such as on board averaging.
 It has four physical channels that can be measured simultaneously in parallel.
@@ -101,7 +101,7 @@ As such, the interface we require from Light Conversion is the one to directly c
 One feature of the new Light Conversion OPAs that previous systems did not use is the ability to have discrete motor positions labeled.
 Light Conversion's description of discrete motor positions was an inspiring factor in the creation of the \texttt{is-discrete} \yaq{} trait, however it had not actually been required until the new laser system was installed.
 The discrete motors are used for binary settings such as inclusion or exclusion of a wave plate and for multi-position motors such filter wheels providing a bandpass of allowed light.
-The inclusion of discrete motors incurred changes to not only the \texttt{yaqd-attune}\cite{} daemon, but also the upstream Attune library itself to manage hardware that is fundamentally discrete as part of a tuning curve.
+The inclusion of discrete motors incurred changes to not only the \texttt{yaqd-attune}\cite{yaqd-attune} daemon, but also the upstream Attune library itself to manage hardware that is fundamentally discrete as part of a tuning curve.
 
 The Horiba Monochromator was largely similar to the existing monochromators in terms of its control interface.
 However, the new monochromator has additional features including motorized mirrors for selecting input and output slits and motorized slits.
@@ -127,8 +127,8 @@ The on board averaging further complicates chopping, requiring that all shots in
 Thus, segments with impure chopper phase are omitted from further calculation.
 
 
-The second new daemon, for an RGB Photonics Qmini spectrometer\cite{}, also had to wait for the upstream laser to be installed, since it is integrated into one of the OPAs.
-This detector is functionally similar to the previously implemented Ocean Optics daemons\cite{}, though not identical.
+The second new daemon, for an RGB Photonics Qmini spectrometer\cite{broadcom_qmini}, also had to wait for the upstream laser to be installed, since it is integrated into one of the OPAs.
+This detector is functionally similar to the previously implemented Ocean Optics daemons\cite{yaqd-ocean-optics}, though not identical.
 RGB Photonics provided a python library for interfacing with the hardware, though it was not distributed and therefore was included in the daemon's source repository.
 
 \clearpage
@@ -154,7 +154,7 @@ This enclosure not only protects from accidental stray laser light, but also pro
 
 Once the hardware is installed, the promise of \yaq{} is that it makes using the existing orchestration ecosystem easy and no additional work is required to make it function.
 Waldo started by using \yaqccmds{}, as that was the standard orchestration software for the other two systems at the time.
-A summary of installed \yaq{} daemons on the Waldo laser system is provided in Table \ref{wald:tab:summary}.
+A summary of installed \yaq{} daemons on the Waldo laser system is provided in Table \ref{waldo:tab:summary}.
 Waldo was, however, the first system to regularly use the newly implemented Bluesky interfaces for collecting experimental data.
 There were a few bumps along the way, bugs that needed correcting and issues with memory management.
 However, the Bluesky codebase is used by many more scientists and is separable into more modular systems which makes for more rapid development to address any bugs that do exist.

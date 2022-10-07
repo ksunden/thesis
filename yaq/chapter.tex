@@ -1204,6 +1204,11 @@ This view is useful for evaluating signal to noise and ensuring that laser chopp
 
 \paragraph{gage-samples}
 
+The Gage samples tab is provided for the Gage Compuscope daemons.
+Its primary display is the voltage vs sample index for a single on-board averaged segment.
+The right hand sidebar provides access to poll for new samples and change the channel that is being plotted.
+An example screenshot of this panel is shown in Figure \ref{yaq:fig:gage_samples_ai0}.
+
 \begin{landscape}
 \begin{figure}
 \includegraphics[width=8in]{"yaq/images/gage_samples_ai0"}
@@ -1768,7 +1773,7 @@ class MyDaemon(UsesSerial, IsDaemon):
 \subsection{Implementing traits: uses-uart}
 
 \texttt{uses-uart} is a trait which exists solely to standardize the names provided to common configuration values among Universal Asynchronous Receiver-Transmitter (UART) style communication.
-Common examples of UART style communication are RS-232\cite{} and RS-485\cite{}.
+Common examples of UART style communication are RS-232 and RS-485.
 
 As UART is a serial protocol, use of this trait requires the use and implementation of the \texttt{uses-serial} trait.
 

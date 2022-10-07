@@ -14,32 +14,36 @@ By observing these four simple techniques, much information about the quantum st
 Different techniques are sensitive to modes with different characteristics of the transitions, observing different selection rules.
 
 Nonlinear techniques expand on the available information by interrogating coupling between multiple states.
-This allows for resolution of congested spectra \cite{},  and performing experiments which rely on states that would otherwise be disallowed by selection rules\cite{}.
-These techniques, broadly categorized as Coherent Multidimensional Spectroscopy (CMDS), have many parallels to common NMR measurements\cite{}.
+This allows for resolution of congested spectra \cite{Zhao_1999,DonaldsonPaulMurray2008a},  and performing experiments which rely on states that would otherwise be disallowed by selection rules\cite{BoyleErinSelene2013b,BoyleErinSelene2014a}.
+These techniques, broadly categorized as Coherent Multidimensional Spectroscopy (CMDS), have many parallels to common NMR measurements\cite{KeustersDorine1999a,ZhaoWei2000b,PakoulevAndreiV2006a}.
 In the same ways that multiple NMR pulses reveal coupling between nuclear spin states, so do multiple frequencies of light reveal coupling between optical and vibrational states of molecules.
 CMDS relies on creating coherences, or superpositions, of multiple states.
-For this reason, they are sometimes more colloquially referred to as ``Shr\"odinger cat state spectroscopy''\cite{}.
+For this reason, they are sometimes more colloquially referred to as ``Shr\"odinger cat state spectroscopy''\cite{Wright_2020}.
 
-Most CMDS experiments are performed in the time domain, using broadband pulses which are used to create interferograms by scanning in time\cite{}.
+Most CMDS experiments are performed in the time domain, using broadband pulses which are used to create interferograms by scanning in time\cite{MukamelShaul2009a,GallagherSarahM1998a}.
 This is similar in principle to Fourier Transform infrared absorbance spectroscopy.
-Time domain CMDS experiments evolved from the tradition of pump-probe and photon echo spectroscopies\cite{}.
-Time domain experiments are limited by the pulse bandwidth of a single excitation pulse\cite{}.
-While much progress has been made in reliably producing broadband light sources\cite{}, the available range remains small in comparison to the range of many electronic and vibrational states.
+Time domain CMDS experiments inherit from the tradition of pump-probe and photon echo spectroscopies\cite{Hybl_1998}.
+Time domain experiments are limited by the pulse bandwidth of a single excitation pulse.
+While much progress has been made in reliably producing broadband light sources\cite{KearnsNicholasM2017a}, the available range remains small in comparison to the range of many electronic and vibrational states.
 Additionally, the heterodyne detection of time domain techniques requires a local oscillator to produce the interferometric measurement.
 This limits the mixing processes available for interrogation, as an output color equal to one of the input colors is required.
 
-Frequency domain approaches
- - various names, multi resonant, floquet state
- - no need for broadband source
- - homodyne detection
- - matching FID to coherence lifetimes
- - Use multiple light sources, generate new light at sum or difference frequencies
-   - "I do math with light"
- - Raman and CARS
+By contrast, frequency domain approaches are not limited in the same ways time domain approaches are.
+There is no need for a broadband light source, as in frequency domain approaches, each data point is collected indpendently with the incident light having a different combination of colors.
+This is sometimes refered to as ``multi-resonant'' CMDS or MR-CMDS\cite{ThompsonBlaiseJonathan2018a}.
+Multiple light sources are used and independently controlled to produce the incident light.
+The output occurs at the sum or difference frequencies of the incoming light.
+I like to tell people that the layman's explaination of MR-CMDS is that ``I do math with light''.
+These techniques use homodyne detection, and therefore can detect light at new frequencies, opening the door to additional pathways to interrogate the coupling between quantum states.
+Frequency domain techniques grew out of the tradition of Raman spectroscopy, with one of the earliest examples, Coherent Antistokes Raman Spectroscopy (CARS) being comprised of two successive raman transitions\cite{Tolles1977}.
 
-Challenges
- artifacts: absorptive, pulse effects, window effects, group/phase velocity mismatch
- many moving parts
+While frequency domain experiments do address some of the shortcomings of the time domain experiments, they are not without their own challenges.
+First, there are many moving parts to frequency domain experiment.
+Each light source has multiple motors which result in light having slightly different optical path lengths at different colors, which means that the resultand delay must be externally compensated.
+This becomes primarily a challenge of orchestration.
+A complicated instrument requires sophisticated software to control the motors and present a useful parameterization to users.
+Additionally, there are artifacts of the data collection are present, and must be accounted for and understood.
+Common examples of such artifacts include: absorptive effects\cite{CarlsonRogerJ1989a}, window effects\cite{MurdochKiethM2000a,HandaliJonathanDaniel2018b}, pulse effects\cite{SpencerAustinP2015a}, and group/phase velocity mismatch\cite{MorrowDarienJames2017a}.
 
 Experimentally, a frequency domain instrument requires two or more tunable light sources.
 These light sources are typically Optical Parametric Amplifiers (OPAs) or Optical Parametric Oscillators (OPOs).
