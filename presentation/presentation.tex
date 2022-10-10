@@ -11,26 +11,94 @@
 \maketitle
 \section{Intro}
 \begin{frame}{Where I'm from}
+	\adjincludegraphics[height=0.8\textheight]{images/from}
 \end{frame}
 \begin{frame}{Where I'm going}
+	\adjincludegraphics[width=0.8\textwidth]{images/matplotlib}
 \end{frame}
-\begin{frame}{CMDS}
+\begin{frame}{Coherent Multidimensional Spectroscopy (CMDS)}
+	\begin{columns}
+		\begin{column}{0.48\textwidth}
+			\adjincludegraphics[width=\textwidth]{images/cmds_cartoon}
+			Source: 10.1021/acs.analchem.0c01662
+		\end{column}
+		\begin{column}{0.48\textwidth}
+			\adjincludegraphics[height=0.8\textheight]{images/cmds_rainbow}
+		\end{column}
+	\end{columns}
 \end{frame}
-\section{\texttt{yaq}}
+
+\begin{frame}{OPA400: photo}
+	\adjincludegraphics[height=0.8\textheight]{images/opa400}
+\end{frame}
+\begin{frame}{OPA400: schematic}
+	\adjincludegraphics[height=0.8\textheight]{images/opa400_schematic}
+\end{frame}
+
 \subsection{Motivation}
 \begin{frame}{Monolithic Approach}
+	A single application which does:
+	\begin{itemize}
+		\item Direct hardware communication
+		\item Engineering tasks to prepare for experiments
+		\item Experimental orchestration
+		\item Graphical User Interface
+		\item Data recording
+		\item Data work-up
+	\end{itemize}
 \end{frame}
+
+\begin{frame}{Monolithic Approach}
+	Problems:
+	\begin{itemize}
+		\item Systems are tightly coupled
+		\item All hardware ``speak'' different ``languages''
+		\item Adding or changing hardware is arduous
+		\item Often limited to one instrument/experiment
+		\item Bugs unrelated to measurement cause measurement to stop
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Modular Approach}
+	\adjincludegraphics[height=0.85\textheight]{images/overview}
+\end{frame}
+
+\section{\texttt{yaq}}
+
+\begin{frame}{Modular Approach: \texttt{yaq}}
+	\adjincludegraphics[height=0.85\textheight]{images/overview_yaq}
+\end{frame}
+
 \subsection{Implementation}
 \begin{frame}{Daemons for hardware}
 	\adjincludegraphics[height=0.8\textheight]{images/network}
+	Daemon: small background application which performs a single task
 \end{frame}
 \begin{frame}{Protocol}
-\end{frame}
-\begin{frame}{Traits}
+	Each \texttt{yaq} daemon provides a protocol:
+	\begin{itemize}
+		\item Self Describing
+		\item Built on Apache Avro Remote Procedure Call
+		\item Shared Traits for similar functionality
+	\end{itemize}
+	\adjincludegraphics[height=0.2\textheight]{images/avro}
 \end{frame}
 \subsection{Clients}
 \begin{frame}{\texttt{yaqc} and scripts}
+	We provide a generic client written for Python: \texttt{yaqc}
+\vfill
+	\texttt{yaqc} dynamically generates python methods from the protocol
+
+\vfill
+	Simple Python scripts are an easy entry to using \texttt{yaq}
+
 \end{frame}
+
+\begin{frame}{Modular Approach: \texttt{yaqc-qtpy}}
+	\adjincludegraphics[height=0.85\textheight]{images/overview_qtpy}
+\end{frame}
+
 \begin{frame}{\texttt{yaqc-qtpy}}
 	\adjincludegraphics[height=0.7\textheight]{images/yaqc_qtpy_startup}
 \end{frame}
@@ -46,49 +114,194 @@
 \begin{frame}{\texttt{yaqc-qtpy}: plugins}
 	\adjincludegraphics[height=0.8\textheight]{images/gage_segments_ai0}
 \end{frame}
-\section{bluesky}
-\subsection{Community}
-\begin{frame}{The Bluesky Project}
-	\adjincludegraphics[width=0.8\textwidth]{images/bluesky}
+
+\subsection{Users of \texttt{yaq}}
+
+\begin{frame}{Wright Group}
+	\adjincludegraphics[height=0.8\textheight]{images/ps}
 \end{frame}
-\begin{frame}{The Event Model}
-	\adjincludegraphics[height=0.8\textheight]{images/event_model}
-\end{frame}
-\begin{frame}{The Run Engine and Plans}
-\end{frame}
-\begin{frame}{Bluesky-Queueserver}
-\end{frame}
-\subsection{Wright Group Integrations}
-\begin{frame}{wright-plans}
-\end{frame}
-\begin{frame}{Bluesky In A Box}
-	\adjincludegraphics[height=0.8\textheight]{images/bluesky-in-a-box-architecture}
-\end{frame}
-\begin{frame}{bluesky-cmds: queue}
-	\adjincludegraphics[height=0.8\textheight]{images/queue_tab}
-\end{frame}
-\begin{frame}{bluesky-cmds: plot}
-	\adjincludegraphics[height=0.8\textheight]{images/plot_tab}
-\end{frame}
-\section{Applications}
-\subsection{OPA400}
-\begin{frame}{OPA400: schematic}
-	\adjincludegraphics[height=0.8\textheight]{images/opa400_schematic}
-\end{frame}
-\begin{frame}{OPA400: photo}
-	\adjincludegraphics[height=0.8\textheight]{images/opa400}
-\end{frame}
-\begin{frame}{OPA400: control box}
-	\adjincludegraphics[height=0.8\textheight]{images/opa400_control_box}
-\end{frame}
-\subsection{Waldo}
+
 \begin{frame}{Waldo}
 	\adjincludegraphics[height=0.8\textheight]{images/waldo}
 \end{frame}
 
-\subsection{Outside of the Wright Group}
 \begin{frame}{Outside of the Wright Group}
 	\adjincludegraphics[height=0.8\textheight]{images/krishna}
 \end{frame}
+
+\section{bluesky}
+
+\begin{frame}{Modular Approach: Bluesky}
+	\adjincludegraphics[height=0.85\textheight]{images/overview_bluesky}
+\end{frame}
+
+
+\subsection{Community}
+\begin{frame}{The Bluesky Project}
+	\adjincludegraphics[width=0.8\textwidth]{images/bluesky}
+\end{frame}
+\begin{frame}{The Run Engine and Plans}
+	\begin{columns}
+		\begin{column}{0.48\textwidth}
+			Steps for collecting a single point:
+			\begin{itemize}
+				\item \texttt{set} motors to correct positions
+				\item \texttt{wait} for motion to complete
+				\item \texttt{trigger} reading of sensors
+				\item \texttt{wait} for sensors complete measurement
+				\item \texttt{read} sensors and motors
+				\item \texttt{save} data
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.48\textwidth}
+			\adjincludegraphics[height=0.9\textheight]{images/plan_raster}
+		\end{column}
+	\end{columns}
+
+\end{frame}
+\subsection{Wright Group Integrations}
+\begin{frame}{yaqc-bluesky}
+	Translate \texttt{yaq} into something that Bluesky can use.
+	\adjincludegraphics[height=0.7\textheight]{images/yaqc-bluesky}
+\end{frame}
+
+\begin{frame}{wright-plans}
+	\begin{columns}
+		\begin{column}{0.48\textwidth}
+	\begin{itemize}
+		\item Versions of built-in plans
+			\begin{itemize}
+				\item Units support
+				\item ``Constants''
+			\end{itemize}
+		\item Plans for performing tuning operations
+	\end{itemize}
+		\end{column}
+		\begin{column}{0.48\textwidth}
+			\adjincludegraphics[height=0.9\textheight]{images/holistic}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Modular Approach: WrightTools}
+	\adjincludegraphics[height=0.85\textheight]{images/overview_wt}
+\end{frame}
+
+
+\subsection{Queue Server}
+
+\begin{frame}{Modular Approach: Bluesky}
+	\adjincludegraphics[height=0.85\textheight]{images/overview_bluesky}
+\end{frame}
+
+\begin{frame}{Bluesky-Queueserver}
+	\adjincludegraphics[height=0.85\textheight]{images/queueserver}
+\end{frame}
+
+\begin{frame}{Modular Approach: Experimental GUI}
+	\adjincludegraphics[height=0.85\textheight]{images/overview_cmds}
+\end{frame}
+
+\begin{frame}{bluesky-cmds: queue}
+	\adjincludegraphics[height=0.9\textheight]{images/queue_tab}
+\end{frame}
+\begin{frame}{bluesky-cmds: plot}
+	\adjincludegraphics[height=0.88\textheight]{images/plot_tab}
+\end{frame}
+
+
+\section{Conclusions}
+
+\begin{frame}{Conclusions}
+	\adjincludegraphics[height=0.85\textheight]{images/overview_color}
+\end{frame}
+
 \section{Acknowledgments}
+
+\begin{frame}{Acknowledgments}
+	\fontsize{8pt}{9pt}\selectfont
+  \begin{columns}
+    \begin{column}{0.33\textwidth}
+	    Wright Group
+      \begin{itemize}
+	      \item Dan Kohler
+        \item Skye Kain
+        \item Jonathan Handali
+        \item Darien Morrow
+        \item Nathan Neff-Mallon
+        \item Kyle Czech         
+        \item Natalia Spitha
+	\item Emily Kaufman
+	\item David Lafayette
+	\item Chris Roy
+	\item Jason Scheeler
+	\item Kelson Oram
+	\item Kent Meyer
+	\item Peter Cruz Parrilla
+	\item Ryan McDonnell
+	\item James Harris
+        \item (and more...)
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+	Bluesky Community
+	    \begin{itemize}
+		    \item Tom Caswell
+		    \item Dan Allen
+		    \item Dmitri Gavrilov
+		    \item Pete Jemian
+		    \item Zach Lentz
+		    \item Maksim Rakitin
+		    \item Dylan McReynolds
+		    \item Tom Cobb
+		    \item Callum Forrester
+		    \item Clinton Roy
+		    \item Abby Giles
+		    \item Juan Marulanda
+		    \item Juliane Reinhardt
+		    \item Ken Lauer
+		    \item Rober Tang-Kong
+		    \item Antoine Wojdyla
+		    \item (and more...)
+	    \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      Committee
+      \begin{itemize}
+        \item John Wright
+        \item Bob Hamers
+        \item Blaise Thompson
+        \item Clark Landis
+	\item Etienne Garand
+      \end{itemize}
+	    \vspace{10pt}
+
+      UW-Madison Chemistry Department
+      \begin{itemize}
+        \item Rob McClain
+        \item Steve Myers
+      \end{itemize}
+
+	    \vspace{10pt}
+      Open Source Maintainers
+
+	    \vspace{10pt}
+      Friends and family 
+
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{The Event Model}
+	\adjincludegraphics[height=0.8\textheight]{images/event_model}
+\end{frame}
+
+\begin{frame}{Bluesky In A Box}
+	\adjincludegraphics[height=0.8\textheight]{images/bluesky-in-a-box-architecture}
+\end{frame}
+
+\begin{frame}{OPA400: control box}
+	\adjincludegraphics[height=0.8\textheight]{images/opa400_control_box}
+\end{frame}
 \end{document}
