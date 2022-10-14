@@ -11,7 +11,7 @@ The implementation of the autonomic system was tightly coupled to the custom orc
 This proved inflexible, and caused the hardware definitions to be intractable in many cases, leading to hard to understand behavior.
 
 When the Wright Group was considering using Bluesky as an orchestration layer, the behavior of the autonomic system was one of the key pieces that made that transition seem hard at first.
-There did not seem to be an easy and correct way of inserting the offset logic into the Bluesky Run Engine, as it was implemented for PyCMDS.
+There did not seem to be an easy and correct way of inserting the logic for this kind of offsetting into the Bluesky Run Engine, as it was implemented for PyCMDS.
 Additionally, Bluesky meant separating the behavior as collected, which runs through the Run Engine, from the behavior of hardware in an interactive session, as when attempting to initially find signal.
 Upon reflecting, and taking a step back to consider the desired outcome, the solution became obvious: instead of inserting this logic as a modifier to the Run Engine, that logic can be implemented as a daemon which wraps the hardware daemon.
 This intermediate daemon provides the controls of offsets being applied or ignored.

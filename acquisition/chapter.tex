@@ -24,17 +24,17 @@ This jump to a standard text based language meant that changes to the software c
 PyCMDS was the first time the Wright Group wrote acquisition software to run on multiple laser systems.
 To achieve this, all of the possible known hardware interfaces were included in application code and a series of configuration files were used to specify which hardware was active.
 
-PyCMDS was a monolithic program, incoporating everything from communicating with hardware to orchestrating motor motion, to recording data files, and providing graphical user interfaces.
-While ``modularity'' was an idea that occured for PyCMDS, here it meant that internal structures were reusable, as opposed to allowing integrations with external programs.
+PyCMDS was a monolithic program, incorporating everything from communicating with hardware to orchestrating motor motion, to recording data files, and providing graphical user interfaces.
+While ``modularity'' was an idea that occurred for PyCMDS, here it meant that internal structures were reusable, as opposed to allowing integrations with external programs.
 Parts of PyCMDS were tightly coupled, meaning that deep knowledge of the entire system was required for even seemingly small changes.
 
-PyCMDS introduced the idea of ``Scan Modules'', separatly parameterizable instructions to do different kinds of data acquistitions.
+PyCMDS introduced the idea of ``Scan Modules'', separately parameterizable instructions to do different kinds of data acquisitions.
 Initially, the goal was for scientists to be able to create their own scan modules for each new kind of experiment.
-However, the complexity of actually implementing them, combined with lack of documentation and the raw flexiblity of the ``default'' module, ``SCAN'', led to no one actually implementing many additional modules.
+However, the complexity of actually implementing them, combined with lack of documentation and the raw flexibility of the ``default'' module, ``SCAN'', led to no one actually implementing many additional modules.
 The concept of ``Constants'', expressions which are used to set hardware that is not an axis of the scan but nonetheless needs to be moved for the desired slice, was introduced by the ``SCAN'' module.
 
 While the design of PyCMDS was good enough to get it running two laser systems that are quite similar in nature, if consisting of different parts from different manufacturers, its faults were evident.
-Virtual hardware was implemented to allow for development of PyCMDS away from the active instruments, but even then it made some development tasks.
+Virtual hardware was implemented to allow for development of PyCMDS away from the active instruments, but even then it made some development tasks arduous.
 Ultimately, the rigidity of some hardware interfaces led to the creation of \yaq{}, and the first inclusions of \yaq{} in PyCMDS.
 Specifically, some of the hardware interface code was not able to run on Windows 10, making upgrading the system impossible without a large effort.
 That upgrade path, along with some issues relating to losing motor positions, was the driving factor in the creation of \yaq{}.
@@ -114,9 +114,9 @@ For instance, while the Bluesky Project provides Ophyd\cite{Lauer2020}, a useful
 
 The Event Model\cite{eventmodel} is Bluesky's mechanism for representing collected data.
 Each experiment is broken down into a sequence of JSON-compatible objects with particular structures.
-Figure \ref{acq:fig:event_model} demonstrats pictorally the four most useful Event Model document types.
+Figure \ref{acq:fig:event_model} demonstrates pictorially the four most useful Event Model document types.
 An experiment, or ``run'', begins with a ``start'' document.
-The start document contains metadata which pertains to the entire experiement.
+The start document contains metadata which pertains to the entire experiment.
 This includes things such as the parameters of the requested scan, the expected number of points, and user provided information.
 Each run is give a \Gls{UUID} which provides a unique key which serves as a name for that particular instance of data collection.
 A data stream then begins with a ``descriptor'' document.
@@ -332,7 +332,7 @@ scan2 = grid_scan_wp([det], m0, 15000, 20000, "wn", 51,
 
 List Grid Scan is to Grid Scan what List Scan is to Scan: rather than specifying endpoints and number of points, lists are provided for each axis.
 Similarly, this allows for scanning motor positions which are not linearly spaced, such as logarithmically spaced points.
-Since this is an outer product, ther is no requirement that the axes have the same number of points, and since the lists have lengths, there is no explicit requirement to specify the length at all.
+Since this is an outer product, there is no requirement that the axes have the same number of points, and since the lists have lengths, there is no explicit requirement to specify the length at all.
 Constants provide the same benefits to List Grid Scan as they do to Grid Scan.
 
 The signature for \texttt{list\_grid\_scan\_wp} is:
@@ -356,7 +356,7 @@ scan0 = list_grid_scan_wp([det], m0, [0, 1, 2, 5, 10], "mm",
 
 Scan ND is the mechanism by which all of the previous plans actually work.
 It is more complicated to use, and thus is rarely directly called, but it is also able to perform more unique scans than are provided by the parameterizations for more standard scans.
-It is highly recommended to consider if an equivalent acquisition could be done using one of the above plans prior to reaching for Scan ND; The reparameterized plans provide gaurdrails which make it harder to be incorrect or to get unexpected results.
+It is highly recommended to consider if an equivalent acquisition could be done using one of the above plans prior to reaching for Scan ND; The reparameterized plans provide guardrails which make it harder to be incorrect or to get unexpected results.
 In fact, the behavior of Constants is also technically not required for Scan ND, though complicated examples involving multiple terms and unit conversion would be difficult to compute for a native Scan ND.
 
 The signature for \texttt{scan\_nd\_wp} is:

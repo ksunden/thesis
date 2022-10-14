@@ -972,7 +972,7 @@ Figure \ref{yaq:fig:config} shows this panel.
 \subsubsection{Python Console Tab}
 
 The second tab, also available for each daemon, provides an IPython\cite{IPython} console so that all capabilities of the daemon are available, including running arbitrary Python code to compute inputs.
-The console automatically runs a cel which creates a client using \texttt{yaqc}.
+The console automatically runs a cell which creates a client using \texttt{yaqc}.
 Two names for the daemon are provided, the actual name of the daemon, and the one character variable name \texttt{c}, which stands for ``client''.
 This Python console, including the initial cell that is run with parameters appropriate for the individual daemon, is shown in Figure \ref{yaq:fig:console}.
 
@@ -1254,7 +1254,7 @@ In this case, these properties will affect the number of averaged shots in each 
 \end{figure}
 \end{landscape}
 
-When chopping, all shots it the same averaged segment must have the \textit{same} chopper phases, otherwise it will produce an intermediate result.
+When chopping, all shots in the same averaged segment must have the \textit{same} chopper phases, otherwise it will produce an intermediate result.
 Segments with partial occlusion for some shots but not others are omitted from further calclulation.
 This allows using the chopper at a slower, more reasonable speed while still gaining the noise reduction of chopping.
 Unfortunately, there is not an easy way to apply a software phase offset of the measured chopper state, as there is for single shot chopping, where you can simply carefully select where to measure the chopper sensor in the shot so that it has a reliable relationship to the passing or blocking of the laser shot.
@@ -1407,7 +1407,7 @@ This completes the target contract that is advertized to clients as the availabl
 The daemon is not complete until this contract is fulfilled.
 
 The next step is to implement the Python module.
-Import all of the mix-in classes for the chosen traits from \texttt{yaqd\_core}
+Import all of the mix-in classes for the chosen traits from \texttt{yaqd\_core}.
 Since these are mix-in classes are compositional in nature, but have some dependencies on each other, order does matter for the class declaration line.
 In general, more specific traits should appear further to the left, and more general traits should appear further to the right, e.g. \texttt{UsesUART} should appear left of \texttt{UsesSerial}.
 \texttt{IsDaemon} should generally be the last entry in the list.
@@ -1599,7 +1599,7 @@ They are referred to as ``relative'' rather than ``native'' because the mix-in c
 The two functions must provide the expected inversion such that calling one on the result of the other returns the original input (within rounding errors).
 Additional configuration and/or state values may be required to properly compute the transformation, but that will depend on the specific circumstances.
 
-Additionaly some implementations may need to override the some of the methods, such as \texttt{set\_native\_reference} to properly update their state, such as the \texttt{yaqd-attune-delay} daemon offseting the spectral delay correction curve.
+Additionaly some implementations may need to override some of the methods, such as \texttt{set\_native\_reference} to properly update their state, such as the \texttt{yaqd-attune-delay} daemon offseting the spectral delay correction curve.
 
 Because the mix-in class relies on calling methods of \texttt{HasPosition}, care should be taken to ensure that the \texttt{HasTransformedPosition} class appears \textit{before} \texttt{HasPosition} in the class declaration.
 
@@ -1779,7 +1779,7 @@ As UART is a serial protocol, use of this trait requires the use and implementat
 
 These devices will typically appear as a \texttt{COM<n>} port in Windows or something similar to \texttt{/dev/ttyACM0} in Linux.
 The operating system specific identifier is the first config field specified by the \texttt{uses-uart} trait, \texttt{serial\_port}.
-The second configuration value, \texttt{baud\_rate}, idicates the speed of data transmission, which must be the same for both devices on either end of the transmission.
+The second configuration value, \texttt{baud\_rate}, indicates the speed of data transmission, which must be the same for both devices on either end of the transmission.
 Some devices have variable baud rates, while others have fixed baud rates.
 In the latter case (or even if it is variable, but the device itself has a default) it often makes sense to add a default value for \texttt{baud\_rate} in the TOML file for the protocol.
 
@@ -1852,13 +1852,13 @@ class MyDaemon(IsDaemon):
 \subsection{Daemon patterns: async interfaces}
 
 The Python implementation of \yaq{} makes use of Asyncio\cite{asyncio} to do what is called ``cooperative multitasking''.
-Asyncio is built in to the Python language and provides additional syntax to declare functions which are called asynchronously.
+Asyncio is built into the Python language and provides additional syntax to declare functions which are called asynchronously.
 Asyncio has an ``event loop'' which schedules a series of tasks, tracking dependencies between tasks and allowing those tasks that are able to run execution time.
 The key idea, and the reason it is called ``cooperative'', is that each task should not block so as to allow all of the other tasks to complete.
 Only one task is ever actually running at any given instant, though many may be ready to run and awaiting selection, giving an effect very similar to having multiple threads, but without as much overhead or risk of invalid shared data.
 Asyncio is good for tasks which are mostly waiting for things to happen such as user input or network traffic.
 This behavior makes Asyncio an ideal choice for tasks such as networking or other input-output (IO) bound tasks, which is why it is used by \yaq{}, a framework that does both networking and IO with hardware.
-Conversely, Asyncio is a poor choice for computation heavy tasks, as it does add overhead and a long running computation will prevent other tasks from recieving computation time.
+Conversely, Asyncio is a poor choice for computation heavy tasks, as it does add overhead and a long running computation will prevent other tasks from receiving computation time.
 
 While the internals of the core \yaq{} library make extensive use of Asyncio to manage incoming RPC messages and running multiple daemon instances in the same process, where possible the usage of Asyncio is not something that daemon implementors need to spend a lot of time worrying about for most messages.
 There are some exceptions, though, as any long running tasks require at least a little bit of knowledge of Asyncio and best practices.
@@ -2024,7 +2024,7 @@ That said, once you understand what is happening, it is not so difficult to enfo
 
 To put this in concrete terms, I will walk through the Thorlabs Ell series daemon.
 This daemon uses a class called a \texttt{SerialDispatcher} which buffers write actions to ensure that the devices have time to process the commands and does some parsing of all incoming data from hardware.
-The dispatcher is responsible for determining that a message is correctly formed and which specific daemon instance should recieve the message.
+The dispatcher is responsible for determining that a message is correctly formed and which specific daemon instance should receive the message.
 The dispatcher is not required for all hardware, particularly if there is never more than one device on the serial bus.
 
 First, the \texttt{\_\_init\_\_} method:
@@ -2099,7 +2099,7 @@ Unrecognized messages are logged, as well as reported error states from the hard
 Importantly, the line which sets \texttt{self.\_busy} does not only account for the hardware busy state, but also for the daemon's own knowledge of whether a home or set position has been initiated, using the boolean flags.
 At the bottom, the queue marks the task as processed and resets the \texttt{\_move\_started} flag if there are no messages left to process.
 This works specifically because the problem of having unprocessed messages which contradict the correct \texttt{busy} state is no longer possible once there are no active messages.
-The hardware has been informed to move, and will correctly report \texttt{busy} in any messages recieved \textit{after} the the write is complete.
+The hardware has been informed to move, and will correctly report \texttt{busy} in any messages received \textit{after} the write is complete.
 
 However, processing incoming information only happens for this device if it has been requested, so this daemon uses \texttt{self.update\_state} to request updates for the status and position:
 
