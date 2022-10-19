@@ -7,7 +7,7 @@
 Blaise Thompson extensively discussed multiple forms of active corrections applied to CMDS instruments in Chapter 6 of his dissertation\cite{ThompsonBlaiseJonathan2018a}.
 Most prominently, this includes Spectral Delay Correction (SDC).
 At the time, active correction for SDC was performed by the orchestration layer, PyCMDS, as the ``autonomic'' system.
-The implementation of the autonomic system was tightly coupled to the custom orchstration provided by PyCMDS.
+The implementation of the autonomic system was tightly coupled to the custom orchestration provided by PyCMDS.
 This proved inflexible, and caused the hardware definitions to be intractable in many cases, leading to hard to understand behavior.
 
 When the Wright Group was considering using Bluesky as an orchestration layer, the behavior of the autonomic system was one of the key pieces that made that transition seem hard at first.
@@ -121,7 +121,6 @@ However, the \texttt{Tune} information is not used, so a method which does nothi
 Instead of being backed by an Attune \texttt{Instrument} which accepts independent offsets which are additive, a single multidimensional offset is used.
 This multidimensional offset is represented as a WrightTools Data file.
 The data file is configured to have a single \texttt{WrightTools.Data} object which has axes of the control hardware and a channel which represents the required offset.
-implement a daemon that looks to the opa exactly like an attune-delay
 Similar to Attune Delay, NDInterp has a zero position from which all offsets are relative.
 
 Since the offset is fundamentally multidimensional, independent control hardware cannot be toggled on and off like they can for the Delay daemon.

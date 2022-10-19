@@ -1,4 +1,4 @@
-\chapter{Acquistion} \label{cha:acq}
+\chapter{Acquisition} \label{cha:acq}
 
 \newcommand\biab{\texttt{bluesky-in-a-box} }
 \newcommand\wrightfakes{\texttt{wright-fakes} }
@@ -79,7 +79,7 @@ When the queue is idle, a large number at the top displays the most recent readi
 While less monolithic than its progenitor, \yaqccmds{} retained some of its faults.
 Writing new acquisition modules, while possible, was not well documented and was challenging to do correctly without deep knowledge of the internals of the program.
 This meant that most users, even advanced users, had little to no path to actually realize new ideas they had.
-There is no mechanism for running scans outside of the application, so developing new acquisition modules necessitated also implenting their user interface, and the systems were deeply integrated together.
+There is no mechanism for running scans outside of the application, so developing new acquisition modules necessitated also implementing their user interface, and the systems were deeply integrated together.
 
 The program also required carefully constructed configuration files.
 While each section was relatively easy, \yaqccmds{} expected all enabled hardware to be available when the program starts, and would freeze or fail to open if even one instance of the expected hardware was missing or unresponsive.
@@ -155,7 +155,7 @@ The callback functions which subscribe to the events can be used to do a variety
 
 \subsubsection{Plans}
 
-\newglossaryentry{plan}{name=plan, description={A Python function which defines a series of steps of an experiemental procedure}}
+\newglossaryentry{plan}{name=plan, description={A Python function which defines a series of steps of an experimental procedure}}
 
 \Glspl{plan} are the source of messages to the run engine.
 A plan is a Python generator which yields a series of Message objects.
@@ -180,7 +180,7 @@ Rather than repeating the details as it pertains to each plan, this section prov
 
 \paragraph{Detectors}
 
-In all of the plans provided by \wrightplans, the first argument is a list of detectors, i.e. a list of Bluesky protocol complient objects that implement the Readable protocol.
+In all of the plans provided by \wrightplans, the first argument is a list of detectors, i.e. a list of Bluesky protocol compliant objects that implement the Readable protocol.
 These devices are read at every data point and recorded into the resultant data event stream.
 This may include cameras or array detectors which produce channels that have additional axes in the resultant data.
 
@@ -235,7 +235,7 @@ The expectation of \texttt{md} is that the contents will be encoded to JSON.
 
 Scan performs a one dimensional acquisition of linearly spaced points.
 If multiple motors are specified, each provides a start and stop position as well as their units, but there is only one keyword argument, \texttt{num}, which sets the number of points in the scan.
-This is refered to as the ``inner product'' of the two lists.
+This is referred to as the ``inner product'' of the two lists.
 Constants are allowed for scan, though the built-in functionality makes them largely superfluous.
 It can, however, be easier to think in terms of either end points or expressions for different experiments.
 Constants also have requirements regarding units that are not required for motors specified as endpoints.
@@ -246,7 +246,7 @@ The signature for \texttt{scan\_wp} is:
 def scan_wp(detectors, *args, num=None, constants=None, per_step=None, md=None):
 \end{codefragment}
 
-Here, \texttt{args} is a variadic cycle of four values: A motor (Bluesky Setable), a start position, a stop position (both typed as appropriate for the the motor, commonly floating point numbers), and a string specifying the units.
+Here, \texttt{args} is a variadic cycle of four values: A motor (Bluesky Setable), a start position, a stop position (both typed as appropriate for the motor, commonly floating point numbers), and a string specifying the units.
 \texttt{num} specifies the number of points.
 It is technically allowed, though discouraged, to pass the number of points positionally (i.e. as the last element of \texttt{args}), though explicitly passing using the keyword is preferred.
 \texttt{detectors}, \texttt{constants}, \texttt{per\_step} and \texttt{md} are all as described above in \ref{common_params}.
@@ -506,7 +506,7 @@ def run_setpoint(detectors, opa, motor, width, npts, spectrometer, *, md=None):
 \texttt{spectrometer} is passed directly to \texttt{motortune}, and thus must be specified in the same manner.
 
 \begin{codefragment}{python}
-run_setpopint(
+run_setpoint(
     [det],
     w1,
     "crystal_2",
@@ -569,7 +569,7 @@ run_holistic(
 
 \texttt{bluesky-in-a-box} runs all of the services using Docker\cite{merkel2014docker}\cite{dockerdocs}.
 Specifically, \texttt{bluesky-in-a-box} uses Docker Compose\cite{dockercompose} to simultaneously start and stop all services, accounting for dependencies between them.
-A summary of the the architecture of \biab{} is provided in Figure \ref{acq:fig:biab_arch}.
+A summary of the architecture of \biab{} is provided in Figure \ref{acq:fig:biab_arch}.
 There are six docker containers: Redis, Mongo, WT5, zmq-proxy, hw-proxy and re-manager.
 These all transmit data to one another, and with additional programs running outside of Docker, as signified by the arrows between boxes.
 A summary of the exposed TCP Ports is provided in Table \ref{acq:tab:biab_ports}.
@@ -661,10 +661,11 @@ To get started, set up a configuration file for \texttt{happi}.
 On Windows, start by creating a folder \nolinkurl{~\\AppData\\Local\\happi\\happi}
 Inside of this folder, create a file, \nolinkurl{happi.ini} with the following contents (replacing \texttt{<USERNAME>} with the username that is appropriate for your system):
 
-\begin{codefragment}{ini}
-\[[DEFAULT]
+\begin{codefragment}{ini}\noop
+[DEFAULT]
 path = C:\Users\<USERNAME>\AppData\Local\happi\happi\happidb.json
 \end{codefragment}
+%TODO fix formatting
 
 Follow this by running the following in a command prompt:
 
@@ -752,12 +753,12 @@ The former, RPC style requests, is used to enqueue plans, interact with the queu
 The latter, pub/sub style requests, is used to publish the Event Model documents as well as (separately) publishing the console output of the RE Manager so that it can be displayed in client applications.
 These ZMQ interfaces are considered trusted interfaces, and as such do no authentication of users.
 If such authentication is needed, it can be provided by additional tools by the authors of \texttt{bluesky-queueserver} which wrap the ZMQ interface in a FastAPI\cite{fastapi} interface served over TCP, with authentication done by that service.
-This is recommended in the future if remote access is desired to instruments runing \biab, however initial development is focused on running a self contained system which provides access primarily to the direct machine running the instrument.
+This is recommended in the future if remote access is desired to instruments running \biab, however initial development is focused on running a self contained system which provides access primarily to the direct machine running the instrument.
 
 \subsubsection{\texttt{zmq-proxy}}
 
 \texttt{zmq-proxy} is a small program provide by Bluesky which simply routes Event Model documents that it reads from on port and writes them to any number of subscribers on a second port.
-The same purpose in larger systems where caching, latency, and network reliability are important may be achived by an industry standard service like Apache Kafka\cite{kafka}.
+The same purpose in larger systems where caching, latency, and network reliability are important may be achieved by an industry standard service like Apache Kafka\cite{kafka}.
 Because \biab is running on a single machine, network reliability and latency are not anticipated problem and we do not currently require caching, so the simpler program is used.
 \texttt{zmq-proxy} provides a server for each end of the communication, which allows multiple clients to act as sources or sinks of the documents which are being shuttled.
 In practice, usually only one service, the RE Manager, should ordinarily be the source of the documents.
@@ -781,8 +782,8 @@ Mongo is widely used by the upstream authors of Bluesky at various National Labs
 As such, there are pre-existing tools in the ecosystem that pair well with a Mongo database.
 The Mongo Docker container is provided to allow exploration of this ecosystem of tools with the data collected by \biab.
 It also provides a back-up of the data should the WT5 data writer fail.
-At present, the Mongo database does not serve as a long term archival data back-up, but rather as a a short term failsafe.
-This decision is not one of fundemental design, but rather a decision of allocation of development time.
+At present, the Mongo database does not serve as a long term archival data back-up, but rather as a short term fail-safe.
+This decision is not one of fundamental design, but rather a decision of allocation of development time.
 It is quick and easy to add a Mongo container to the Docker system and route the data from the RE Manager to it, ensuring it is accessible short term.
 It is a more complex task to ensure that the data gets written in a manner appropriate for archival storage, and there has been no need for it at this time.
 
@@ -813,7 +814,7 @@ There are some particular approaches that are useful when debugging \biab in par
 The first step is to determine \textit{where} the origin of the problem exists.
 This is not as trivial as it may seem at first.
 Generally, it is a good strategy to start by carefully reading the logs provided by the Docker containers.
-The two most relevant containers will be the the RE Manager and the WT5 containers.
+The two most relevant containers will be the RE Manager and the WT5 containers.
 The other containers are all fairly standard tools that are not nearly as customized and thus are not likely to be the problem.
 Most of the time, the container which has an error message is a good candidate for where the problem exists, but this is not always the case.
 Some problems may exist in the network itself which connects the containers to each other and to the host system.
@@ -864,8 +865,8 @@ git+https://github.com/wright-group/WrightTools@abcdef12
 The last line adds a particular Git version of WrightTools which takes the place the commented out version specified earlier in the requirements file.
 
 Finally, and perhaps most powerfully, the modularity of the Docker system can be used to run parts of the system outside of docker itself, thus enabling more traditional development and feedback cycles.
-Any of the Docker containers can be independently halted and superceded by a version of the service running outside of Docker, though clients of that service may need to be reconfigured to point to the correct external service.
-While it can be used if there are problems discovered with the MongoDB, Redis, or ZMQ Proxy contianers, for \biab this is most useful to perform tests using a smaller Run Engine running outside of the RE Manager container all together.
+Any of the Docker containers can be independently halted and superseded by a version of the service running outside of Docker, though clients of that service may need to be reconfigured to point to the correct external service.
+While it can be used if there are problems discovered with the MongoDB, Redis, or ZMQ Proxy containers, for \biab this is most useful to perform tests using a smaller Run Engine running outside of the RE Manager container all together.
 \ref{apx:script:re} provides an example of a script that can be run directly on the host machine, performing data acquisitions which are still processed by the WT5 data writing pipeline (via the ZMQ Proxy container).
 This particular script does not require \textit{any} change to the configuration of \biab.
 In fact, even the RE Manager container can be running, though it should not be actively acquiring data, as downstream tools such as the WT5 writer and live plotting are likely to behave poorly if there are two simultaneous acquisitions happening.
@@ -884,10 +885,10 @@ This comes, of course, at the cost of not having a queue or the user interfaces 
 % Find cases which work as expected as well as those which fail unexpectedly
 
 
-\subsection{\texttt{qserver}: Command Line Frontend to \texttt{bluesky-queueserver}}
+\subsection{\texttt{qserver}: Command Line Front-end to \texttt{bluesky-queueserver}}
 
 \texttt{qserver} is a command line program for interacting with \texttt{bluesky-queueserver}.
-It is provided by the project itself, and serves as a valueable tool for both troubleshooting and as an ``escape hatch'' for things that more narrowly focussed interfaces do not make possible.
+It is provided by the project itself, and serves as a valuable tool for both troubleshooting and as an ``escape hatch'' for things that more narrowly focussed interfaces do not make possible.
 
 \subsubsection{Installation}
 
@@ -947,7 +948,7 @@ $ qserver help
 This will print an extensive list of available uses for the program, including adding items to the queue and controlling the running state of the queue.
 All of the interactions that are possible as a client of the QueueServer are possible through this interface, though many of them are easier to interact with in a more specialized interface such as the graphical one detailed in the next section.
 
-\subsection{\blueskycmds: Graphical Frontend to \texttt{bluesky-queueserver}}
+\subsection{\blueskycmds: Graphical Front-end to \texttt{bluesky-queueserver}}
 
 \blueskycmds is a graphical application to interact with a running Bluesky Queueserver, such as that provided by \biab.
 While everything \textit{can} be accomplished using the command line tool above, that is not the most ergonomic tool for users.
@@ -958,7 +959,7 @@ As a graphical app, \blueskycmds encodes much of the tedious structure of reques
 It does, however, remove all of the direct interaction with hardware that the older programs had in order to focus solely on being the best application to manipulate the RE Manager queue.
 This functionality is provided by alternative applications such as \yaqcqtpy.
 Additionally, the actual code to perform acquisitions and store data is no longer part of the same application, replaced by requests of the Queueserver.
-This means that the graphical app can be closed (intentionally or unintentionally) and the acquisistion continues.
+This means that the graphical app can be closed (intentionally or unintentionally) and the acquisition continues.
 
 \subsubsection{Installation}
 
@@ -1022,18 +1023,18 @@ When the application opens, it communicates with the RE Manager, retrieving list
 Additionally the application opens the Run Engine worker environment.
 The startup behavior is repeated whenever the application reconnects to the RE Manager (e.g. when the RE Manager is restarted)
 
-The application window has a progress bar accross the top, and a tab view which provides the main user interaction.
+The application window has a progress bar across the top, and a tab view which provides the main user interaction.
 The tab view has three tabs: Queue, Plot, and Logs.
 The progress bar gives an indication of the progress of a running acquisition.
-For the progress bar to work, the expected number of points must be known at the begining of the scan and the application must be open when the acquisition begins.
+For the progress bar to work, the expected number of points must be known at the beginning of the scan and the application must be open when the acquisition begins.
 The progress bar provides an elapsed time counter on the left hand side and an estimation of remaining time on the right hand side.
-The bar is green when the acquisition starts or completes successfully, and turns red if the aquisition fails.
+The bar is green when the acquisition starts or completes successfully, and turns red if the acquisition fails.
 
 \subsubsection{The Queue Tab}
 
 The Queue tab is the default tab when the application starts up.
 Figure \ref{acq:fig:queue_tab} shows the Queue tab.
-Along the left hand side, there is a pane to control the queue, allowing enqueing of plans and starting the queue.
+Along the left hand side, there is a pane to control the queue, allowing enqueueing of plans and starting the queue.
 On the right, there is a table which displays the queue and the history.
 
 \begin{landscape}
@@ -1106,7 +1107,7 @@ Instructions are items that can be enqueued that modify the behavior of the queu
 At present, there is only a single option for instructions to append to the queue: Queue Stop.
 There are no parameters for Queue Stop, so it appears as a simple button which when pressed enqueues a Queue Stop at the end of the active queue.
 This instructs the queue to return to an idle state rather than proceeding to the next enqueued plan, requiring the user to explicitly restart the queue to continue.
-This can be useful if there is some manual user interaction required, but the next experimenal steps are known so the plans can be enqueued before that interaction can occur.
+This can be useful if there is some manual user interaction required, but the next experimental steps are known so the plans can be enqueued before that interaction can occur.
 Figure \ref{acq:fig:instruction} shows the instruction pane in the user interface.
 
 
@@ -1121,7 +1122,7 @@ Figure \ref{acq:fig:instruction} shows the instruction pane in the user interfac
 \paragraph{Enqueueing a preset}
 
 A ``preset'' is simply an ordered list of plans (or instructions) which can saved and enqueued sequentially.
-This is useful if there are repetative tasks such as tuning operations or running the same battery of scans on different samples.
+This is useful if there are repetitive tasks such as tuning operations or running the same battery of scans on different samples.
 Under the hood, presets are files stored in a configuration folder where the file name identifies the preset name and the contents are JSON objects, separated by lines, which represent a series of plans or instructions.
 The preset system is functionality added by \blueskycmds, it is not built-in to the RE Manager directly.
 When a preset is selected to be appended to the queue, \blueskycmds opens the preset file and reads each line and appends each entry to the queue.
@@ -1139,7 +1140,7 @@ An example of a preset file:
 \begin{codefragment}{json}
 \noop
 {"item_type": "plan", "name": "count", "args": [["daq"], 3]}
-{"item_type": "plan", "name": "count", "args": [["daq"]], "kwargs": {"num": 5, "delay": 0}, "meta": {"Name": "", "Info": "", "Experimentor": "Kyle"}}
+{"item_type": "plan", "name": "count", "args": [["daq"]], "kwargs": {"num": 5, "delay": 0}, "meta": {"Name": "", "Info": "", "Experimenter": "Kyle"}}
 {"item_type": "plan", "name": "count", "args": [["daq"], 5]}
 {"item_type": "plan", "name": "mv", "args": ["d0", 0, "d1", 0]}
 {"item_type": "instruction", "name": "queue_stop"}
@@ -1160,7 +1161,7 @@ To do so, you must delete the file from the folder of presets, which is located 
 
 To add to a preset, right click on the description field of an entry in the queue or history, and select ``Append to preset...''.
 This will open a dialog box with a selector for existing presets, which if selected the plan will be appended to the end of the preset.
-If you select ``New Preset...'', then an additional diagog will open, where a name for a new preset can be provided.
+If you select ``New Preset...'', then an additional dialog will open, where a name for a new preset can be provided.
 This workflow is shown in Figure \ref{acq:fig:preset_add}.
 
 \begin{figure}
@@ -1309,7 +1310,7 @@ Some are adding hardware interfaces, much like \yaqcbluesky{}, which expand the 
 The ``default'' such library, Ophyd\cite{Lauer2020}, is currently undergoing a major transformation with the goal of making it easier to adapt to new hardware and interface libraries\cite{NOBUGS_Ophyd_v2}.
 While \yaq{} is a key piece of enabling the Wright Group to use Bluesky, the future could include using one of the alternate libraries for some key pieces of hardware, which might not even need any work on the part of Wright Group members themselves, other than configuration.
 
-In addition to hardware, other components of the ecosystem are constanly being improved and worked on, including ones that we do not currently use.
+In addition to hardware, other components of the ecosystem are constantly being improved and worked on, including ones that we do not currently use.
 This includes components for building GUIs, Bluesky Widgets, and access to data after it is recorded, Databroker and Tiled.
 These three projects, in particular, are worth monitoring for their features and periodically considering if it is worth the time investment to adapt workflows of the Wright Group.
 
