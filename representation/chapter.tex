@@ -7,12 +7,12 @@
 
 \clearpage
 
-\section{WrightTools}  % =============================================================
+\chapter{WrightTools}  % =============================================================
 
 This section was originally published in the Journal of Open Source Software \cite{ThompsonBlaiseJonathan2019a}.
 
 \hypertarget{introduction}{%
-\subsection{Introduction}\label{introduction}}
+\section{Introduction}\label{introduction}}
 
 ``Multidimensional spectroscopy'' (MDS) is a family of analytical
 techniques that record the response of a material to multiple
@@ -68,7 +68,7 @@ our knowledge, \texttt{WrightTools} is the first MDS-focused toolkit to
 be freely available and openly licensed.
 
 \hypertarget{challenges-and-implementation}{%
-\subsection{Challenges and
+\section{Challenges and
 Implementation}\label{challenges-and-implementation}}
 
 There are several recurring challenges in MDS data processing and
@@ -183,7 +183,7 @@ stitched into a looping animated gif. A convenience function,
 matplotlib's built-in widgets.
 
 \hypertarget{availability}{%
-\subsection{Availability}\label{availability}}
+\section{Availability}\label{availability}}
 
 \texttt{WrightTools} is hosted on
 GitHub\cite{wrighttools-github} and archived
@@ -195,7 +195,7 @@ conda-forge). Documentation is available at
 https://wright.tools\cite{wrighttools-docs}.
 
 \hypertarget{impact}{%
-\subsection{Impact}\label{impact}}
+\section{Impact}\label{impact}}
 
 \texttt{WrightTools} has directly enabled no fewer than eleven
 publications \cite{CzechKyleJonathan2015a}\cite{KohlerDanielDavid2017a}
@@ -228,7 +228,7 @@ packages for data acquisition and simulation
 \cite{ThompsonBlaiseJonathan2018PyCMDS}\cite{SundenKyleFoster2018a}.
 
 \hypertarget{acknowledgements}{%
-\subsection{Acknowledgements}\label{acknowledgements}}
+\section{Acknowledgements}\label{acknowledgements}}
 
 The development of \texttt{WrightTools} has been supported by by the
 National Science Foundation Division of Chemistry under Grant
@@ -236,17 +236,17 @@ No.~CHE--1709060. D.J.M acknowledges support from the Link Foundation.
 
 \clearpage
 
-\section{Attune}  % --------------------------------------------------------------------
+\chapter{Attune}  % --------------------------------------------------------------------
 
 Attune is a library for representing tuning data.
 Attune uses WrightTools data objects to generate and update motor mappings for Optical Parametric Amplifiers (OPAs) and for Spectral Delay Correction (SDC).
 
-\subsection{Installation}\label{install}
+\section{Installation}\label{install}
 
 \texttt{attune} requires Python 3.7 or newer.
 
 \hypertarget{conda-forge}{%
-\subsubsection{conda-forge}\label{conda-forge}}
+\subsection{conda-forge}\label{conda-forge}}
 
 Conda\cite{conda} is a multilingual
 package/environment manager. It seamlessly handles non-Python library
@@ -267,7 +267,7 @@ conda update attune
 \end{codefragment}
 
 \hypertarget{pip}{%
-\subsubsection{pip}\label{pip}}
+\subsection{pip}\label{pip}}
 
 pip\cite{pip} is Python's official
 package manager. Attune is
@@ -283,7 +283,7 @@ To upgrade:
 pip install --upgrade attune
 \end{codefragment}
 \hypertarget{attune-data-structures}{%
-\subsection{Attune Data Structures}\label{attune-data-structures}}
+\section{Attune Data Structures}\label{attune-data-structures}}
 
 The data structures in \texttt{attune} take inspiration from drawing
 parallels to nomenclature in music. The experimenter is the conductor of
@@ -292,7 +292,7 @@ objects.
 
 At a high level, the \texttt{attune.Instrument} is what
 users will directly interact with. An
-\texttt{attune.Instrument} represents a collection of
+\texttt{Instrument} represents a collection of
 motors which must follow interpolated curves to produce one logical "one
 to many" mapping of logical position to motor positions. This collection
 can be as simple as a Spectral Delay Correction (SDC) mapping a color of
@@ -331,7 +331,7 @@ instances. This allows the context of how instruments were created to be
 preserved.
 
 \hypertarget{setable}{%
-\subsubsection{Setable}\label{setable}}
+\subsection{Setable}\label{setable}}
 
 A \texttt{attune.Setable} consists of only two pieces
 of information: a name (a string) and a default position (None or string
@@ -358,7 +358,7 @@ default = attune.Setable("default", default=1.2)
 \end{codefragment}
 
 \hypertarget{tune}{%
-\subsubsection{Tune}\label{tune}}
+\subsection{Tune}\label{tune}}
 
 A \texttt{attune.Tune} represents a continuous
 transformation from an independent variable to a dependent variable.
@@ -389,7 +389,7 @@ val = tune(20555, ind_units="wn") # returns 0.86499635
 \end{codefragment}
 
 \hypertarget{discretetune}{%
-\subsubsection{DiscreteTune}\label{discretetune}}
+\subsection{DiscreteTune}\label{discretetune}}
 
 A \texttt{attune.DiscreteTune} represents a discrete
 transform from a continuous independent variable to discrete string
@@ -427,18 +427,18 @@ dt(500) == "def"
 \end{codefragment}
 
 \hypertarget{arrangement}{%
-\subsubsection{Arrangement}\label{arrangement}}
+\subsection{Arrangement}\label{arrangement}}
 
 An \texttt{attune.Arrangment} provides a dict-like set
-of string names to \texttt{attune.Tune} and
-\texttt{attune.DiscreteTune} objects. The tunes may
-represent either \texttt{attune.Setable} (the default)
-or an \texttt{attune.Arrangement} (when the
-\texttt{attune.Instrument} contains an
-\texttt{attune.Arrangement} of that name). When it
-represents an \texttt{attune.Arrangement}, the
-\texttt{attune.Instrument} will recursively evaluate
-for all \texttt{attune.Setable} s.
+of string names to \texttt{Tune} and
+\texttt{DiscreteTune} objects. The tunes may
+represent either a \texttt{Setable} (the default)
+or an \texttt{Arrangement} (when the
+\texttt{Instrument} contains an
+\texttt{Arrangement} of that name). When it
+represents an \texttt{Arrangement}, the
+\texttt{Instrument} will recursively evaluate
+for all \texttt{Setable} s.
 
 All of the tunes must have the same independent units and must overlap
 (the former is easy since all tunes currently have \texttt{nm} units).
@@ -452,7 +452,7 @@ arr = attune.Arrangement("arr", {"continuous": tune, "discrete": dt})
 \end{codefragment}
 
 \hypertarget{instrument}{%
-\subsubsection{Instrument}\label{instrument}}
+\subsection{Instrument}\label{instrument}}
 
 An \texttt{attune.Instrument} is the top level
 representation of the system, the one which users most directly interact
@@ -494,11 +494,11 @@ inst(0.75, "second")["tune"] == 0.25
 \end{codefragment}
 
 \hypertarget{loading-from-files}{%
-\paragraph{Loading from files}\label{loading-from-files}}
+\subsubsection{Loading from files}\label{loading-from-files}}
 
-The native format for \texttt{attune.Instrument} is
+The native format for an \texttt{Instrument} is
 JSON encodable as provided by
-\texttt{attune.Instrument.save}. To read back an attune
+\texttt{Instrument.save}. To read back an attune
 JSON file you can use \texttt{attune.open}.
 
 \begin{codefragment}{python}
@@ -506,10 +506,10 @@ instr = attune.open("instrument.json")
 \end{codefragment}
 
 Alternatively, some formats such as Light Conversion TOPAS4 files can be
-parsed into attune \texttt{attune.Instrument} s. TOPAS4
+parsed into \texttt{Instrument} s. TOPAS4
 tuning curves are made up of multiple files which contain the
 information needed to recreate the
-\texttt{attune.Instrument}, so the method points to a
+\texttt{Instrument}, so the method points to a
 folder which contains the files.
 
 \begin{codefragment}{python}
@@ -517,7 +517,7 @@ instr = attune.io.from_topas4("path/to/topas4/")
 \end{codefragment}
 
 \hypertarget{note}{%
-\subsubsection{Note}\label{note}}
+\subsection{Note}\label{note}}
 
 A \texttt{attune.Note} is the type returned when an
 \texttt{attune.Instrument} is called as a function. It
@@ -527,13 +527,13 @@ positions. A \texttt{attune.Note} also contains a
 dictionary of setables for convenience.
 
 \hypertarget{store}{%
-\subsection{The Attune Store}\label{store}}
+\section{The Attune Store}\label{store}}
 
 The Attune Store provides a timestamped history of saved instrument JSON
 files.
 
 \hypertarget{saving-an-instrument}{%
-\subsubsection{Saving an instrument}\label{saving-an-instrument}}
+\subsection{Saving an instrument}\label{saving-an-instrument}}
 
 An \texttt{attune.Instrument} can be saved to the
 Attune Store by using \texttt{attune.store}. In order to use store, the
@@ -547,7 +547,7 @@ If transitions have been applied in memory, the whole chain will be
 stored with a single call.
 
 \hypertarget{retrieving-an-instrument}{%
-\subsubsection{Retrieving an instrument}\label{retrieving-an-instrument}}
+\subsection{Retrieving an instrument}\label{retrieving-an-instrument}}
 
 An individual \texttt{attune.Instrument} can be
 retrieved using \texttt{attune.load}, given its name.
@@ -580,7 +580,7 @@ attune.load("instr", "3 days ago", False)
 \end{codefragment}
 
 \hypertarget{listing-available-instruments}{%
-\subsubsection{Listing available
+\subsection{Listing available
 instruments}\label{listing-available-instruments}}
 
 A list of available instrument histories can be obtained using
@@ -601,13 +601,13 @@ attune.catalog(True)
 \end{codefragment}
 
 \hypertarget{instrument-history}{%
-\subsubsection{Instrument history}\label{instrument-history}}
+\subsection{Instrument history}\label{instrument-history}}
 
 Since the attune store retains a permanent history, we have methods to
 interact with that history beyond simply loading
 
 \hypertarget{restore}{%
-\paragraph{restore}\label{restore}}
+\subsubsection{restore}\label{restore}}
 
 \texttt{attune.restore} works exactly like \texttt{attune.load}, except
 instead of returning the instrument to use immediately, it returns the
@@ -623,7 +623,7 @@ instr = attune.load("instr")  # Now the same as it was 1 week prior
 \end{codefragment}
 
 \hypertarget{undo}{%
-\paragraph{undo}\label{undo}}
+\subsubsection{undo}\label{undo}}
 
 \texttt{attune.undo} provides the instrument from prior to the latest
 transition. If the transitions have occurred in memory (i.e. not stored
@@ -638,7 +638,7 @@ attune.undo(instr)
 
 
 \hypertarget{transitions}{%
-\subsection{Transitions}\label{transitions}}
+\section{Transitions}\label{transitions}}
 
 \texttt{attune.Transition} is a class which represents
 a transformation from one \texttt{attune.Instrument} to
@@ -659,17 +659,17 @@ exists. The data object is placed into the attune store when stored, but
 not included in the JSON serialization.
 
 \hypertarget{create-transition}{%
-\subsubsection{create transition}\label{create-transition}}
+\subsection{create transition}\label{create-transition}}
 
 \texttt{create} is the default transition for a new
 \texttt{attune.Instrument} which is not based on a
 previous \texttt{attune.Instrument}.
 
-This is what is applied when you create an instrument using the Python
+This is the transtition that is applied when you create an instrument using the Python
 constructor (\texttt{attune.Instrument}).
 
 \hypertarget{map-transitions}{%
-\subsubsection{map transitions}\label{map-transitions}}
+\subsection{map transitions}\label{map-transitions}}
 
 \texttt{map} transitions come in two flavors:
 \texttt{attune.map\_ind\_points} and \texttt{attune.map\_ind\_limits}.
@@ -699,10 +699,10 @@ the units provided, but converted to the native units of the instrument
 for interpolation.
 
 \hypertarget{offset-transitions}{%
-\subsubsection{offset transitions}\label{offset-transitions}}
+\subsection{offset transitions}\label{offset-transitions}}
 
 Like \texttt{map} transitions, \texttt{offset} transitions come in two
-flavors: \texttt{attune.offset\_by} and \texttt{attune.offset\_to}.
+flavors: \texttt{offset\_by} and \texttt{offset\_to}.
 \texttt{offset} transitions apply a static scalar offset to all
 dependent values in a tune.
 
@@ -725,7 +725,7 @@ out = attune.offset_to(instr, "arr", "tune", 2.71, 532)
 \end{codefragment}
 
 \hypertarget{restore-transition}{%
-\subsubsection{restore transition}\label{restore-transition}}
+\subsection{restore transition}\label{restore-transition}}
 
 \texttt{restore} is the transition which is created when you use
 \texttt{attune.restore} to bring an old instrument object back to the
@@ -734,7 +734,7 @@ head of the Attune Store.
 See \texttt{Store} for more information.
 
 \hypertarget{rename-transition}{%
-\subsubsection{rename transition}\label{rename-transition}}
+\subsection{rename transition}\label{rename-transition}}
 
 \texttt{rename} is the transition created by \texttt{attune.rename}.
 Since the name is the key for the Attune Store, this transition breaks
@@ -746,7 +746,7 @@ out = attune.rename(instr, "out")
 \end{codefragment}
 
 \hypertarget{update_merge-transition}{%
-\subsubsection{update\_merge transition}\label{update_merge-transition}}
+\subsection{update\_merge transition}\label{update_merge-transition}}
 
 \texttt{update\_merge} is the transition created by
 \texttt{attune.update\_merge}. This transition allows the merging of two
@@ -769,16 +769,15 @@ tune basis.
 determine the name field of the output instrument.
 
 \hypertarget{tuning-transitions}{%
-\subsubsection{tuning transitions}\label{tuning-transitions}}
+\subsection{tuning transitions}\label{tuning-transitions}}
 
 There are four tuning methods which incorporate measured data to
-generate or update \texttt{attune.Instrument} objects:
+generate or update \texttt{Instrument} objects:
 \texttt{attune.tune\_test}, \texttt{attune.intensity},
-\texttt{attune.setpoint}, and \texttt{attune.holistic}. More information
-can be found at \texttt{Tuning\ Transitions}.
+\texttt{attune.setpoint}, and \texttt{attune.holistic}.
 
 \hypertarget{tuningux20transitions}{%
-\subsection{Tuning Transitions}\label{tuningux20transitions}}
+\section{Tuning Transitions}\label{tuningux20transitions}}
 
 The following methods provide mechanisms of updating and generating
 \texttt{attune.Instrument} objects from measured data in the
@@ -811,8 +810,8 @@ The name of the tune in the arrangement specified to update.
 The \texttt{attune.Instrument} to update incorporating
 the data, if not given a new instrument is created.
 \item[level (optional for intensity, holistic, and tune\_test)]
-If \texttt{True} then \texttt{WrightTools.data.Data.level} is called
-prior to interpreting the data from the selected channel
+If \texttt{True}, then \texttt{WrightTools.Data.level} is called
+prior to interpreting the data from the selected channel.
 \item[gtol (optional for intensity, holistic, and tune\_test)]
 The "Global Tolerance" to ignore data below a multiplicative threshold
 of the maximum value in the dataset. This is used to cut out noise from
@@ -841,7 +840,7 @@ passing \texttt{s=0,\ k=1}, which makes the spline equivalent to a 1-D
 interpolator through each chosen point.
 
 \hypertarget{tune_test}{%
-\subsubsection{tune\_test}\label{tune_test}}
+\subsection{tune\_test}\label{tune_test}}
 
 A tune test allows for quick and easy evaluation that a given
 arrangement produces good quality light that is true to the color it
@@ -906,7 +905,7 @@ out = attune.tune_test(
 The optimal tune test plot is flat at 0 deviation from expected color.
 
 \hypertarget{intensity}{%
-\subsubsection{intensity}\label{intensity}}
+\subsection{intensity}\label{intensity}}
 
 \texttt{attune.intensity} provides a mechanism to
 update a single \texttt{attune.Tune} in an instrument
@@ -944,6 +943,7 @@ new = attune.intensity(
 \includegraphics{representation/images/intensity.png}
 \caption[Intensity]{
 	An example plot created by \texttt{attune.intensity}.
+}
 
 \label{rep:fig:intensity}
 \end{figure}
@@ -951,11 +951,11 @@ new = attune.intensity(
 In the plot, the optimal position of the motor would be to follow the
 ridge of the most intense peak.
 
-When no \texttt{attune.Instrument} is provided,
+When no \texttt{Instrument} is provided,
 \texttt{attune.intensity} creates a new
-\texttt{attune.Instrument} containing only the one
+\texttt{Instrument} containing only the one
 tune. This is the process for generating a Spectral Delay Correction
-\texttt{attune.Instrument} object. The scan for SDC is a delay position
+\texttt{Instrument} object. The scan for SDC is a delay position
 (usually centered around 0) versus the OPA tune points. Since the output
 instrument contains only a single arrangement with a single tune,
 \texttt{attune.update\_merge} is often used to
@@ -963,7 +963,7 @@ recombine the SDC output into an instrument which contains SDC tunes for
 alternate OPAs and arrangements of the same OPA.
 
 \hypertarget{setpoint}{%
-\subsubsection{setpoint}\label{setpoint}}
+\subsection{setpoint}\label{setpoint}}
 
 Instead of optimizing for output intensity,
 \texttt{attune.setpoint} optimizes for the correctness
@@ -1015,7 +1015,7 @@ In the graph, the color represents deviation from the expected color and
 pure white is the optimal motor position.
 
 \hypertarget{holistic}{%
-\subsubsection{holistic}\label{holistic}}
+\subsection{holistic}\label{holistic}}
 
 \texttt{attune.holistic} takes a multidimensional
 approach by using both intensity and color information to optimize two
@@ -1049,9 +1049,9 @@ clipping data below the \texttt{gtol} for the amplitude channel,
 applying the clip to both the amplitude and color channels (as you
 cannot get a reliable color estimate from values below the noise
 threshold). It then creates a
-\texttt{scipy.interpolate.LinearNDInterpolator} for each of the
+\texttt{LinearNDInterpolator} for each of the
 amplitude and spectral channels. It finds the point on each edge of the
-\texttt{scipy.spatial.Delaunay} interpolation triangles which are the
+Delaunay interpolation triangles which are the
 color of each tune point. If enough points are found that are the
 requested color, it fits the points to a Gaussian function using the
 intensity information, one Gaussian for each dimension. It then splines
