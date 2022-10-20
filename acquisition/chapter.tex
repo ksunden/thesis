@@ -1,4 +1,4 @@
-\chapter{Acquisition} \label{cha:acq}
+\chapte{Acquisition} \label{cha:acq}
 
 \newcommand\biab{\texttt{bluesky-in-a-box} }
 \newcommand\wrightfakes{\texttt{wright-fakes} }
@@ -575,7 +575,7 @@ These all transmit data to one another, and with additional programs running out
 A summary of the exposed TCP Ports is provided in Table \ref{acq:tab:biab_ports}.
 
 \begin{figure}
-\includegraphics[width=7in]{"acquisition/images/bluesky-in-a-box-architecture"}
+\includegraphics[width=\textwidth]{"acquisition/images/bluesky-in-a-box-architecture"}
 \caption[\texttt{bluesky-in-a-box} architecture]{
 A summary of the parts of the \texttt{bluesky-in-a-box} and the flow of data between them.
 The parts above the line are all run inside of docker, and can be brought online and offline simultaneously.
@@ -693,7 +693,7 @@ The exact location does not particular matter, but \nolinkurl{~/bluesky-cmds-dat
 
 \paragraph{Download \texttt{bluesky-in-a-box} Docker configuration}
 
-Clone the git repository for \biab:
+To download, first clone the git repository for \biab:
 
 \begin{codefragment}{bash}
 git clone https://github.com/wright-group/bluesky-in-a-box
@@ -838,7 +838,7 @@ Note that the container name here is as listed by \inlinebash{docker ps}, not th
 For \biab, this is most useful for information gathering tasks such as answering the question "Can the RE Manager container communicate with the yaq daemon running on the host machine?" or "Can my WT5 container communicate with the ZMQ Proxy container?".
 
 If the problem exists with the code that is in the \biab repository (mostly the startup scripts, configuration, and the WT5 data writing code) then a more traditional editing the code and running the containers is reasonably achievable.
-There is the required step to do \inlinebash{docker compose up --build} to run the Docker containers.
+Do \inlinebash{docker compose up --build} to run the Docker containers.
 Without doing this, the old version will run instead.
 This makes for a reasonable, if a little slower than ideal, development feedback loop.
 
@@ -1017,7 +1017,7 @@ Starting \blueskycmds is done by running the following command:
 bluesky-cmds
 \end{codefragment}
 
-In the future, integrations with the operating systems (Windows, Linux, MacOS) will allow \blueskycmds to appear as an ordinary application that can be started from application menus.
+In the future, planned integrations with the operating systems (Windows, Linux, MacOS) will allow \blueskycmds to appear as an ordinary application that can be started from application menus.
 
 When the application opens, it communicates with the RE Manager, retrieving lists of available devices and plans.
 Additionally the application opens the Run Engine worker environment.

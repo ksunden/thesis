@@ -452,7 +452,7 @@ implied by using that trait. If a traits is implied by other traits
 trait need not be specified. \texttt{is-daemon} must be specified by all
 daemons.
 \item[\textbf{hardware} (\{'items': 'string', 'type': 'array'\})]
-A list of supported hardware, formatted as 'make:model'. Supported
+A list of supported hardware. The entries are formatted as 'make:model'. Supported
 hardware should also appear on the \yaq{} website \cite{yaq-known-hardware}.
 Used only for building documentation.
 \end{description}
@@ -1349,7 +1349,7 @@ If you are okay with the default given, hit enter.
 Otherwise, provide a valid alternative.
 
 The \texttt{product\_name} typically starts with \texttt{"yaqd-"} and ends with the manufacturer name.
-The \texttt{project\_slug} and \texttt{project\_src\_dir} are derived from the \texttt{product\_name} and are usually the correct value.
+The default \texttt{project\_slug} and \texttt{project\_src\_dir} are derived from the \texttt{product\_name} and are usually the correct value.
 While some of the other options will fill out default values in a handful of places, the only other options worth highlighting are the license and the \texttt{first\_daemon\_kind}.
 The license gives an option of several possible open source licenses, for which the appropriate text will be found in \texttt{LICENSE.txt}.
 \yaq{}'s Python implementation itself is licensed under the GNU Lesser General Public License (LGPL), and that is a reasonable default if you are not opinionated about software licenses.
@@ -1499,7 +1499,7 @@ For instance, a camera may provide a mapping for both wavelength information and
 A channel may also have multiple mappings for different axis, such as the x axis and y axis of a camera.
 
 The three variables are \texttt{self.\_channel\_mappings}, \texttt{self.\_mapping\_units}, and \texttt{self.\_mappings}.
-Each of these is a dictionary which provides information about the mappings.
+Each of these is a dictionary which provides particular information about the mappings.
 The first, \texttt{self.\_channel\_mappings}, determines which mappings are associated with each channel.
 The keys are the channel names, and the values are a list of mapping names which apply to that channel.
 Each channel should appear in this list, but may have zero mappings associated.
@@ -1599,7 +1599,7 @@ They are referred to as ``relative'' rather than ``native'' because the mix-in c
 The two functions must provide the expected inversion such that calling one on the result of the other returns the original input (within rounding errors).
 Additional configuration and/or state values may be required to properly compute the transformation, but that will depend on the specific circumstances.
 
-Additionaly some implementations may need to override some of the methods, such as \texttt{set\_native\_reference} to properly update their state, such as the \texttt{yaqd-attune-delay} daemon offseting the spectral delay correction curve.
+Additionally, some implementations may need to override one or more of the methods, for instance \texttt{set\_native\_reference}, to properly update their state, such as the \texttt{yaqd-attune-delay} daemon offseting the spectral delay correction curve.
 
 Because the mix-in class relies on calling methods of \texttt{HasPosition}, care should be taken to ensure that the \texttt{HasTransformedPosition} class appears \textit{before} \texttt{HasPosition} in the class declaration.
 
@@ -1707,8 +1707,6 @@ All \texttt{is-sensor} daemons must ensure that a few variables are consistent, 
 \item \texttt{self.\_channel\_units}: A mapping of the same names from \texttt{\_channel\_names} to string units or None
 \item \texttt{self.\_channel\_shapes}: A mapping of theh same names from \texttt{\_channel\_names} to tuples representing the shape of the channel. If all channels are scalar values, this can be ignored and default behavior will properly report as much.
 \end{itemize}
-
-The \texttt{is-sensor} daemon is then responsible for updating the variable \texttt{self.\_measured} to be a dictionary mapping channel names to scalar or array values of measurements, and incrementing \texttt{self.\_measurement\_id} with each collected measurement.
 
 If you are implementing a \texttt{has-measure-trigger} daemon, then much of this bookkeeping is provided by the associated mix-in class.
 The only thing to do is implement \texttt{self.\_measure()}, a method which returns the dictionary of channel names to measured values.
