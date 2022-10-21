@@ -195,7 +195,7 @@
 % --- hyperref ------------------------------------------------------------------------------------
 
 \RequirePackage[colorlinks=true, linkcolor=black, urlcolor=blue, citecolor=black,
-anchorcolor=black]{hyperref}
+anchorcolor=black, breaklinks]{hyperref}
 \RequirePackage[all]{hypcap}  % helps hyperref work properly
 
 \renewcommand{\chapterautorefname}{Chapter}

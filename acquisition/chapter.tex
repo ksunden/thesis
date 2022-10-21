@@ -43,6 +43,20 @@ That upgrade path, along with some issues relating to losing motor positions, wa
 \subsection{\texttt{yaqc-cmds}: Steps towards modularity}
 
 \newglossaryentry{yaqc-cmds}{name=yaqc-cmds, description={Pronounced ``Yak C Commands''. A custom program for collecting CMDS data using \yaq{} to communicate with hardware}}
+\newglossaryentry{bluesky-cmds}{name=bluesky-cmds, description={Graphical application for interacting with a Bluesky Queueserver}}
+\newglossaryentry{Queueserver}{name=Queueserver, description={A background service which runs Bluesky plans in a queue}}
+\newglossaryentry{Bluesky-in-a-box}{name=Bluesky-in-a-box, description={A Docker compose application which runs all services needed to run a Queueserver}}
+\newglossaryentry{Docker}{name=Docker, description={A system to run applications in a reproducible way}}
+\newglossaryentry{yaqc-qtpy}{name=yaqc-qtpy, description={An application to interact with \yaq{} daemons which is built on traits and serves engineering purposes}}
+\newglossaryentry{yaqd-control}{name=yaqd-control, description={A command line application to manage \yaq{} daemons}}
+\newglossaryentry{yaq-traits}{name=yaq-traits, description={A command line application to generate Avro Protocols from more human friendly TOML files}}
+\newglossaryentry{Avro-protocol}{name={Avro Protocol (avpr)}, description={A complete listing of all messages suported by an avro RPC}}
+\newglossaryentry{CLI}{name=CLI, description={Command Line Interface, an application that is run in a text-based terminal}}
+\newglossaryentry{RPC}{name=RPC, description={Remote Procedure Call}}
+\newglossaryentry{trait}{name={trait (yaq)}, description={A collection of messages, config, state, and properties that provides consistent interaction with multiple daemons}}
+\newglossaryentry{property}{name={property (yaq)}, description={A collection of messages which provide access to one logical value, such as getter and setter, along with associated messages such as units and options}}
+\newglossaryentry{daemon}{name={daemon}, description={A small background program that performs a single task}}
+\newglossaryentry{OPA}{name={OPA}, description={Optical Parametric Amplifier, a device which changes the wavelength of light by adjusting motors controlling crystal and grating angles and delay times}}
 
 While the transition was not entirely made overnight, upon removing the last of the hardware interface code from the acquisition program, we decided that it deserved a new name, \yaqccmds{}, pronounced "Yak C Commands".
 This name comes from the fact that it is a \yaq{} client, the ``yaqc'', and that it instructs, or ``commands'' the instrument to acquire CMDS data, the ``cmds''.
