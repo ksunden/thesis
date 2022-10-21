@@ -9,6 +9,9 @@ Most prominently, this includes Spectral Delay Correction (SDC).
 At the time, active correction for SDC was performed by the orchestration layer, PyCMDS, as the ``autonomic'' system.
 The implementation of the autonomic system was tightly coupled to the custom orchestration provided by PyCMDS.
 This proved inflexible, and caused the hardware definitions to be intractable in many cases, leading to hard to understand behavior.
+Herein, I provide two examples of how I applied these ideas using \yaq{} daemons.
+The first is Spectral Delay Correction itself.
+The second is a more generalized N-Dimensional interpolator which was written to aid Emily Kaufman with her project regarding active phase matching correction.
 
 When the Wright Group was considering using Bluesky as an orchestration layer, the behavior of the autonomic system was one of the key pieces that made that transition seem hard at first.
 There did not seem to be an easy and correct way of inserting the logic for this kind of offsetting into the Bluesky Run Engine, as it was implemented for PyCMDS.

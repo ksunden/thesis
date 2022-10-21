@@ -1,4 +1,4 @@
-\chapte{Acquisition} \label{cha:acq}
+\chapter{Acquisition} \label{cha:acq}
 
 \newcommand\biab{\texttt{bluesky-in-a-box} }
 \newcommand\wrightfakes{\texttt{wright-fakes} }
@@ -11,6 +11,20 @@
 \clearpage
 
 \section{Introduction}
+
+This chapter details several iterations of data acquisition software used by the Wright Group.
+The first, PyCMDS, is a program originally written by Dr. Blaise Thompson.
+Upon joining the group, I took over some of the maintainership of this program, and moved to primary maintainer upon Dr. Thompson's graduation.
+Next, PyCMDS was modified to use \yaq{} for hardware control, and was given a new name, \yaqccmds{}.
+Dr. Thompson did help with the transition, though continued maintenance remained under my purview.
+Finally, we entered into a collaboration with people running many large scale facilities to use Bluesky.
+Bluesky is a project that was originally developed at Brookhaven National Lab for controlling the National Synchrotron Light Source II.
+While many parts of the Bluesky system, including the core ``Run Engine'' and the ``Queue Server'' are written and maintained by external organizations, many projects required particular attention to adapt these powerful tools to the Wright Group.
+In particular, I (with consultation with Dr. Blaise Thompson) introduced \wrightplans{}, \biab{}, and \blueskycmds{}.
+\wrightplans{} provides specialized experimental procedures used by the Wright Group.
+\biab{} bundles services written elsewhere into a single application that can be run more easily.
+Additionally, it adds writing of WrightTools data files from acquisitions taken using Bluesky.
+\blueskycmds{} provides a graphical user interface for interacting with the upstream-provided Queue Server.
 
 \subsection{PyCMDS: Monolithic Data Acquisition Program}
 
