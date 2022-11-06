@@ -6,7 +6,7 @@
 
 % required: 10 to 12 point font
 
-\LoadClass[11pt, twoside, openright]{report}
+\LoadClass[11pt, twoside]{report} %, openright]
 \RequirePackage[letterpaper, margin=1in]{geometry}  % 1 inch margins required
 \RequirePackage{setspace}
 \RequirePackage{afterpage}
@@ -16,11 +16,11 @@
 
 % --- layout --------------------------------------------------------------------------------------
 
-\let\stdchapter\chapter
-\renewcommand\chapter{\cleardoublepage\stdchapter}
+%\let\stdchapter\chapter
+%\renewcommand\chapter{\clearpage\stdchapter}
 
-\let\stdsection\section
-\renewcommand\section{\clearpage\stdsection}
+%\let\stdsection\section
+%\renewcommand\section{\clearpage\stdsection}
 
 \RequirePackage{afterpage}
 
